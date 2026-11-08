@@ -1,0 +1,17 @@
+Realistic apple meshes for the material playground.
+
+apple_realistic.glb
+  Exterior geometry is Poly Haven "Food Apple 01" by Oliver Harries.
+  https://polyhaven.com/a/food_apple_01
+  License: CC0 1.0 Universal (public domain).
+  https://polyhaven.com/license
+  Textures are not included. The stalk keeps the scanned, irregular
+  cross-section. It is not a generated cylinder.
+
+apple_half_realistic.glb
+  Skin and stalk are the same CC0 mesh, cut beside the core.
+  Flesh, core, seed cavities, and seeds are original geometry made
+  for this playground and released under the same CC0 1.0 terms.
+
+CC0 means anyone can use, change, and redistribute these files,
+including commercially. Attribution is not required.

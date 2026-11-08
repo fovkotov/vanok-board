@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Печати · Vanök</title>
+<link rel="icon" href="design/stub/favicon.png" type="image/png">
+<style>
+  :root { --bg: #E9E9E9; --blue: #0A1AE9; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--blue);
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+  }
+  h1 { margin: 0; font-size: 16px; font-weight: 400; }
+  a { color: inherit; }
+  button {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  .status { margin: 0; padding: 0 24px 16px; font-size: 13px; min-height: 1.2em; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px 12px;
+    padding: 0 24px 48px;
+  }
+  .card { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .card img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; }
+  .meta { margin: 0; font-size: 12px; line-height: 1.35; word-break: break-word; }
+  button.meta-delete { display: none; padding: 0; text-align: left; }
+  @media (hover: hover) and (min-width: 441px) {
+    .card:hover .meta-label { display: none; }
+    .card:hover button.meta-delete { display: block; }
+  }
+  @media (max-width: 440px) {
+    button.meta-delete { display: block; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Печати</h1>
+</header>
+<p class="status" id="status"></p>
+<div class="grid" id="grid"></div>
+<script>
+(function () {
+  // Same switch as design/stub/signatures.js: serve.py locally, the shared
+  // Cloudflare worker on GitHub Pages.
+  var LOCAL_HOST = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  var API = LOCAL_HOST ? '/api/signatures' : 'https://vanok-signatures.fovkotov.workers.dev/signatures';
+  if (LOCAL_HOST && new URLSearchParams(location.search).get('sigapi')) {
+    API = new URLSearchParams(location.search).get('sigapi');
+  }
+  var FILE_URL = 'design/stamps/custom-signatures.json';
+  var DENY_URL = 'design/stamps/removed-seals.json';
+  var KEY = 'vanok_signatures_v2';
+  // Classic stub.html is data-seals="pair". Same ids and files as
+  // design/stub/signatures.js in that mode. Folder-42 stays on the lab page.
+  var PRESETS = [
+    { id: 'preset-classic-blue', kind: 'stamp', preset: true, text: 'Vanök Regular', src: 'design/stamps/classic/blue.webp' },
+    { id: 'preset-classic-gren', kind: 'apple', preset: true, text: 'Vanök Regular', src: 'design/stamps/classic/gren.webp' }
+  ];
+  [
+    ['blue', 'stamp'],
+    ['blue-1', 'stamp'],
+    ['blue-2', 'stamp'],
+    ['blue-3', 'stamp'],
+    ['blue-4', 'stamp'],
+    ['blue-5', 'stamp'],
+    ['blue-6', 'stamp'],
+    ['blue-7', 'stamp'],
+    ['blue-8', 'stamp'],
+    ['blue-9', 'stamp'],
+    ['blue-10', 'stamp'],
+    ['blue-11', 'stamp'],
+    ['blue-12', 'stamp'],
+    ['blue-13', 'stamp'],
+    ['gren', 'apple'],
+    ['gren-1', 'apple'],
+    ['gren-2', 'apple'],
+    ['gren-3', 'apple'],
+    ['gren-4', 'apple'],
+    ['gren-5', 'apple'],
+    ['299gren', 'apple'],
+    ['56-gren', 'apple'],
+    ['56-gren-1', 'apple'],
+    ['56-gren-2', 'apple']
+  ].forEach(function (row) {
+    PRESETS.push({
+      id: 'preset-classic-tpl-' + row[0],
+      kind: row[1],
+      preset: true,
+      text: 'Vanök Regular',
+      src: 'design/stamps/classic/templates/' + row[0] + '.webp'
+    });
+  });
+  var REMOVED_IDS = {
+    'sig-mvyexo5j-xmsh': 1,
+    'sig-mvyeparj-23ga': 1,
+    'sig-mvspqm84-28xa': 1,
+    'sig-mvyevic1-q47y': 1,
+    'sig-mvyet5rf-cvjd': 1,
+    'sig-mvjwhluk-rnq4': 1,
+    'sig-mvipeu03-ril8': 1,
+    'sig-mvipa8wh-qk2b': 1,
+    'sig-mvioj76c-6nf4': 1,
+    'sig-mvilqgeo-bzqn': 1,
+    'sig-mvil8zgt-atu1': 1,
+    'sig-mvijbazk-aqoh': 1,
+    'sig-mvie2wct-9m0d': 1,
+    'sig-mvsoe8zx-x29k': 1,
+    'sig-mvliy3q0-h2te': 1,
+    'sig-mvlix8p8-vjgh': 1,
+    'sig-mvjwzlh2-7pu1': 1,
+    'sig-mvjwevaw-74n1': 1,
+    'sig-mvpnipgg-dbsd': 1,
+    'preset-classic-tpl-gren-6': 1
+  };
+  var STOCK_FILES = {
+    'blue.png': 1,
+    'pink.png': 1,
+    'gren.png': 1,
+    'blue.webp': 1,
+    'pink.webp': 1,
+    'gren.webp': 1
+  };
+  var HIDDEN_KEY = 'vanok_admin_hidden';
+  var status = document.getElementById('status');
+  var grid = document.getElementById('grid');
+  var items = [];
+  var catalogNote = '';
+  var loadGen = 0;
+
+  function hiddenSet() {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]');
+      var set = {};
+      if (!Array.isArray(parsed)) return set;
+      parsed.forEach(function (id) { if (id) set[id] = 1; });
+      return set;
+    } catch (err) {
+      return {};
+    }
+  }
+  function hideId(id) {
+    var set = hiddenSet();
+    set[id] = 1;
+    try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(Object.keys(set))); }
+    catch (err) {}
+  }
+
+  function say(text) { status.textContent = text || ''; }
+  function noun(n) {
+    var mod10 = n % 10;
+    var mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return 'печать';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'печати';
+    return 'печатей';
+  }
+  function fileName(src) {
+    return String(src || '').split('/').pop().split('?')[0];
+  }
+  function shortSrc(src) {
+    var parts = String(src || '').split('?')[0].split('/');
+    var name = parts.pop();
+    return parts.pop() === 'templates' ? 'templates/' + name : name;
+  }
+  function isStockFile(src) {
+    if (String(src || '').indexOf('/templates/') !== -1) return false;
+    return !!STOCK_FILES[fileName(src)];
+  }
+  function listedSeal(item) {
+    if (!item) return false;
+    if (item.colorName === 'yellow') return false;
+    var name = fileName(item.src || '');
+    if (name === 'apple-281.png' || name === 'apple-282.png' || name === 'apple-283.png') return false;
+    if (name === 'apple-03.png' || name === 'stamp-03.png') return false;
+    return true;
+  }
+  function readLocal() {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(KEY) || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
+  }
+  function writeLocal(next) {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(next));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+  function readLegacy() {
+    try {
+      var parsed = JSON.parse(localStorage.getItem('vanok_signatures_v1') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
+  }
+  function forgetLegacy() {
+    try {
+      localStorage.removeItem('vanok_signatures_v1');
+      localStorage.removeItem('vanok_signatures_v1_cleared');
+      localStorage.removeItem('vanok_signature_pool_v1');
+    } catch (err) {}
+  }
+  function absorbLegacy() {
+    var legacy = readLegacy();
+    var current = readLocal();
+    var seen = {};
+    current.forEach(function (item) { if (item && item.id) seen[item.id] = 1; });
+    legacy.forEach(function (item) {
+      if (!usable(item) || seen[item.id]) return;
+      item.localOnly = true;
+      seen[item.id] = 1;
+      current.push(item);
+    });
+    if (writeLocal(current) || !legacy.length) forgetLegacy();
+  }
+  function usable(item) {
+    return item && item.id && !item.preset && !REMOVED_IDS[item.id] && listedSeal(item) && (item.kind === 'stamp' || item.kind === 'apple') && typeof item.src === 'string';
+  }
+  function readCatalog(res) {
+    var type = (res.headers.get('content-type') || '').toLowerCase();
+    if (!res.ok || type.indexOf('json') === -1) throw new Error('catalog');
+    return res.json();
+  }
+  function fileExists(src) {
+    if (!src || src.indexOf('data:') === 0 || src.indexOf('blob:') === 0 || /^https?:\/\//.test(src)) return Promise.resolve(true);
+    return fetch(src, { method: 'HEAD', cache: 'no-store' }).then(function (res) {
+      return res.ok;
+    }, function () { return false; });
+  }
+  function markRemoved(list) {
+    if (!Array.isArray(list)) return;
+    list.forEach(function (id) {
+      if (typeof id === 'string' && id) REMOVED_IDS[id] = 1;
+    });
+  }
+  function loadUsers() {
+    var shared = fetch(API, { cache: 'no-store' }).then(readCatalog).then(function (data) {
+      var list = Array.isArray(data) ? data : data && data.items;
+      if (!Array.isArray(list)) throw new Error('catalog');
+      if (data && data.removed) markRemoved(data.removed);
+      return list;
+    }).catch(function () { return null; });
+    var fixed = fetch(FILE_URL, { cache: 'no-store' }).then(readCatalog).catch(function () { return []; });
+    return Promise.all([shared, fixed]).then(function (parts) {
+      catalogNote = parts[0] ? '' : 'Общий каталог не открылся';
+      var seen = {};
+      var hidden = hiddenSet();
+      var next = [];
+      (parts[0] || []).concat(Array.isArray(parts[1]) ? parts[1] : []).forEach(function (item) {
+        if (!usable(item) || seen[item.id] || hidden[item.id]) return;
+        seen[item.id] = 1;
+        next.push(item);
+      });
+      readLocal().forEach(function (item) {
+        if (!usable(item) || seen[item.id] || hidden[item.id]) return;
+        seen[item.id] = 1;
+        item.localOnly = true;
+        next.push(item);
+      });
+      next.sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+      return next;
+    });
+  }
+  function loadRemoved() {
+    return fetch(DENY_URL, { cache: 'no-store' }).then(readCatalog).then(function (list) {
+      if (!Array.isArray(list)) return;
+      list.forEach(function (id) {
+        if (typeof id === 'string' && id) REMOVED_IDS[id] = 1;
+      });
+    }).catch(function () {});
+  }
+  function loadPresets() {
+    var hidden = hiddenSet();
+    var listed = PRESETS.filter(function (item) {
+      if (REMOVED_IDS[item.id] || hidden[item.id]) return false;
+      if (isStockFile(item.src)) return true;
+      return listedSeal(item);
+    });
+    return Promise.all(listed.map(function (item) {
+      return fileExists(item.src).then(function (ok) { return ok ? item : null; });
+    })).then(function (rows) {
+      return rows.filter(Boolean);
+    });
+  }
+  function pushLocal(item) {
+    var src = item && item.src;
+    if (!src || src.indexOf('data:image/') !== 0) return;
+    fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item)
+    }).then(function (res) {
+      if (res.status === 410) {
+        finishRemove(item);
+        return null;
+      }
+      if (!res.ok) return null;
+      return res.json();
+    }).then(function (saved) {
+      if (!saved || saved.id !== item.id) return;
+      writeLocal(readLocal().map(function (row) {
+        if (!row || row.id !== item.id) return row;
+        var copy = Object.assign({}, row);
+        copy.localOnly = false;
+        if (typeof saved.src === 'string') copy.src = saved.src;
+        return copy;
+      }));
+    }).catch(function () {});
+  }
+  function load() {
+    var gen = ++loadGen;
+    say('Загрузка');
+    return loadRemoved().then(function () {
+      absorbLegacy();
+      return Promise.all([loadUsers(), loadPresets()]);
+    }).then(function (parts) {
+      if (gen !== loadGen) return;
+      var users = parts[0];
+      var presets = parts[1];
+      return Promise.all(users.map(function (item) {
+        return fileExists(item.src).then(function (ok) { return ok ? item : null; });
+      })).then(function (rows) {
+        if (gen !== loadGen) return;
+        items = rows.filter(Boolean).concat(presets);
+        render();
+        items.forEach(function (item) {
+          if (item && item.localOnly) pushLocal(item);
+        });
+      });
+    });
+  }
+  function render() {
+    grid.replaceChildren();
+    var presets = 0;
+    var mine = 0;
+    items.forEach(function (item) { if (item.preset) presets += 1; else mine += 1; });
+    if (!items.length) {
+      say(catalogNote || 'Печатей нет');
+      return;
+    }
+    var line = items.length + ' ' + noun(items.length);
+    if (mine && presets) line += ' · ' + mine + ' своих, ' + presets + ' заранее';
+    else if (presets) line += ' · заранее';
+    if (catalogNote) line += ' · ' + catalogNote;
+    say(line);
+    items.forEach(function (item) {
+      var card = document.createElement('article');
+      card.className = 'card';
+      var img = document.createElement('img');
+      img.alt = '';
+      img.src = item.src;
+      var meta = document.createElement('p');
+      meta.className = 'meta meta-label';
+      meta.textContent = (item.preset ? 'Заранее' : 'Своя') + ' · ' + (item.preset ? shortSrc(item.src) : (item.text || item.id));
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'meta meta-delete';
+      button.textContent = 'Удалить';
+      button.addEventListener('click', function () { remove(item); });
+      card.append(img, meta, button);
+      grid.appendChild(card);
+    });
+  }
+  function forgetLocal(id) {
+    writeLocal(readLocal().filter(function (item) { return !item || item.id !== id; }));
+  }
+  function finishRemove(item) {
+    REMOVED_IDS[item.id] = 1;
+    hideId(item.id);
+    forgetLocal(item.id);
+    items = items.filter(function (row) { return row.id !== item.id; });
+    render();
+  }
+  function isPhone() {
+    return window.matchMedia('(max-width: 440px)').matches;
+  }
+  function remove(item) {
+    if (!item) return;
+    if (!isPhone() && !window.confirm('Удалить эту печать?')) return;
+    fetch(API + '?id=' + encodeURIComponent(item.id), { method: 'DELETE' }).then(function (res) {
+      if (res.ok) {
+        finishRemove(item);
+        return;
+      }
+      say('Не удалось удалить с сайта');
+    }).catch(function () {
+      say('Не удалось удалить с сайта — нет связи с каталогом');
+    });
+  }
+  load();
+})();
+</script>
+</body>
+</html>

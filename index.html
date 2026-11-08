@@ -1,26 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="0" class="page-ready">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vanök Regular — graphic designer and art director</title>
-<link rel="icon" href="data:,">
+<link rel="icon" href="design/stub/favicon.png" type="image/png">
+<link rel="icon" href="design/stub/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="design/stub/apple-touch-icon.png">
 <style>
-  /* Кадр Figma 1:2 — 1440×800. --k переводит его пиксели во вьюпорт.
-     На герое навигация стоит на вертикальной середине, как в макете. */
+  /* Кадр 1440×800. --k переводит его пиксели во вьюпорт.
+     Хедер и палитра — классический тизер (vanok-teaser/index.html): один синий вордмарк в 12px от верха. */
   :root {
-    --bg: #d7d7d7;
-    --blue: #0c6df4;
-    --blue-fill: #0c7cf4;
+    --bg: #E9E9E9;
+    --blue: #0A1AE9;
+    --blue-fill: #0A1AE9;
     --blue-on: #e1e1e1;
     --grotesk: Arial, "Helvetica Neue", Helvetica, sans-serif;
     --k: calc(100vw / 1440);
     --u: calc(100vh / 800);
+    --vv-lift: 0px;
+    --step-pct: 100;
+    --tread-depth: 288;
+    --shaft-perspective: 1100px;
+    --step-shade: 0;
+  }
+  html[data-theme="1"] {
+    --blue: #8A7E59;
+    --bg: hsl(303.8182deg 100% 78.4314%);
+  }
+  html[data-theme="2"] {
+    --blue: #E3F4E8;
+    --bg: linear-gradient(180deg, #A59D90 0%, #02DD67 100%);
+  }
+  html[data-theme="3"] {
+    --blue: #ffffff;
+    --bg: #80a6bc;
+  }
+  html[data-theme="3"] .chrome .site-credits {
+    color: #ffffff;
   }
 
   * { box-sizing: border-box; }
 
-  html, body { margin: 0; background: var(--bg); }
+  html, body { margin: 0; background: var(--bg) fixed; }
 
   body {
     color: var(--blue);
@@ -34,68 +56,244 @@
 
   #app { position: relative; z-index: 2; }
 
-  .chrome { position: relative; }
-  .chrome.mid { height: 100vh; }
-  .chrome.top { height: calc(210 * var(--k)); }
-  .chrome > * { position: absolute; }
-
-  .crosshair {
-    left: calc(11.23 * var(--k));
-    width: calc(21.535 * var(--k));
-    height: calc(21.535 * var(--k));
-  }
-  .chrome.mid .crosshair { top: calc(50% - 10.77 * var(--k)); }
-  .chrome.top .crosshair { top: calc(14 * var(--k)); }
-
-  .nav-text {
-    font-size: calc(16 * var(--k));
-    line-height: 1.15;
-    font-weight: 400;
-    white-space: nowrap;
-    text-decoration: none;
+  /* Classic teaser header. Desktop wordmark is one blue mark, 12px from the top. */
+  .chrome {
+    --hk: calc(100vw / 1440);
+    --grid-margin: 12px;
+    --grid-gutter: 12px;
+    --col: calc((100vw - 2 * var(--grid-margin) - 11 * var(--grid-gutter)) / 12);
+    --letter-w: calc(6 * var(--col) + 5 * var(--grid-gutter));
+    --letter-left: calc(var(--grid-margin) + 6 * (var(--col) + var(--grid-gutter)));
+    --wordmark-top: calc(6 * var(--hk));
+    position: relative;
+    z-index: 5;
+    height: calc(12px + var(--letter-w) * 233 / 702);
     color: var(--blue);
+    pointer-events: none;
   }
+  .chrome .crosshair,
+  .chrome .ig-link,
+  .chrome .catalog-entry,
+  .chrome .site-credits,
+  .chrome .soon { pointer-events: auto; }
+  body[data-route="hero"] .chrome { height: 100vh; }
+  body[data-route="board"] .chrome {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: 0;
+  }
+  .chrome > * { position: absolute; }
+  .chrome p { margin: 0; }
+  .chrome img { display: block; max-width: none; }
+  .chrome .vanok,
+  .chrome .regular,
+  .chrome .lettering { display: none; }
+  html[data-theme="1"] .chrome .lettering-1,
+  html[data-theme="2"] .chrome .lettering-2,
+  html[data-theme="3"] .chrome .lettering-3 { display: block; }
+  html[data-theme="1"] .chrome .wordmark,
+  html[data-theme="2"] .chrome .wordmark,
+  html[data-theme="3"] .chrome .wordmark { display: none; }
 
-  .tagline {
-    left: calc(408 * var(--k));
-    transform: translateX(-50%);
-    text-align: center;
+  .chrome .crosshair,
+  .chrome .catalog-entry {
     margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    font: inherit;
+    cursor: pointer;
   }
-  .chrome.mid .tagline { top: calc(50% - 9 * var(--k)); }
-  .chrome.top .tagline { top: calc(16 * var(--k)); }
-
-  .nav-index { left: calc(1216 * var(--k)); }
-  .chrome.mid .nav-index { top: calc(50% - 8 * var(--k)); }
-  .chrome.top .nav-index { top: calc(16 * var(--k)); }
-
-  .nav-about {
-    left: calc(1407.05 * var(--k));
-    transform: translateX(-50%);
+  .chrome .crosshair {
+    z-index: 9;
+    left: calc(11.06 * var(--hk));
+    top: calc(11.23 * var(--hk));
+    width: calc(21.535 * var(--hk));
+    height: calc(21.535 * var(--hk));
+    line-height: 0;
   }
-  .chrome.mid .nav-about { top: calc(50% - 8 * var(--k)); }
-  .chrome.top .nav-about { top: calc(16 * var(--k)); }
-
-  .mark { display: block; cursor: pointer; text-decoration: none; }
-  .mark img { display: block; width: 100%; height: 100%; }
-  .mark-vanok {
-    left: calc(702 * var(--k));
-    width: calc(233.497 * var(--k));
-    height: calc(162.055 * var(--k));
+  .chrome .crosshair svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
-  .mark-regular {
-    left: calc(869.69 * var(--k));
-    width: calc(320.501 * var(--k));
-    height: calc(134.883 * var(--k));
+  .chrome .bio,
+  .chrome .soon {
+    font-size: calc(14 * var(--hk));
+    line-height: normal;
+    white-space: nowrap;
   }
-  .chrome.mid .mark-vanok { top: calc(50% - 81.53 * var(--k)); }
-  .chrome.mid .mark-regular { top: calc(50% - 56.77 * var(--k)); }
-  .chrome.top .mark-vanok { top: calc(12 * var(--k)); }
-  .chrome.top .mark-regular { top: calc(36 * var(--k)); }
-
-  a[aria-current="page"] { text-decoration: underline; text-underline-offset: 3px; }
-  a.nav-sandbox,
-  a.nav-sandbox[aria-current="page"] { text-decoration: none; }
+  .chrome .bio {
+    left: calc(var(--grid-margin) + var(--col) + var(--grid-gutter));
+    top: calc(12 * var(--hk));
+    line-height: calc(16 * var(--hk));
+  }
+  .chrome .soon {
+    top: calc(12 * var(--hk));
+    right: var(--grid-margin);
+    color: inherit;
+    text-decoration: none;
+  }
+  .chrome .ig-link,
+  .chrome .catalog-entry {
+    z-index: 3;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    font: inherit;
+    line-height: normal;
+    text-decoration-line: underline;
+    text-decoration-thickness: from-font;
+    text-underline-position: from-font;
+    white-space: nowrap;
+    cursor: pointer;
+    top: calc(12 * var(--hk));
+    font-size: calc(14 * var(--hk));
+  }
+  .chrome .ig-link { left: var(--letter-left); }
+  .chrome .catalog-entry {
+    left: calc(var(--grid-margin) + 9 * (var(--col) + var(--grid-gutter)));
+  }
+  .chrome .wordmark {
+    left: var(--letter-left);
+    top: 12px;
+    width: var(--letter-w);
+    height: calc(var(--letter-w) * 233 / 702);
+  }
+  .chrome .lettering-1,
+  .chrome .lettering-2,
+  .chrome .lettering-3 {
+    left: var(--letter-left);
+    width: var(--letter-w);
+  }
+  .chrome .lettering-1 {
+    top: calc(var(--wordmark-top) + 23px);
+    height: calc(var(--letter-w) * 135 / 619);
+  }
+  .chrome .lettering-2 {
+    top: calc(var(--wordmark-top) + 32px);
+    height: calc(var(--letter-w) * 82 / 702);
+  }
+  .chrome .lettering-3 {
+    top: calc(var(--wordmark-top) + 12px);
+    height: calc(var(--letter-w) * 124 / 702);
+  }
+  .chrome .site-credits {
+    z-index: 4;
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    margin: 0;
+    color: var(--blue);
+    font-family: var(--grotesk);
+    font-weight: 400;
+    font-size: calc(14 * var(--hk));
+    line-height: normal;
+    text-decoration: none;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    cursor: pointer;
+    opacity: 0.32;
+  }
+  .chrome .site-credits .credits-name {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    visibility: hidden;
+  }
+  @media (hover: hover) {
+    .chrome .ig-link,
+    .chrome .catalog-entry { transition: opacity 180ms ease; }
+    .chrome .ig-link:hover,
+    .chrome .catalog-entry:hover { opacity: 0.8; }
+    .chrome .site-credits:hover .credits-full { visibility: hidden; }
+    .chrome .site-credits:hover .credits-name { visibility: visible; }
+  }
+  @media (max-width: 440px) {
+    .chrome {
+      --hk: calc(100vw / 375);
+      --wordmark-top: calc(58 * var(--hk) + 24px);
+      height: calc(var(--wordmark-top) + 110 * var(--hk));
+    }
+    body[data-route="hero"] .chrome { height: 100vh; }
+    .chrome .wordmark,
+    .chrome .catalog-entry,
+    .chrome .site-credits { display: none; }
+    .chrome .vanok,
+    .chrome .regular { display: block; }
+    html[data-theme="1"] .chrome .vanok,
+    html[data-theme="1"] .chrome .regular,
+    html[data-theme="2"] .chrome .vanok,
+    html[data-theme="2"] .chrome .regular,
+    html[data-theme="3"] .chrome .vanok,
+    html[data-theme="3"] .chrome .regular { display: none; }
+    .chrome .crosshair {
+      left: calc(23.231 * var(--hk));
+      top: calc(23.231 * var(--hk));
+    }
+    .chrome .bio {
+      left: calc(194 * var(--hk));
+      top: calc(16 * var(--hk));
+      width: calc(157 * var(--hk));
+      font-size: calc(12 * var(--hk));
+      line-height: calc(14 * var(--hk));
+      white-space: normal;
+    }
+    .chrome .soon {
+      position: fixed;
+      z-index: 6;
+      top: auto;
+      right: calc(24 * var(--hk));
+      bottom: calc(24 * var(--hk) + var(--vv-lift));
+      height: calc(14 * var(--hk));
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: calc(12 * var(--hk));
+      line-height: calc(14 * var(--hk));
+    }
+    .chrome .ig-link {
+      position: fixed;
+      z-index: 6;
+      left: calc(24 * var(--hk));
+      top: auto;
+      bottom: calc(24 * var(--hk) + var(--vv-lift));
+      height: calc(14 * var(--hk));
+      display: flex;
+      align-items: center;
+      font-size: calc(12 * var(--hk));
+      line-height: calc(14 * var(--hk));
+    }
+    .chrome .vanok {
+      left: calc(24 * var(--hk));
+      top: var(--wordmark-top);
+      width: calc(156.387 * var(--hk));
+      height: calc(108.538 * var(--hk));
+    }
+    .chrome .regular {
+      left: calc(136.341 * var(--hk));
+      top: calc(var(--wordmark-top) + (93.593 - 77) * var(--hk));
+      width: calc(214.658 * var(--hk));
+      height: calc(90.339 * var(--hk));
+    }
+    .chrome .lettering-1,
+    .chrome .lettering-2,
+    .chrome .lettering-3 {
+      left: calc(24 * var(--hk));
+      top: var(--wordmark-top);
+      width: calc(327 * var(--hk));
+    }
+    .chrome .lettering-1 { height: calc(71.32 * var(--hk)); }
+    .chrome .lettering-2 { height: calc(327 * var(--hk) * 82 / 702); }
+    .chrome .lettering-3 { height: calc(327 * var(--hk) * 124 / 702); }
+  }
 
   .sheet {
     min-height: 100vh;
@@ -125,10 +323,10 @@
     justify-content: space-between;
     gap: 24px;
     padding: calc(14 * var(--k)) 0;
-    border-top: 1px solid rgba(12, 109, 244, 0.35);
+    border-top: 1px solid color-mix(in srgb, var(--blue) 35%, transparent);
     font-size: clamp(13px, calc(16 * var(--k)), 16px);
   }
-  .index-list li:last-child { border-bottom: 1px solid rgba(12, 109, 244, 0.35); }
+  .index-list li:last-child { border-bottom: 1px solid color-mix(in srgb, var(--blue) 35%, transparent); }
 
   .pill {
     align-self: flex-start;
@@ -158,7 +356,7 @@
   }
   .tile {
     height: calc(240 * var(--k));
-    border: 1px solid rgba(12, 109, 244, 0.28);
+    border: 1px solid color-mix(in srgb, var(--blue) 28%, transparent);
     background: rgba(255, 255, 255, 0.16);
   }
   .tile.wide { height: calc(300 * var(--k)); }
@@ -178,14 +376,17 @@
   }
   .quiet a { color: var(--blue); }
 
-  /* Маршрут #/board: колонка кадра 15:1144. Хедер фиксирован и прозрачен.
+  /* Маршрут #/board: колонка кадра 15:1144.
      Каждая полоса 4087×800 листается горизонтально, страница — вертикально. */
+  html:has(body[data-route="board"]),
+  body[data-route="board"] {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
   body[data-route="board"] {
     --u: var(--k);
-    height: auto;
-    min-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    background: #e4e7ec;
   }
   body[data-route="board"] #stage {
     visibility: hidden;
@@ -195,26 +396,7 @@
   .reel {
     position: relative;
     z-index: 2;
-    padding: calc(12 * var(--k)) calc(12 * var(--k)) 0;
-  }
-
-  .lockup {
-    position: relative;
-    height: calc(239.978 * var(--k));
-    margin: 0 calc(-12 * var(--k)) calc(88 * var(--k));
-  }
-  .lockup > * { position: absolute; }
-  .lockup .mark-vanok {
-    left: calc(705.001 * var(--k));
-    top: 0;
-    width: calc(345.773 * var(--k));
-    height: calc(239.978 * var(--k));
-  }
-  .lockup .mark-regular {
-    left: calc(953.384 * var(--k));
-    top: calc(36.672 * var(--k));
-    width: calc(474.616 * var(--k));
-    height: calc(199.741 * var(--k));
+    padding: 0;
   }
 
   .reel .case {
@@ -225,9 +407,100 @@
     flex-direction: column;
     gap: calc(6 * var(--k));
   }
-  .reel .case + .case,
-  .reel .signoff { margin-top: calc(160 * var(--k)); }
+  .reel .signoff { margin-top: 0; }
 
+  .escalator {
+    position: relative;
+    width: 100vw;
+    margin: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #d0d0d0;
+    perspective: var(--shaft-perspective);
+    perspective-origin: 50% 24%;
+  }
+  .escalator-stage {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform-origin: 50% 46%;
+    transform: translateZ(0px) scale(1.2);
+  }
+  .escalator-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .reel .escalator .case {
+    position: relative;
+    height: calc(var(--step-pct) * 1vh);
+    height: calc(var(--step-pct) * 1dvh);
+    gap: 0;
+    background: transparent;
+    transform-style: preserve-3d;
+  }
+  .step-rig {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+    transform-style: preserve-3d;
+  }
+  .step-riser {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #c4c4c4;
+  }
+  .step-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+  .step-tread {
+    --fold: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: calc(var(--tread-depth) * 1px);
+    transform-origin: center top;
+    transform: rotateX(-90deg);
+    background: #adadad;
+  }
+  .step-nose {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: #969696;
+    transform: translateZ(1px);
+    pointer-events: none;
+  }
+  .escalator .case-meta {
+    position: absolute;
+    z-index: 2;
+    left: 16px;
+    top: 18px;
+    margin: 0;
+    height: auto;
+    max-width: none;
+    padding: 0;
+    background: transparent;
+    color: #4e4e4e;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+  }
   .reel .case-meta {
     display: flex;
     gap: calc(12 * var(--k));
@@ -250,6 +523,33 @@
     text-underline-offset: 0.15em;
     cursor: pointer;
   }
+  .reel .escalator .case-meta {
+    position: absolute;
+    z-index: 2;
+    left: 16px;
+    top: 18px;
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+    margin: 0;
+    height: auto;
+    max-width: calc(100vw - 32px);
+    padding: 0;
+    background: transparent;
+    color: #4e4e4e;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .reel .escalator .case-meta span {
+    width: auto;
+    flex: none;
+  }
+  .reel .escalator .case-meta span:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .scroller .full,
   .scroller a,
   .scroller button,
@@ -257,12 +557,16 @@
   .scroller.is-drag a,
   .scroller.is-drag button { cursor: pointer; }
 
-  .scroller {
-    width: 100vw;
+  .reel .scroller {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--tread-h) * var(--u));
+    bottom: 0;
+    width: 100%;
     max-width: none;
-    margin-left: calc(-12 * var(--k));
-    margin-right: calc(-12 * var(--k));
-    height: calc(800 * var(--u));
+    margin: 0;
+    height: auto;
     overflow: hidden;
     scrollbar-width: none;
     cursor: grab;
@@ -277,11 +581,13 @@
     width: max-content;
   }
 
+  .reel .track { align-items: flex-start; height: auto; }
   .board {
     position: relative;
     flex: none;
     width: calc(4087 * var(--u));
     height: calc(800 * var(--u));
+    margin-top: 0;
     background: #d7d7d7;
     overflow: hidden;
   }
@@ -316,10 +622,10 @@
 
   .signoff {
     position: relative;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
-    margin-left: calc(-12 * var(--k));
-    margin-right: calc(-12 * var(--k));
+    height: 100dvh;
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -332,13 +638,10 @@
     user-select: none;
   }
   .signoff.is-placed { cursor: default; }
-  .signoff .sign-stage {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+  .sign-stage {
+    position: fixed;
     pointer-events: none;
-    z-index: 2;
+    z-index: 8;
   }
   .signoff p { margin: 0; position: relative; z-index: 1; }
   .sign-lines { display: flex; gap: calc(12 * var(--k)); position: relative; z-index: 1; }
@@ -386,8 +689,8 @@
     overflow: auto;
     padding: 12px 14px 14px;
     background: #d7d7d7;
-    color: #0c6df4;
-    border: 1px solid #0c6df4;
+    color: var(--blue);
+    border: 1px solid var(--blue);
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 12px;
     line-height: 1.3;
@@ -403,14 +706,14 @@
   .stamp-panel .tabs { display: flex; gap: 6px; margin: 0 0 8px; }
   .stamp-panel .tabs button {
     flex: 1;
-    border: 1px solid #0c6df4;
+    border: 1px solid var(--blue);
     background: transparent;
-    color: #0c6df4;
+    color: var(--blue);
     font: inherit;
     padding: 4px 6px;
     cursor: pointer;
   }
-  .stamp-panel .tabs button.on { background: #0c6df4; color: #e1e1e1; }
+  .stamp-panel .tabs button.on { background: var(--blue); color: #e1e1e1; }
   .stamp-panel .pane[hidden] { display: none; }
   .stamp-panel .close {
     position: absolute;
@@ -418,7 +721,7 @@
     right: 8px;
     border: 0;
     background: transparent;
-    color: #0c6df4;
+    color: var(--blue);
     font: inherit;
     cursor: pointer;
     padding: 2px 4px;
@@ -431,16 +734,16 @@
     display: block;
     width: 100%;
     margin-top: 4px;
-    accent-color: #0c6df4;
+    accent-color: var(--blue);
   }
   .stamp-panel select,
   .stamp-panel input[type="color"] {
     display: block;
     width: 100%;
     margin-top: 4px;
-    color: #0c6df4;
+    color: var(--blue);
     background: #e8e8e8;
-    border: 1px solid #0c6df4;
+    border: 1px solid var(--blue);
     font: inherit;
   }
   .stamp-panel input[type="color"] { height: 24px; padding: 0; }
@@ -455,7 +758,7 @@
     align-items: center;
     gap: 8px;
   }
-  .stamp-panel .checks input { accent-color: #0c6df4; }
+  .stamp-panel .checks input { accent-color: var(--blue); }
   .stamp-panel .meta { margin: 10px 0 0; }
   .stamp-panel .meta p { margin: 0 0 4px; }
   .stamp-panel .thumbs { display: flex; gap: 6px; margin-top: 6px; }
@@ -463,83 +766,91 @@
     width: 84px;
     height: 46px;
     padding: 2px;
-    border: 1px solid rgba(12, 109, 244, 0.35);
+    border: 1px solid color-mix(in srgb, var(--blue) 35%, transparent);
     background: #ececec;
     cursor: pointer;
   }
-  .stamp-panel .thumbs button.on { border-color: #0c6df4; box-shadow: inset 0 0 0 1px #0c6df4; }
+  .stamp-panel .thumbs button.on { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
   .stamp-panel .thumbs img { width: 100%; height: 100%; object-fit: contain; }
 
-  .chrome.strip {
+  .apple-view {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 0;
-    overflow: visible;
-    z-index: 5;
+    inset: 0;
+    z-index: 6;
     pointer-events: none;
-    background: none;
   }
-  .chrome.strip a { pointer-events: auto; z-index: 1; }
-  .chrome.strip .crosshair {
-    left: calc(12 * var(--k));
-    top: calc(8 * var(--k));
-    width: calc(19.997 * var(--k));
-    height: calc(19.997 * var(--k));
+  .apple-view canvas { display: block; width: 100%; height: 100%; }
+  .apple-readout { display: none; }
+  .apple-light {
+    position: fixed;
+    z-index: 42;
+    left: 16px;
+    bottom: 52px;
+    width: min(280px, calc(100vw - 32px));
+    max-height: min(640px, calc(100vh - 80px));
+    overflow: auto;
+    margin: 0;
+    padding: 12px 14px 14px;
+    background: #d7d7d7;
+    color: #0c6df4;
+    border: 1px solid #0c6df4;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 1.3;
   }
-  .chrome.strip .crosshair img {
+  .apple-light[hidden] { display: none; }
+  .apple-light h2 {
+    margin: 0;
+    padding-right: 64px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .apple-light h3 {
+    margin: 12px 0 0;
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .apple-light .hint { margin: 4px 0 0; }
+  .apple-light .close {
     position: absolute;
-    left: -3.85%;
-    top: -3.85%;
-    width: 107.7%;
-    height: 107.7%;
-    max-width: none;
+    top: 8px;
+    right: 8px;
+    border: 0;
+    background: transparent;
+    color: #0c6df4;
+    font: inherit;
+    cursor: pointer;
+    padding: 2px 4px;
   }
-  .chrome.strip .nav-text {
-    font-size: calc(14 * var(--k));
-    line-height: normal;
+  .apple-light label.row { display: block; margin-top: 8px; }
+  .apple-light label.row span { display: flex; justify-content: space-between; gap: 8px; }
+  .apple-light b { font-weight: 400; }
+  .apple-light i { font-style: normal; font-variant-numeric: tabular-nums; }
+  .apple-light input[type="range"] {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    accent-color: #0c6df4;
   }
-  .chrome.strip .tagline {
-    left: calc(131 * var(--k));
-    top: calc(10 * var(--k));
-    transform: none;
-    text-align: left;
+  .apple-light .checks { margin-top: 10px; }
+  .apple-light .checks label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .chrome.strip .nav-index {
-    left: calc(726 * var(--k));
-    top: calc(10 * var(--k));
+  .apple-light .checks input { accent-color: #0c6df4; }
+  .apple-light .copy-json {
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    border: 1px solid #0c6df4;
+    background: #0c6df4;
+    color: #e1e1e1;
+    font: inherit;
+    padding: 7px 10px;
+    cursor: pointer;
   }
-  .chrome.strip .nav-sandbox {
-    left: calc(1202 * var(--k));
-    top: calc(10 * var(--k));
-  }
-  .chrome.strip .nav-about {
-    left: calc(1391 * var(--k));
-    top: calc(10 * var(--k));
-    transform: none;
-  }
-  .chrome.strip .peek { pointer-events: none; }
-  .chrome.strip .mark { pointer-events: auto; }
-  .chrome.strip .mark-vanok {
-    left: calc(726 * var(--k));
-    top: calc(12 * var(--k));
-    width: calc(334.773 * var(--k));
-    height: calc(232.344 * var(--k));
-  }
-  .chrome.strip .mark-regular {
-    left: calc(966.484 * var(--k));
-    top: calc(47.5 * var(--k));
-    width: calc(459.513 * var(--k));
-    height: calc(193.387 * var(--k));
-  }
-  .chrome.strip .peek {
-    left: calc(1257 * var(--k));
-    top: calc(-77 * var(--k));
-    width: calc(161 * var(--k));
-    height: calc(140 * var(--k));
-    object-fit: fill;
-  }
+
   .band-drop {
     position: fixed;
     inset: 0;
@@ -547,10 +858,463 @@
     pointer-events: none;
   }
   .band-drop canvas { display: block; width: 100%; height: 100%; }
+
+  /* Signature library opened from the teaser header. */
+  .sig-modal {
+    --sig-k: min(100vw / 375, 100dvh / 812);
+    --k: calc(100vw / 375);
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: var(--bg) fixed;
+    color: var(--blue);
+    font-family: var(--grotesk);
+    touch-action: manipulation;
+    opacity: 0;
+    transition: opacity 240ms ease-out;
+  }
+  .sig-modal.is-open { opacity: 1; }
+  .sig-modal[hidden] { display: none; }
+  .sig-editor, .sig-library, .sig-shapes {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 240ms ease-out, visibility 0s linear 240ms;
+  }
+  .sig-editor.is-on, .sig-library.is-on, .sig-shapes.is-on {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    z-index: 1;
+    transition: opacity 240ms ease-out, visibility 0s linear 0s;
+  }
+  .sig-editor, .sig-shapes { overflow: hidden; }
+  .sig-library { overflow: hidden; }
+  .sig-head, .sig-head-side { display: contents; }
+  .sig-shapes .sig-back,
+  .sig-editor .sig-close { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .sig-modal, .sig-editor, .sig-library, .sig-shapes { transition: none; }
+  }
+  .sig-close, .sig-back {
+    position: absolute;
+    z-index: 2;
+    left: 24px;
+    top: 24px;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .sig-close::before, .sig-back::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    background-color: var(--blue);
+    pointer-events: none;
+  }
+  .sig-close::after, .sig-back::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 7px;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  .sig-close::before {
+    -webkit-mask: url("design/stub/seal-close.svg") left top / 14px 14px no-repeat;
+    mask: url("design/stub/seal-close.svg") left top / 14px 14px no-repeat;
+  }
+  .sig-back::before {
+    -webkit-mask: url("design/stub/sig-back.svg") left center / contain no-repeat;
+    mask: url("design/stub/sig-back.svg") left center / contain no-repeat;
+  }
+  .sig-title {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    top: 24px;
+    margin: 0;
+    text-align: center;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: calc(12 * var(--k));
+    line-height: normal;
+    font-weight: 400;
+    color: var(--blue);
+    pointer-events: none;
+  }
+  .sig-stage {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    touch-action: none;
+  }
+  .sig-slide { position: absolute; inset: 0; display: none; }
+  .sig-slide.is-on { display: block; }
+  .sig-seal {
+    position: absolute;
+    left: calc(50% - 0.5px);
+    top: 50%;
+    width: calc(326 * var(--sig-k));
+    height: calc(326 * var(--sig-k));
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .sig-seal .sig-rings, .sig-seal svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .sig-slide canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+  }
+  .sig-seal svg { overflow: visible; }
+  .sig-slide text { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; font-size: 13px; }
+  .sig-caret { display: none; }
+  .sig-caret.is-on { display: block; animation: sig-caret-blink 1.05s steps(1, end) infinite; }
+  @keyframes sig-caret-blink {
+    0%, 45% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  .sig-shape {
+    position: absolute;
+    left: calc(50% - 0.23px);
+    width: calc(326 * var(--sig-k));
+    height: calc(326 * var(--sig-k));
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    translate: -50% 0;
+    cursor: pointer;
+  }
+  .sig-shape[data-kind="stamp"] { top: calc(82 * var(--sig-k)); }
+  .sig-shape[data-kind="apple"] { top: calc(434 * var(--sig-k)); }
+  .sig-shape-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--blue);
+    pointer-events: none;
+  }
+  .sig-flight {
+    position: fixed;
+    z-index: 6;
+    margin: 0;
+    pointer-events: none;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+  .sig-seal.is-flight-target { visibility: hidden; }
+  .sig-bar {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    background: transparent;
+  }
+  .sig-swatches {
+    position: fixed;
+    z-index: 4;
+    left: 50%;
+    top: calc(50% + 163 * var(--sig-k) + 48px);
+    display: flex;
+    flex: none;
+    transform: translateX(-50%);
+  }
+  .sig-swatches button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    position: relative;
+  }
+  .sig-swatches button.on::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #d7d7d7;
+  }
+  .sig-upload,
+  .sig-create {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 16px 0;
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    font: 400 calc(12 * var(--k))/normal Arial, "Helvetica Neue", Helvetica, sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .sig-upload-mark,
+  .sig-create-mark {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    background: currentColor;
+  }
+  .sig-upload-mark {
+    -webkit-mask: url("design/stub/sig-upload.svg") center / 14px 14px no-repeat;
+    mask: url("design/stub/sig-upload.svg") center / 14px 14px no-repeat;
+  }
+  .sig-create-mark {
+    -webkit-mask: url("design/stub/sig-create-arrow.svg") center / 14px 14px no-repeat;
+    mask: url("design/stub/sig-create-arrow.svg") center / 14px 14px no-repeat;
+  }
+  .sig-file {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+  .sig-input {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    font-size: 16px;
+    border: 0;
+    padding: 0;
+  }
+  .sig-grid {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-content: start;
+    column-gap: 12px;
+    row-gap: 16px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding: 88px 24px 24px;
+    scrollbar-width: none;
+  }
+  .sig-grid::-webkit-scrollbar { display: none; }
+  @media (min-width: 441px) {
+    .sig-modal { --k: calc(100vw / 1440); }
+    .sig-head {
+      display: flex;
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      left: 50%;
+      width: min(464px, calc(100% - 24px));
+      transform: translateX(-50%);
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0;
+      padding: 12px 0;
+      background: transparent;
+    }
+    .sig-head-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .sig-title {
+      position: static;
+      font-size: calc(14 * var(--k));
+      text-align: left;
+    }
+    .sig-close, .sig-back {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: 24px;
+      height: 24px;
+      flex: none;
+    }
+    .sig-close::before, .sig-back::before {
+      left: 5px;
+      top: 5px;
+    }
+    .sig-close::after, .sig-back::after {
+      left: 12px;
+      top: 12px;
+    }
+    .sig-shapes .sig-back,
+    .sig-editor .sig-close { display: block; }
+    .sig-grid {
+      top: 0;
+      left: 12px;
+      right: auto;
+      width: calc(100vw - 24px);
+      transform: none;
+      padding: 100px 0 24px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      justify-content: stretch;
+      column-gap: 12px;
+      row-gap: 16px;
+    }
+    .sig-grid .sig-card {
+      grid-column: span 2;
+      min-width: 0;
+    }
+    .sig-shapes { --shape: min(342.873px, calc((100% - 16.253px) / 2)); }
+    .sig-shape {
+      top: 50%;
+      width: var(--shape);
+      height: var(--shape);
+      translate: 0 -50%;
+    }
+    .sig-shape[data-kind="stamp"] {
+      left: calc(50% - var(--shape) - 8.1265px);
+      top: 50%;
+    }
+    .sig-shape[data-kind="apple"] {
+      left: calc(50% + 8.1265px);
+      top: 50%;
+    }
+    .sig-seal {
+      width: min(461.859px, calc(100vw - 48px));
+      height: min(461.859px, calc(100vw - 48px));
+    }
+    .sig-swatches {
+      top: calc(50% + min(230.93px, (100vw - 48px) / 2) + 24px);
+    }
+    .sig-bar {
+      left: 50%;
+      right: auto;
+      width: min(462px, calc(100% - 48px));
+      transform: translateX(-50%);
+      padding: 12px 0;
+    }
+    .sig-upload,
+    .sig-create { font-size: calc(14 * var(--k)); padding: 12px 0; }
+  }
+  .sig-card {
+    grid-column: span 2;
+    aspect-ratio: 1;
+    background: transparent;
+    transform-origin: top left;
+  }
+  .sig-grid .sig-card:not(.sig-add) { cursor: pointer; }
+  .sig-card img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .sig-add {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    line-height: 0;
+    cursor: pointer;
+    background-color: var(--blue);
+    /* Arc tips sit on the viewBox edge. scale(1.1) must stay inside this box:
+       the grid is overflow:auto and the first cell is flush with that edge. */
+    -webkit-mask: url("design/stub/sig-add.svg") center / 86% no-repeat;
+    mask: url("design/stub/sig-add.svg") center / 86% no-repeat;
+    mask-mode: alpha;
+  }
+  .draw-sig-btn.is-held,
+  .catalog-entry.is-held { visibility: hidden; pointer-events: none; }
+  @media (hover: hover) {
+    html.page-ready .draw-sig-btn,
+    html.page-ready .catalog-entry,
+    html.page-ready .ig-link,
+    .sig-close,
+    .sig-back,
+    .sig-swatches button,
+    .sig-upload,
+    .sig-create {
+      transition: opacity 180ms ease;
+    }
+    .sig-card,
+    .sig-shape {
+      transition: opacity 180ms ease, transform 180ms ease;
+      transform-origin: center;
+    }
+    html.page-ready .draw-sig-btn:hover,
+    html.page-ready .catalog-entry:hover,
+    html.page-ready .ig-link:hover,
+    .sig-card:hover,
+    .sig-shape:hover,
+    .sig-close:hover,
+    .sig-back:hover,
+    .sig-swatches button:hover,
+    .sig-upload:hover,
+    .sig-create:hover {
+      opacity: 0.8;
+    }
+    .sig-card:hover,
+    .sig-shape:hover {
+      transform: scale(1.1);
+      z-index: 2;
+    }
+  }
 </style>
 </head>
 <body>
 <div id="stage" aria-hidden="true"></div>
+<script>
+(function () {
+  var raw = (location.hash || '').replace(/^#/, '').replace(/^\//, '');
+  document.body.dataset.route = (raw === 'index' || raw === 'about' || raw === 'board') ? raw : 'hero';
+})();
+</script>
+<header class="chrome">
+  <img class="wordmark" src="design/stub/wordmark.svg" alt="Vanök Regular">
+  <img class="vanok" src="design/stub/wordmark-vanok-ui.svg" alt="">
+  <img class="regular" src="design/stub/wordmark-regular-ui.svg" alt="">
+  <img class="lettering lettering-1" src="design/stub/wordmark-8a7e59.svg" alt="">
+  <img class="lettering lettering-2" src="design/stub/wordmark-green.svg" alt="">
+  <img class="lettering lettering-3" src="design/stub/wordmark-star.svg" alt="">
+  <button type="button" class="crosshair" aria-label="Cycle theme">
+    <svg preserveAspectRatio="none" overflow="visible" viewBox="0 0 21.5352 21.5352" fill="none" aria-hidden="true">
+      <path d="M21.1507 10.7676C21.1507 16.502 16.502 21.1507 10.7676 21.1507C5.03321 21.1507 0.384558 16.502 0.384558 10.7676C0.384558 5.03321 5.03321 0.384558 10.7676 0.384558C16.502 0.384558 21.1507 5.03321 21.1507 10.7676Z" stroke-width="0.769115" stroke="currentColor"/>
+      <path d="M15.8609 10.4743C15.8609 13.2853 13.5821 15.564 10.7712 15.564C7.96018 15.564 5.68143 13.2853 5.68143 10.4743C5.68143 7.66331 7.96018 5.38456 10.7712 5.38456C13.5821 5.38456 15.8609 7.66331 15.8609 10.4743Z" stroke-width="0.769115" stroke="currentColor"/>
+      <path d="M10.8646 0.769115L10.8646 20.7661" stroke-width="0.769115" stroke="currentColor"/>
+      <path d="M0.769115 10.3846L20.7661 10.3846" stroke-width="0.769115" stroke="currentColor"/>
+    </svg>
+  </button>
+  <p class="bio">Vanök Regular — a graphic designer and art director based in Belgrad, Serbia</p>
+  <a class="ig-link" href="https://www.instagram.com/vanok.regular/" target="_blank" rel="noopener noreferrer">Instagram</a>
+  <button type="button" class="catalog-entry">Custom signature</button>
+  <a class="soon" href="#/about">About</a>
+  <a class="site-credits" href="https://fovkotov.framer.website" target="_blank" rel="noopener noreferrer"><span class="credits-full">Site Credits</span><span class="credits-name">fovkotov</span></a>
+</header>
 <div id="app"></div>
 
 <script type="importmap">
@@ -577,40 +1341,42 @@ const G = 2.35;
 const app = document.getElementById('app');
 const stage = document.getElementById('stage');
 
-const chrome = (mode, current) => {
-  const cur = (name) => current === name ? ' aria-current="page"' : '';
-  return `
-    <a class="crosshair" href="#/"><img src="design/assets/crosshair.svg" alt="" width="22" height="22"></a>
-    <p class="nav-text tagline">Vanök Regular — a graphic designer and art director based in Belgrad, Serbia</p>
-    <a class="mark mark-vanok" href="#/board"><img src="design/assets/wordmark-vanok.svg" alt="Vanök"></a>
-    <a class="mark mark-regular" href="#/board"><img src="design/assets/wordmark-regular.svg" alt="Regular"></a>
-    <a class="nav-text nav-index" href="#/index"${cur('index')}>Index</a>
-    <a class="nav-text nav-about" href="#/about"${cur('about')}>About</a>
-  `;
-};
-
-function stripeBars() {
-  return Array.from({ length: 13 }, (_, i) => {
-    const x = 220 + i * 296;
-    return `<i class="bar" style="left: calc(${x} * var(--u))"></i>`;
-  }).join('');
-}
-
 function shot(src, alt, x, y, w, h, cls = 'cover') {
   const classes = cls ? `loose ${cls}` : 'loose';
   return `<img class="${classes}" alt="${alt}" src="design/board/${src}" style="left: calc(${x} * var(--u)); top: calc(${y} * var(--u)); width: calc(${w} * var(--u)); height: calc(${h} * var(--u))">`;
 }
 
-function caseBand(num, title, year, shots) {
-  return `<section class="case">
-    <p class="case-meta"><span>${num}</span><span>${title}</span><span>${year}</span><span class="full">Full case</span></p>
-    <div class="scroller"><div class="track"><div class="board">${stripeBars()}${shots}</div></div></div>
+function archivedBoardMarkup() {
+  return "function caseBand(num, title, year, shots) {\n  return `<section class=\"case\">\n    <p class=\"case-meta\"><span>${num}</span><span>${title}</span><span>${year}</span><span class=\"full\">Full case</span></p>\n    <div class=\"step-rig\">\n      <div class=\"step-face\">\n      <div class=\"step-tread\" aria-hidden=\"true\"></div>\n      <div class=\"step-lip\" aria-hidden=\"true\"></div>\n      <div class=\"scroller\">\n        <div class=\"track\"><div class=\"board\">${shots}</div></div>\n      </div>\n      </div>\n    </div>\n  </section>`;\n}\n\n  board: () => `\n    <div class=\"reel\">\n      <div class=\"escalator\">\n        <div class=\"escalator-track\">\n      <section class=\"case\">\n        <p class=\"case-meta\"><span>01</span><span>Wild Ea$t album identity for SALUKI</span><span>2024</span><span class=\"full\">Full case</span></p>\n        <div class=\"step-rig\">\n          <div class=\"step-face\">\n          <div class=\"step-tread\" aria-hidden=\"true\"></div>\n          <div class=\"step-lip\" aria-hidden=\"true\"></div>\n          <div class=\"scroller\">\n          <div class=\"track\">\n            <div class=\"board\">\n          <div class=\"piece dark\" style=\"left: calc(2047.844 * var(--u)); top: calc(477 * var(--u)); width: calc(340.825 * var(--u)); height: calc(323.057 * var(--u))\">\n            <img alt=\"Wild East vinyl\" src=\"design/board/shot-2215.webp\" style=\"left: calc(-134.555 * var(--u)); top: 0; width: calc(609.935 * var(--u)); height: calc(340.825 * var(--u))\">\n          </div>\n          <video class=\"loose cover\" src=\"design/board/vedma-2.mp4\" autoplay muted loop playsinline style=\"left: calc(1499 * var(--u)); top: calc(373.313 * var(--u)); width: calc(346.966 * var(--u)); height: calc(231.822 * var(--u))\"></video>\n          <div class=\"piece dark\" style=\"left: calc(1214 * var(--u)); top: 0; width: calc(346.294 * var(--u)); height: calc(346.294 * var(--u))\">\n            <img alt=\"Two figures against a pale wall\" src=\"design/board/shot-2230.webp\" style=\"left: 0; top: calc(-14.078 * var(--u)); width: calc(346.294 * var(--u)); height: calc(387.417 * var(--u))\">\n            <img alt=\"\" src=\"design/board/logo-b.svg\" style=\"left: 31.53%; top: 65.25%; width: 8.36%; height: 9.09%\">\n            <img alt=\"\" src=\"design/board/logo-c.svg\" style=\"left: 44.78%; top: 65.77%; width: 10.4%; height: 8.8%\">\n            <img alt=\"\" src=\"design/board/logo-a.svg\" style=\"left: 60.09%; top: 65.26%; width: 8.33%; height: 9.05%\">\n            <img alt=\"\" src=\"design/board/logo-d.svg\" style=\"left: 9.01%; top: 25.47%; width: 81.93%; height: 25.32%\">\n          </div>\n          <img class=\"loose cover\" alt=\"Embroidered caps\" src=\"design/board/photo-1121.webp\" style=\"left: calc(1879 * var(--u)); top: 0; width: calc(346.659 * var(--u)); height: calc(433.324 * var(--u))\">\n          <video class=\"loose cover\" src=\"design/board/vedma.mp4\" autoplay muted loop playsinline style=\"left: calc(2868 * var(--u)); top: 0; width: calc(735 * var(--u)); height: calc(496 * var(--u))\"></video>\n          <div class=\"piece\" style=\"left: calc(3193 * var(--u)); top: calc(610 * var(--u)); width: calc(205 * var(--u)); height: calc(190 * var(--u))\">\n            <img alt=\"Rider\" src=\"design/board/poster-11.webp\" style=\"left: 0; top: -0.38%; width: 99.79%; height: 118.97%\">\n          </div>\n          <div class=\"piece\" style=\"left: calc(3681 * var(--u)); top: calc(500 * var(--u)); width: calc(340 * var(--u)); height: calc(300 * var(--u))\">\n            <img alt=\"Blister pack with flowers\" src=\"design/board/poster-09.webp\" style=\"left: -0.02%; top: 0; width: 100.04%; height: 119%\">\n          </div>\n          <div class=\"piece dark\" style=\"left: calc(2244.383 * var(--u)); top: 0; width: calc(343.896 * var(--u)); height: calc(275.428 * var(--u))\">\n            <img class=\"cover\" alt=\"Portrait in a red headscarf\" src=\"design/board/poster-15.webp\">\n          </div>\n          <img class=\"loose flip\" alt=\"\" src=\"design/board/vector-2.webp\" style=\"left: calc(2817.326 * var(--u)); top: calc(605 * var(--u)); width: calc(112.053 * var(--u)); height: calc(191.494 * var(--u))\">\n          <img class=\"loose\" alt=\"Pair of socks\" src=\"design/board/vector-1.webp\" style=\"left: calc(2744.561 * var(--u)); top: calc(609.18 * var(--u)); width: calc(144.666 * var(--u)); height: calc(198.184 * var(--u))\">\n          <img class=\"loose cover\" alt=\"Ceramic plate\" src=\"design/board/layer-18.webp\" style=\"left: calc(2541 * var(--u)); top: calc(610.156 * var(--u)); width: calc(176.268 * var(--u)); height: calc(179.915 * var(--u))\">\n          <video class=\"loose cover\" src=\"design/board/ventonyl.webm\" autoplay muted loop playsinline style=\"left: calc(-189 * var(--u)); top: calc(-67.789 * var(--u)); width: calc(718.981 * var(--u)); height: calc(650.507 * var(--u))\"></video>\n          <video class=\"loose cover\" src=\"design/board/jacket.webm\" autoplay muted loop playsinline style=\"left: calc(-0.172 * var(--u)); top: calc(539.797 * var(--u)); width: calc(346.966 * var(--u)); height: calc(219.54 * var(--u))\"></video>\n          <img class=\"loose cover\" alt=\"Calligraphy over a crowd\" src=\"design/board/we.webp\" style=\"left: calc(365.227 * var(--u)); top: 0; width: calc(712.355 * var(--u)); height: calc(712.355 * var(--u))\">\n            </div>\n          </div>\n          </div>\n          </div>\n        </div>\n      </section>\n      ${caseBand('02', 'identity, titles, font, lettering, logo, vinyl and poster for Glukoza', '2026', [\n        shot('glu-artbook.webp', 'Glukoza artbook', -24, 236, 1226, 613),\n        shot('glu-mark.svg', '', 1404, 0, 214.156, 306.217, ''),\n        shot('glu-poster.webp', 'Glukoza listening poster', 3685, 0, 402, 569),\n        shot('glu-8933.webp', '', 1680, 0, 802, 800),\n        shot('glu-0118.webp', '', 2557, 288, 514, 512),\n        shot('glu-0115.webp', '', 3256, 0, 367, 367),\n      ].join(''))}\n      ${caseBand('03', 'Created Kaik is an educational playground for graphic designers', '2026', [\n        shot('kaik-word.svg', 'Created Kaik', 58, 37, 863, 116, ''),\n        shot('kaik-photo.webp', '', 1776, 0, 418, 624),\n        shot('kaik-photo.webp', '', 2194, 0, 418, 624, 'cover flip'),\n        shot('kaik-1.webp', '', 3772, 0, 314, 419),\n        shot('kaik-2.webp', '', 220, 440, 270, 360),\n        shot('kaik-3.webp', '', 2960, 194, 454, 606),\n        shot('kaik-group.svg', '', 2360, 86, 532.902, 673.717, ''),\n        shot('kaik-corner.svg', '', 3631, 585, 358.689, 200, ''),\n        shot('kaik-dog.svg', '', 572.01, 202, 1354.68, 627.538, ''),\n      ].join(''))}\n      ${caseBand('04', 'Font, logo, posters and merch for Feduk', '2026', [\n        shot('feduk-a.webp', '', 296, 452, 246.996, 348.189),\n        shot('feduk-b.webp', '', 0, 0, 348.189, 348.189),\n        shot('feduk-shirt.webp', '', 592, 0, 554, 554),\n        shot('feduk-c.webp', '', 1911, -27, 456.998, 456.998),\n        shot('feduk-09.webp', '', 1184, 245, 549.213, 309.018),\n        shot('feduk-04.webp', '', 3552, 0, 414, 591),\n        shot('feduk-12.webp', '', 2664, 0, 560, 800),\n      ].join(''))}\n      ${caseBand('04', 'Titles, lettering, posters for Sub Urban', '2026', [\n        shot('sub-08.webp', '', 0, 0, 472, 629),\n        shot('sub-02.webp', '', 1600, 0, 472, 629),\n        shot('sub-06.webp', '', 3552, 36, 472, 629),\n        shot('sub-04.webp', '', 2251, 171, 472, 629),\n      ].join(''))}\n        </div>\n      </div>\n    </div>\n  `,\n";
+}
+
+const CASES = [
+  { num: '01', title: 'Wild Ea$t album identity for SALUKI', year: '2024' },
+  { num: '02', title: 'identity, titles, font, lettering, logo, vinyl and poster for Glukoza', year: '2026' },
+  { num: '03', title: 'Created Kaik is an educational playground for graphic designers', year: '2026' },
+  { num: '04', title: 'Font, logo, posters and merch for Feduk', year: '2026' },
+  { num: '05', title: 'Titles, lettering, posters for Sub Urban', year: '2026' },
+];
+
+const STEP_SLIDES = ['design/steps/frame-a.png', 'design/steps/frame-b.png'];
+
+function grayStep(item, index) {
+  const slide = STEP_SLIDES[index % STEP_SLIDES.length];
+  return `<section class="case" data-step="${item.num}">
+    <div class="step-rig">
+      <div class="step-tread" aria-hidden="true"></div>
+      <div class="step-nose" aria-hidden="true"></div>
+      <div class="step-riser">
+        <img class="step-slide" alt="" src="${slide}">
+        <p class="case-meta"><span>${item.num}</span><span>${item.title}</span><span>${item.year}</span></p>
+      </div>
+    </div>
   </section>`;
 }
 
+
 const TEMPLATES = {
   hero: () => `
-    <header class="chrome mid">${chrome('mid', 'hero')}</header>
     <section class="sheet" id="work">
       <h2>SALUKI Wild Ea$t album identity</h2>
       <p>A graphic world for an artist’s release with millions of listens.</p>
@@ -627,7 +1393,6 @@ const TEMPLATES = {
     </section>
   `,
   index: () => `
-    <header class="chrome top">${chrome('top', 'index')}</header>
     <section class="case">
       <h2>SALUKI Wild Ea$t album identity</h2>
       <p>A graphic world for an artist’s release with millions of listens.</p>
@@ -640,7 +1405,6 @@ const TEMPLATES = {
     </div>
   `,
   about: () => `
-    <header class="chrome top">${chrome('top', 'about')}</header>
     <section class="about-block">
       <h2>About</h2>
       <p>A graphic world for an artist’s release with millions of listens — identity, type and art direction.</p>
@@ -649,94 +1413,13 @@ const TEMPLATES = {
     <p class="quiet"><a href="#/board">board</a> · <a href="viewer.html">model viewer</a></p>
   `,
   board: () => `
-    <header class="chrome strip">
-      <img class="peek" src="design/assets/header-peek.webp" alt="">
-      <a class="crosshair" href="#/"><img src="design/assets/crosshair-frame.svg" alt=""></a>
-      <p class="nav-text tagline">Vanök Regular — a graphic designer and art director based in Belgrad, Serbia</p>
-      <a class="nav-text nav-index" href="#/index">Index</a>
-      <a class="nav-text nav-sandbox" href="#/board" aria-current="page">Sandbox</a>
-      <a class="nav-text nav-about" href="#/about">About</a>
-    </header>
     <div class="reel">
-      <div class="lockup">
-        <a class="mark mark-vanok" href="#/board"><img src="design/assets/wordmark-vanok-frame.svg" alt="Vanök"></a>
-        <a class="mark mark-regular" href="#/board"><img src="design/assets/wordmark-regular-frame.svg" alt="Regular"></a>
-      </div>
-      <section class="case">
-        <p class="case-meta"><span>01</span><span>Wild Ea$t album identity for SALUKI</span><span>2024</span><span class="full">Full case</span></p>
-        <div class="scroller">
-          <div class="track">
-            <div class="board">
-              ${stripeBars()}
-          <div class="piece dark" style="left: calc(2047.844 * var(--u)); top: calc(477 * var(--u)); width: calc(340.825 * var(--u)); height: calc(323.057 * var(--u))">
-            <img alt="Wild East vinyl" src="design/board/shot-2215.webp" style="left: calc(-134.555 * var(--u)); top: 0; width: calc(609.935 * var(--u)); height: calc(340.825 * var(--u))">
-          </div>
-          <video class="loose cover" src="design/board/vedma-2.mp4" autoplay muted loop playsinline style="left: calc(1499 * var(--u)); top: calc(373.313 * var(--u)); width: calc(346.966 * var(--u)); height: calc(231.822 * var(--u))"></video>
-          <div class="piece dark" style="left: calc(1214 * var(--u)); top: 0; width: calc(346.294 * var(--u)); height: calc(346.294 * var(--u))">
-            <img alt="Two figures against a pale wall" src="design/board/shot-2230.webp" style="left: 0; top: calc(-14.078 * var(--u)); width: calc(346.294 * var(--u)); height: calc(387.417 * var(--u))">
-            <img alt="" src="design/board/logo-b.svg" style="left: 31.53%; top: 65.25%; width: 8.36%; height: 9.09%">
-            <img alt="" src="design/board/logo-c.svg" style="left: 44.78%; top: 65.77%; width: 10.4%; height: 8.8%">
-            <img alt="" src="design/board/logo-a.svg" style="left: 60.09%; top: 65.26%; width: 8.33%; height: 9.05%">
-            <img alt="" src="design/board/logo-d.svg" style="left: 9.01%; top: 25.47%; width: 81.93%; height: 25.32%">
-          </div>
-          <img class="loose cover" alt="Embroidered caps" src="design/board/photo-1121.webp" style="left: calc(1879 * var(--u)); top: 0; width: calc(346.659 * var(--u)); height: calc(433.324 * var(--u))">
-          <video class="loose cover" src="design/board/vedma.mp4" autoplay muted loop playsinline style="left: calc(2868 * var(--u)); top: 0; width: calc(735 * var(--u)); height: calc(496 * var(--u))"></video>
-          <div class="piece" style="left: calc(3193 * var(--u)); top: calc(610 * var(--u)); width: calc(205 * var(--u)); height: calc(190 * var(--u))">
-            <img alt="Rider" src="design/board/poster-11.webp" style="left: 0; top: -0.38%; width: 99.79%; height: 118.97%">
-          </div>
-          <div class="piece" style="left: calc(3681 * var(--u)); top: calc(500 * var(--u)); width: calc(340 * var(--u)); height: calc(300 * var(--u))">
-            <img alt="Blister pack with flowers" src="design/board/poster-09.webp" style="left: -0.02%; top: 0; width: 100.04%; height: 119%">
-          </div>
-          <div class="piece dark" style="left: calc(2244.383 * var(--u)); top: 0; width: calc(343.896 * var(--u)); height: calc(275.428 * var(--u))">
-            <img class="cover" alt="Portrait in a red headscarf" src="design/board/poster-15.webp">
-          </div>
-          <img class="loose flip" alt="" src="design/board/vector-2.webp" style="left: calc(2817.326 * var(--u)); top: calc(605 * var(--u)); width: calc(112.053 * var(--u)); height: calc(191.494 * var(--u))">
-          <img class="loose" alt="Pair of socks" src="design/board/vector-1.webp" style="left: calc(2744.561 * var(--u)); top: calc(609.18 * var(--u)); width: calc(144.666 * var(--u)); height: calc(198.184 * var(--u))">
-          <img class="loose cover" alt="Ceramic plate" src="design/board/layer-18.webp" style="left: calc(2541 * var(--u)); top: calc(610.156 * var(--u)); width: calc(176.268 * var(--u)); height: calc(179.915 * var(--u))">
-          <video class="loose cover" src="design/board/ventonyl.webm" autoplay muted loop playsinline style="left: calc(-189 * var(--u)); top: calc(-67.789 * var(--u)); width: calc(718.981 * var(--u)); height: calc(650.507 * var(--u))"></video>
-          <video class="loose cover" src="design/board/jacket.webm" autoplay muted loop playsinline style="left: calc(-0.172 * var(--u)); top: calc(539.797 * var(--u)); width: calc(346.966 * var(--u)); height: calc(219.54 * var(--u))"></video>
-          <img class="loose cover" alt="Calligraphy over a crowd" src="design/board/we.webp" style="left: calc(365.227 * var(--u)); top: 0; width: calc(712.355 * var(--u)); height: calc(712.355 * var(--u))">
-            </div>
+      <div class="escalator">
+        <div class="escalator-stage">
+          <div class="escalator-track">
+            ${CASES.map(grayStep).join('')}
           </div>
         </div>
-      </section>
-      ${caseBand('02', 'identity, titles, font, lettering, logo, vinyl and poster for Glukoza', '2026', [
-        shot('glu-artbook.webp', 'Glukoza artbook', -24, 236, 1226, 613),
-        shot('glu-mark.svg', '', 1404, 0, 214.156, 306.217, ''),
-        shot('glu-poster.webp', 'Glukoza listening poster', 3685, 0, 402, 569),
-        shot('glu-8933.webp', '', 1680, 0, 802, 800),
-        shot('glu-0118.webp', '', 2557, 288, 514, 512),
-        shot('glu-0115.webp', '', 3256, 0, 367, 367),
-      ].join(''))}
-      ${caseBand('03', 'Created Kaik is an educational playground for graphic designers', '2026', [
-        shot('kaik-word.svg', 'Created Kaik', 58, 37, 863, 116, ''),
-        shot('kaik-photo.webp', '', 1776, 0, 418, 624),
-        shot('kaik-photo.webp', '', 2194, 0, 418, 624, 'cover flip'),
-        shot('kaik-1.webp', '', 3772, 0, 314, 419),
-        shot('kaik-2.webp', '', 220, 440, 270, 360),
-        shot('kaik-3.webp', '', 2960, 194, 454, 606),
-        shot('kaik-group.svg', '', 2360, 86, 532.902, 673.717, ''),
-        shot('kaik-corner.svg', '', 3631, 585, 358.689, 200, ''),
-        shot('kaik-dog.svg', '', 572.01, 202, 1354.68, 627.538, ''),
-      ].join(''))}
-      ${caseBand('04', 'Font, logo, posters and merch for Feduk', '2026', [
-        shot('feduk-a.webp', '', 296, 452, 246.996, 348.189),
-        shot('feduk-b.webp', '', 0, 0, 348.189, 348.189),
-        shot('feduk-shirt.webp', '', 592, 0, 554, 554),
-        shot('feduk-c.webp', '', 1911, -27, 456.998, 456.998),
-        shot('feduk-09.webp', '', 1184, 245, 549.213, 309.018),
-        shot('feduk-04.webp', '', 3552, 0, 414, 591),
-        shot('feduk-12.webp', '', 2664, 0, 560, 800),
-      ].join(''))}
-      ${caseBand('04', 'Titles, lettering, posters for Sub Urban', '2026', [
-        shot('sub-08.webp', '', 0, 0, 472, 629),
-        shot('sub-02.webp', '', 1600, 0, 472, 629),
-        shot('sub-06.webp', '', 3552, 36, 472, 629),
-        shot('sub-04.webp', '', 2251, 171, 472, 629),
-      ].join(''))}
-      <div class="signoff">
-        <div class="sign-lines"><i></i><i></i><i></i><i></i></div>
-        <p>sign here</p>
       </div>
     </div>
   `,
@@ -773,28 +1456,78 @@ let yaw = 0, yawVel = 0;
 let dragYaw = 0, dragPitch = 0;
 let grab = null;
 
-const STRIP_SPEED = 30;
-const pageScroll = { boost: 15 };
-let pageScrollSample = 0;
-let pageScrollY = 0;
-let pageScrollReady = false;
-let pageScrollOn = false;
+const STRIP_SPEED = 60;
+const pageScroll = { boost: 8 };
+const escalator = { stepH: 100, speed: 1, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
 
-// 15× only on frames where the page itself moved. Stops the same frame the scroll stops.
-function pageScrollMult(now) {
-  if (now - pageScrollSample > 8) {
-    pageScrollSample = now;
-    const y = (document.scrollingElement || document.documentElement).scrollTop;
-    if (!pageScrollReady) {
-      pageScrollReady = true;
-      pageScrollY = y;
-      pageScrollOn = false;
-    } else {
-      pageScrollOn = y !== pageScrollY;
-      pageScrollY = y;
-    }
-  }
-  return pageScrollOn ? pageScroll.boost : 1;
+function applyEscalatorVars() {
+  const root = document.documentElement;
+  root.style.setProperty('--step-pct', String(escalator.stepH));
+  root.style.setProperty('--tread-depth', String(escalator.tread));
+  root.style.setProperty('--shaft-perspective', escalator.perspective + 'px');
+}
+let wheelDelta = 0;
+let escalatorTouch = null;
+
+// Phones and tablets. Coarse pointer covers a finger; a narrow touch viewport
+// covers the same breakpoint the page already uses when the pointer query misses.
+function coarseScrollDevice() {
+  if (matchMedia('(pointer: coarse)').matches) return true;
+  const narrow = matchMedia('(max-width: 440px)').matches;
+  const touch = navigator.maxTouchPoints > 0 || matchMedia('(hover: none)').matches;
+  return narrow && touch;
+}
+
+function escalatorTouchBlocked(target) {
+  return target instanceof Element && !!target.closest(
+    'a, button, input, textarea, select, summary, label, .sig-modal, .stamp-panel'
+  );
+}
+
+// Signed ×boost while a vertical wheel/trackpad gesture is actually firing.
+// Forward (deltaY > 0) and back (deltaY < 0) follow the gesture.
+// The next frame with no new event drops straight back to forward 1×.
+// On a coarse/mobile device the same gesture uses 3× that boost.
+function onEscalatorWheel(event) {
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  if (!wheelScrollsPage(event)) return;
+  event.preventDefault();
+  wheelDelta += event.deltaY;
+}
+
+function onEscalatorTouchStart(event) {
+  if (!coarseScrollDevice() || event.touches.length !== 1) return;
+  if (escalatorTouchBlocked(event.target)) return;
+  const t = event.touches[0];
+  escalatorTouch = { id: t.identifier, x: t.clientX, y: t.clientY };
+}
+
+function onEscalatorTouchMove(event) {
+  if (!escalatorTouch) return;
+  const t = [...event.touches].find((touch) => touch.identifier === escalatorTouch.id);
+  if (!t) return;
+  const dx = t.clientX - escalatorTouch.x;
+  const dy = escalatorTouch.y - t.clientY;
+  escalatorTouch.x = t.clientX;
+  escalatorTouch.y = t.clientY;
+  const onScroller = event.target instanceof Element && !!event.target.closest('.scroller');
+  if (onScroller && Math.abs(dx) > Math.abs(dy)) return;
+  if (event.cancelable) event.preventDefault();
+  if (dy) wheelDelta += dy;
+}
+
+function onEscalatorTouchEnd(event) {
+  if (!escalatorTouch) return;
+  const ended = [...event.changedTouches].some((touch) => touch.identifier === escalatorTouch.id);
+  if (ended) escalatorTouch = null;
+}
+
+function pageScrollMult() {
+  const delta = wheelDelta;
+  wheelDelta = 0;
+  if (!delta) return 1;
+  const mobile = coarseScrollDevice() ? 3 : 1;
+  return Math.sign(delta) * pageScroll.boost * mobile;
 }
 
 // Any vertical wheel component scrolls the page, even when deltaX is larger.
@@ -839,9 +1572,9 @@ function prepareStamp(model) {
 
 const APPLE_FILE = 'models/apple_green_quaternius.glb';
 const STAMP_FILE = 'models/stamp_round.glb';
-const APPLE_GREEN = 0xaaff28;
+const APPLE_GREEN = 0x67c514;
 const APPLE_RED = 0xe23b32;
-const STAMP_GREEN = 0x3faa38;
+const STAMP_GREEN = 0x67c514;
 
 function cloneMaterials(root) {
   root.traverse((o) => {
@@ -934,14 +1667,24 @@ function prepareGreenStamp(gltf) {
 // «sign here»: печать выезжает из-за нижнего края в точку клика, строго сверху,
 // оставляет оттиск там и уходит обратно вниз. G — настройки этого жеста, только на время вкладки.
 const STAMP_IMPRINTS = [
-  { file: 'stamp-01.png', src: 'design/stamps/stamp-01.png' },
-  { file: 'stamp-02.png', src: 'design/stamps/stamp-02.png' },
-  { file: 'stamp-03.png', src: 'design/stamps/stamp-03.png' },
+  { file: 'stamp-01.png', src: 'design/stamps/stamp-01.png?v=297' },
+  { file: 'stamp-02.png', src: 'design/stamps/stamp-02.png?v=301' },
+  { file: 'stamp-green.png', src: 'design/stamps/stamp-green.png?v=298b' },
 ];
 const APPLE_IMPRINTS = [
-  { file: 'apple-01.png', src: 'design/stamps/apple-01.png' },
-  { file: 'apple-02.png', src: 'design/stamps/apple-02.png' },
-  { file: 'apple-03.png', src: 'design/stamps/apple-03.png' },
+  { file: 'apple-01.png', src: 'design/stamps/apple-01.png?v=299' },
+  { file: 'apple-02.png', src: 'design/stamps/apple-02.png?v=302' },
+  { file: 'apple-green.png', src: 'design/stamps/apple-green.png?v=300b' },
+];
+const STAMP_CASTS = [
+  { file: 'stamp-01.png', hex: 0x0c70f4, color: 'blue' },
+  { file: 'stamp-02.png', hex: 0xff91f8, color: 'pink' },
+  { file: 'stamp-green.png', hex: 0x67c514, color: 'green' },
+];
+const APPLE_CASTS = [
+  { file: 'apple-01.png', hex: 0x0c6df4, color: 'blue' },
+  { file: 'apple-02.png', hex: 0xff91f8, color: 'pink' },
+  { file: 'apple-green.png', hex: 0x67c514, color: 'green' },
 ];
 const INK_FRAC = 505 / 539;
 
@@ -952,7 +1695,15 @@ function mountSignStamp(host) {
   host.appendChild(layer);
   const canvas = document.createElement('canvas');
   canvas.className = 'sign-stage';
-  host.appendChild(canvas);
+  document.body.appendChild(canvas);
+  function placeStage() {
+    const rect = host.getBoundingClientRect();
+    canvas.style.left = `${rect.left}px`;
+    canvas.style.top = `${rect.top}px`;
+    canvas.style.width = `${Math.max(rect.width, 0)}px`;
+    canvas.style.height = `${Math.max(rect.height, 0)}px`;
+  }
+  placeStage();
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -1118,6 +1869,7 @@ function mountSignStamp(host) {
         }
       }
       sync();
+      if (rig === escalator) applyEscalatorVars();
       paintMarks();
     });
     sync();
@@ -1268,20 +2020,19 @@ function mountSignStamp(host) {
   appleTab.addEventListener('click', () => showPane('apple'));
   const scrollHost = document.createElement('div');
   addSlider(scrollHost, pageScroll, 'Ускорение лент при скролле', 'boost', 1, 30, 0.5, (n) => n.toFixed(1) + '×', false);
+  addSlider(scrollHost, escalator, 'Высота ступени', 'stepH', 40, 200, 1, (n) => Math.round(n) + '%', false);
+  addSlider(scrollHost, escalator, 'Скорость ступеней', 'speed', 0.2, 3, 0.05, (n) => n.toFixed(2) + '×', false);
+  applyEscalatorVars();
   panel.append(scrollHost, tabs, stampPane, applePane);
 
   let alive = true;
   let stampModel = null;
   let appleModel = null;
-  let model = null;
-  let phase = 'hidden';
-  let phaseU = 0;
-  let shot = null;
-  let queued = false;
-  let queuedPoint = null;
   let pressN = 0;
   let lastNow = 0;
   const marks = [];
+  const flights = [];
+  const queued = [];
 
   function refreshFiles() {
     for (const ui of fileUis) {
@@ -1332,17 +2083,40 @@ function mountSignStamp(host) {
     }
     paintMarks();
   }
-  function chooseFile(kind) {
+  const colorDeck = [];
+  let lastColor = '';
+  function drawColor() {
+    if (!colorDeck.length) {
+      const colors = ['blue', 'pink', 'green'];
+      for (let i = colors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [colors[i], colors[j]] = [colors[j], colors[i]];
+      }
+      if (colors[colors.length - 1] === lastColor) {
+        [colors[0], colors[colors.length - 1]] = [colors[colors.length - 1], colors[0]];
+      }
+      colorDeck.push(...colors);
+    }
+    lastColor = colorDeck.pop();
+    return lastColor;
+  }
+  function pickCast(kind) {
+    const casts = kind === 'apple' ? APPLE_CASTS : STAMP_CASTS;
     const list = kind === 'apple' ? APPLE_IMPRINTS : STAMP_IMPRINTS;
     const rig = kind === 'apple' ? appleRig : stampRig;
-    if (rig.file === 'random') {
-      return list[Math.floor(Math.random() * list.length)];
+    let cast = casts.find((item) => item.file === rig.file);
+    if (!cast) {
+      const color = drawColor();
+      cast = casts.find((item) => item.color === color) || casts[0];
+    } else {
+      lastColor = cast.color;
     }
-    return list.find((item) => item.file === rig.file) || list[0];
+    const imprint = list.find((item) => item.file === cast.file) || list[0];
+    return { ...imprint, bodyHex: cast.hex };
   }
 
   function sampleShot(point, rig, kind) {
-    const choice = chooseFile(kind);
+    const choice = pickCast(kind);
     const w = host.clientWidth || 1;
     const h = host.clientHeight || 1;
     const span = rig.jitter * (w / 1440);
@@ -1406,9 +2180,9 @@ function mountSignStamp(host) {
     return 1.12 - 0.12 * (1 - (1 - v) ** 2);
   }
 
-  function axisPose(prefix) {
+  function axisPose(flight, prefix) {
     const d = Math.PI / 180;
-    const rig = shot.rig;
+    const rig = flight.shot.rig;
     return {
       x: rig[prefix + 'X'] * d,
       y: rig[prefix + 'Y'] * d,
@@ -1429,10 +2203,10 @@ function mountSignStamp(host) {
     return lerpPose(via, to, (u - 0.5) / 0.5);
   }
 
-  function poseFor(name, u) {
-    const start = axisPose('start');
-    const fly = axisPose('fly');
-    const press = axisPose('press');
+  function poseFor(flight, name, u) {
+    const start = axisPose(flight, 'start');
+    const fly = axisPose(flight, 'fly');
+    const press = axisPose(flight, 'press');
     if (name === 'descend') return travelPose(u, start, fly, press);
     if (name === 'lift') return travelPose(u, press, fly, start);
     return press;
@@ -1461,25 +2235,81 @@ function mountSignStamp(host) {
     };
   }
 
-  function applyPose(x, z, squashAmt, rot, presence, spin) {
+  function paintTool(root, kind, hex) {
+    root.traverse((node) => {
+      if (!node.isMesh || !node.material) return;
+      const mats = Array.isArray(node.material) ? node.material : [node.material];
+      for (const material of mats) {
+        if (kind === 'apple') {
+          if (material.name !== 'green' && material.name !== 'PaleGreen') continue;
+          material.color.setHex(hex);
+          material.emissive.setHex(hex);
+          material.emissiveIntensity = 0.08;
+          continue;
+        }
+        const color = new THREE.Color(hex);
+        if (node.name === 'Pad') color.multiplyScalar(0.78);
+        else if (node.name === 'Handle') color.multiplyScalar(0.9);
+        material.color.copy(color);
+      }
+    });
+  }
+
+  function cloneTool(source) {
+    const clone = source.clone(true);
+    clone.traverse((node) => {
+      if (!node.isMesh || !node.material) return;
+      node.material = Array.isArray(node.material)
+        ? node.material.map((material) => material.clone())
+        : node.material.clone();
+    });
+    clone.visible = false;
+    scene.add(clone);
+    return clone;
+  }
+
+  function cloneShadow() {
+    const mesh = shadow.clone();
+    mesh.material = shadow.material.clone();
+    mesh.visible = false;
+    scene.add(mesh);
+    return mesh;
+  }
+
+  function releaseFlight(flight) {
+    scene.remove(flight.model);
+    flight.model.traverse((node) => {
+      if (!node.isMesh || !node.material) return;
+      const mats = Array.isArray(node.material) ? node.material : [node.material];
+      for (const material of mats) material.dispose();
+    });
+    scene.remove(flight.shadow);
+    flight.shadow.material.dispose();
+    flight.model.visible = false;
+    flight.shadow.visible = false;
+  }
+
+  function applyPose(flight, x, z, squashAmt, rot, presence, spin) {
+    const shot = flight.shot;
     const rig = shot.rig;
     const size = SIZE * (shot.kind === 'apple' ? rig.scale : rig.printScale);
     const pressed = pressScales(rig.squash, squashAmt);
     const spread = pressed.x;
     const squat = pressed.y;
-    const euler = spin || poseFor('press', 1);
-    if (stampModel) stampModel.visible = false;
-    if (appleModel) appleModel.visible = false;
+    const euler = spin || poseFor(flight, 'press', 1);
+    const model = flight.model;
     model.scale.set(size * spread, size * squat, size * spread);
     model.rotation.order = 'XYZ';
     model.rotation.set(euler.x, euler.y - rot * Math.PI / 180, euler.z);
     model.position.set(x, 0.02 - Math.min(1, squashAmt) * 0.012, z);
     model.visible = true;
     if (shot.kind === 'apple') tintObject(model, rig);
-    shadow.visible = true;
-    shadow.position.set(x + 0.04, 0.002, z + 0.03);
-    shadow.material.opacity = 0.1 + presence * 0.22 + Math.min(1, squashAmt) * 0.4;
-    shadow.scale.setScalar(1.12 - Math.min(1, squashAmt) * 0.1);
+    if (shot.bodyHex != null) paintTool(model, shot.kind, shot.bodyHex);
+    const shade = flight.shadow;
+    shade.visible = true;
+    shade.position.set(x + 0.04, 0.002, z + 0.03);
+    shade.material.opacity = 0.1 + presence * 0.22 + Math.min(1, squashAmt) * 0.4;
+    shade.scale.setScalar(1.12 - Math.min(1, squashAmt) * 0.1);
   }
 
   function kindReady(kind) {
@@ -1488,87 +2318,104 @@ function mountSignStamp(host) {
 
   function start(point) {
     const kind = pressN % 2 === 0 ? 'stamp' : 'apple';
-    const rig = kind === 'stamp' ? stampRig : appleRig;
-    model = kindReady(kind);
-    if (!model) {
-      queued = true;
-      queuedPoint = point;
+    const source = kindReady(kind);
+    if (!source) {
+      queued.push(point);
       return;
     }
     pressN += 1;
-    shot = sampleShot(point, rig, kind);
+    const rig = kind === 'stamp' ? stampRig : appleRig;
+    const shot = sampleShot(point, rig, kind);
+    const flight = {
+      shot,
+      phase: 'descend',
+      phaseU: 0,
+      model: cloneTool(source),
+      shadow: cloneShadow(),
+    };
+    flights.push(flight);
     const ui = fileUis.find((item) => item.kind === kind);
     if (ui) ui.last.textContent = 'Сейчас: ' + shot.file;
     refreshFiles();
-    phase = 'descend';
-    phaseU = 0;
     const goal = targetOf(shot);
-    applyPose(goal.x, goal.edge, 0, shot.rot, 0, poseFor('descend', 0));
+    applyPose(flight, goal.x, goal.edge, 0, shot.rot, 0, poseFor(flight, 'descend', 0));
+  }
+
+  function drainQueue() {
+    while (queued.length) {
+      const kind = pressN % 2 === 0 ? 'stamp' : 'apple';
+      if (!kindReady(kind)) return;
+      start(queued.shift());
+    }
+  }
+
+  function stepFlight(flight, dt) {
+    const shot = flight.shot;
+    if (flight.phase === 'rest') {
+      if (shot.rig.liftAway) {
+        flight.phase = 'lift';
+        flight.phaseU = 0;
+      } else {
+        const goal = targetOf(shot);
+        applyPose(flight, goal.x, goal.z, 1, shot.rot, 1, poseFor(flight, 'press', 1));
+      }
+      return false;
+    }
+    const goal = targetOf(shot);
+    if (flight.phase === 'descend') {
+      flight.phaseU += dt / motionSeconds(0.62, shot.rig.descent);
+      const u = Math.min(1, flight.phaseU);
+      const k = 1 - (1 - u) ** 3;
+      applyPose(flight, goal.x, goal.edge + (goal.z - goal.edge) * k, 0, shot.rot, k, poseFor(flight, 'descend', u));
+      if (u >= 1) { flight.phase = 'press'; flight.phaseU = 0; }
+    } else if (flight.phase === 'press') {
+      flight.phaseU += dt / pressSeconds();
+      const u = Math.min(1, flight.phaseU);
+      applyPose(flight, goal.x, goal.z, squashCurve(u), shot.rot, 1, poseFor(flight, 'press', 1));
+      if (u >= 0.5) placeInk(shot);
+      if (u >= 1) { flight.phase = 'dwell'; flight.phaseU = 0; }
+    } else if (flight.phase === 'repress') {
+      flight.phaseU += dt / pressSeconds();
+      const u = Math.min(1, flight.phaseU);
+      const sq = 1 + Math.sin(Math.min(1, u) * Math.PI) * 0.35;
+      applyPose(flight, goal.x, goal.z, sq, shot.rot, 1, poseFor(flight, 'press', 1));
+      if (u >= 0.2) placeInk(shot);
+      if (u >= 1) { flight.phase = 'dwell'; flight.phaseU = 0; }
+    } else if (flight.phase === 'dwell') {
+      applyPose(flight, goal.x, goal.z, 1, shot.rot, 1, poseFor(flight, 'press', 1));
+      placeInk(shot);
+      if (shot.rig.dwell <= 0.001) {
+        flight.phase = shot.rig.liftAway ? 'lift' : 'rest';
+        flight.phaseU = 0;
+      } else {
+        flight.phaseU += dt / shot.rig.dwell;
+        if (flight.phaseU >= 1) {
+          flight.phase = shot.rig.liftAway ? 'lift' : 'rest';
+          flight.phaseU = 0;
+        }
+      }
+    } else if (flight.phase === 'lift') {
+      flight.phaseU += dt / motionSeconds(0.42, shot.rig.lift);
+      const u = Math.min(1, flight.phaseU);
+      const k = u * u;
+      const release = Math.max(0, 1 - Math.min(1, u / 0.28));
+      applyPose(flight, goal.x, goal.z + (goal.edge - goal.z) * k, release, shot.rot, 1 - k, poseFor(flight, 'lift', u));
+      if (u >= 1) {
+        releaseFlight(flight);
+        return true;
+      }
+    }
+    return false;
   }
 
   function step(dt) {
-    if (!model || phase === 'hidden') return;
-    if (phase === 'rest') {
-      if (shot.rig.liftAway) {
-        phase = 'lift';
-        phaseU = 0;
-      } else if (shot) {
-        const goal = targetOf(shot);
-        applyPose(goal.x, goal.z, 1, shot.rot, 1, poseFor('press', 1));
-      }
-      return;
-    }
-    if (!shot) return;
-    const goal = targetOf(shot);
-    if (phase === 'descend') {
-      phaseU += dt / motionSeconds(0.62, shot.rig.descent);
-      const u = Math.min(1, phaseU);
-      const k = 1 - (1 - u) ** 3;
-      applyPose(goal.x, goal.edge + (goal.z - goal.edge) * k, 0, shot.rot, k, poseFor('descend', u));
-      if (u >= 1) { phase = 'press'; phaseU = 0; }
-    } else if (phase === 'press') {
-      phaseU += dt / pressSeconds();
-      const u = Math.min(1, phaseU);
-      applyPose(goal.x, goal.z, squashCurve(u), shot.rot, 1, poseFor('press', 1));
-      if (u >= 0.5) placeInk(shot);
-      if (u >= 1) { phase = 'dwell'; phaseU = 0; }
-    } else if (phase === 'repress') {
-      phaseU += dt / pressSeconds();
-      const u = Math.min(1, phaseU);
-      const sq = 1 + Math.sin(Math.min(1, u) * Math.PI) * 0.35;
-      applyPose(goal.x, goal.z, sq, shot.rot, 1, poseFor('press', 1));
-      if (u >= 0.2) placeInk(shot);
-      if (u >= 1) { phase = 'dwell'; phaseU = 0; }
-    } else if (phase === 'dwell') {
-      applyPose(goal.x, goal.z, 1, shot.rot, 1, poseFor('press', 1));
-      placeInk(shot);
-      if (shot.rig.dwell <= 0.001) {
-        phase = shot.rig.liftAway ? 'lift' : 'rest';
-        phaseU = 0;
-      } else {
-        phaseU += dt / shot.rig.dwell;
-        if (phaseU >= 1) {
-          phase = shot.rig.liftAway ? 'lift' : 'rest';
-          phaseU = 0;
-        }
-      }
-    } else if (phase === 'lift') {
-      phaseU += dt / motionSeconds(0.42, shot.rig.lift);
-      const u = Math.min(1, phaseU);
-      const k = u * u;
-      const release = Math.max(0, 1 - Math.min(1, u / 0.28));
-      applyPose(goal.x, goal.z + (goal.edge - goal.z) * k, release, shot.rot, 1 - k, poseFor('lift', u));
-      if (u >= 1) {
-        phase = 'hidden';
-        model.visible = false;
-        shadow.visible = false;
-      }
+    for (let i = flights.length - 1; i >= 0; i--) {
+      if (stepFlight(flights[i], dt)) flights.splice(i, 1);
     }
   }
 
   function onClick(e) {
     if (!alive) return;
-    if (phase !== 'hidden' && phase !== 'rest') return;
     const hr = host.getBoundingClientRect();
     const point = { px: e.clientX - hr.left, py: e.clientY - hr.top };
     start(point);
@@ -1614,6 +2461,7 @@ function mountSignStamp(host) {
     camera.right = viewW / 2;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
+    placeStage();
     paintMarks();
   }
   const ro = new ResizeObserver(frame);
@@ -1628,13 +2476,7 @@ function mountSignStamp(host) {
     scene.add(group);
     if (kind === 'stamp') stampModel = group;
     else appleModel = group;
-    if (!queued || !queuedPoint) return;
-    const need = pressN % 2 === 0 ? 'stamp' : 'apple';
-    if (!kindReady(need)) return;
-    const point = queuedPoint;
-    queued = false;
-    queuedPoint = null;
-    start(point);
+    drainQueue();
   }
 
   new GLTFLoader().load('models/stamp_round.glb', (gltf) => {
@@ -1651,16 +2493,19 @@ function mountSignStamp(host) {
     const dt = lastNow ? Math.min(0.05, (now - lastNow) / 1000) : 0;
     lastNow = now;
     step(dt);
+    placeStage();
     renderer.render(scene, camera);
   });
 
   return () => {
     alive = false;
+    while (flights.length) releaseFlight(flights.pop());
     host.removeEventListener('click', onClick);
     removeEventListener('keydown', onKey);
     renderer.setAnimationLoop(null);
     ro.disconnect();
     renderer.dispose();
+    canvas.remove();
     panel.remove();
     layer.remove();
   };
@@ -1668,7 +2513,8 @@ function mountSignStamp(host) {
 
 // Полосы 1–4: клик поднимает объект из-за нижнего края, вид строго сверху, и сразу уводит вниз.
 function mountBandDrops(root) {
-  const bands = [...root.querySelectorAll('.reel .case')].slice(0, 4);
+  const bands = [...root.querySelectorAll('.escalator-track > .case:not(.is-clone)')].slice(0, 4);
+  const clones = [...root.querySelectorAll('.escalator-track > .case.is-clone')];
   if (!bands.length) return () => {};
 
   const layer = document.createElement('div');
@@ -1826,11 +2672,16 @@ function mountBandDrops(root) {
       if (playing || dx * dx + dy * dy > 64) return;
       begin(index, performance.now());
     }
-    band.addEventListener('pointerdown', onDown);
-    band.addEventListener('pointerup', onUp);
+    const targets = [band, clones[index]].filter(Boolean);
+    targets.forEach((target) => {
+      target.addEventListener('pointerdown', onDown);
+      target.addEventListener('pointerup', onUp);
+    });
     return () => {
-      band.removeEventListener('pointerdown', onDown);
-      band.removeEventListener('pointerup', onUp);
+      targets.forEach((target) => {
+        target.removeEventListener('pointerdown', onDown);
+        target.removeEventListener('pointerup', onUp);
+      });
     };
   });
 
@@ -1872,34 +2723,1271 @@ function mountBandDrops(root) {
   };
 }
 
-function mountBoardFx(root) {
-  const stopSign = mountSignStamp(root.querySelector('.signoff'));
-  const stopBands = mountBandDrops(root);
+// Поза шапки до возврата фото: Euler XYZ, как у перетаскивания
+// (горизонталь — Y, вертикаль — X, Shift / правая кнопка — Z).
+// Направление света то же, что у DirectionalLight (−2.4, 5.2, −1.7).
+const VIEW_APPLE = {
+  xPx: 1290,
+  topPx: 0,
+  rotX: 59.3,
+  rotY: -142.3,
+  rotZ: -18.2,
+  size: 1.88,
+  azimuth: -90,
+  elevation: 52,
+  distance: 6.5422,
+  intensity: 4.45,
+  ambient: 0.72,
+  lightMode: 'source',
+  shadowDark: 0.09,
+  shadowRadius: 11,
+  lightOn: true,
+  shadeSmooth: true,
+  panelOpen: false,
+};
+
+function weldSmoothGeometry(geometry) {
+  const source = geometry.clone();
+  for (const name of ['normal', 'uv', 'uv1', 'uv2', 'uv3', 'tangent', 'color']) source.deleteAttribute(name);
+  const merged = BufferGeometryUtils.mergeVertices(source, 1e-4);
+  source.dispose();
+  merged.computeVertexNormals();
+  return merged;
+}
+
+function applyShadeSmooth(root, smooth) {
+  if (!root) return;
+  root.traverse((node) => {
+    if (!node.isMesh || !node.geometry) return;
+    if (!node.userData.flatGeometry) {
+      node.userData.flatGeometry = node.geometry;
+      node.userData.smoothGeometry = weldSmoothGeometry(node.geometry);
+    }
+    node.geometry = smooth ? node.userData.smoothGeometry : node.userData.flatGeometry;
+    const mats = Array.isArray(node.material) ? node.material : [node.material];
+    for (const material of mats) {
+      if (!material) continue;
+      material.flatShading = !smooth;
+      material.needsUpdate = true;
+    }
+  });
+}
+
+const HEADER_APPLE_FILE = 'design/stub/models/apple-corner.glb';
+const HEADER_APPLE_GREEN = 0x56ae08;
+const HEADER_STEM = 0x8b5a2b;
+
+function prepareHeaderApple(gltf) {
+  const model = gltf.scene.clone(true);
+  cloneMaterials(model);
+  model.traverse((node) => {
+    if (!node.isMesh || !node.material) return;
+    const mats = Array.isArray(node.material) ? node.material : [node.material];
+    if (mats.some((material) => material && /green_apple_2_texture/i.test(material.name || ''))) {
+      node.userData.appleStem = true;
+    }
+  });
+  model.traverse((node) => {
+    if (!node.isMesh || !node.material) return;
+    const prev = Array.isArray(node.material) ? node.material : [node.material];
+    if (node.userData.appleStem) {
+      const next = prev.map((material) => {
+        if (!material) return material;
+        const stem = material.clone();
+        stem.name = 'stem';
+        stem.color.setHex(HEADER_STEM);
+        if (stem.emissive) {
+          stem.emissive.setHex(0x000000);
+          stem.emissiveIntensity = 0;
+        }
+        stem.map = stem.envMap = stem.normalMap = stem.roughnessMap = stem.metalnessMap = stem.aoMap = stem.emissiveMap = null;
+        return stem;
+      });
+      node.material = Array.isArray(node.material) ? next : next[0];
+      for (const old of prev) {
+        if (old && !next.includes(old)) old.dispose();
+      }
+      return;
+    }
+    let side = THREE.FrontSide;
+    for (const material of prev) {
+      if (material && material.side === THREE.DoubleSide) side = THREE.DoubleSide;
+    }
+    const material = new THREE.MeshStandardMaterial({
+      name: 'plane',
+      color: HEADER_APPLE_GREEN,
+      metalness: 0,
+      roughness: 0.55,
+      emissive: 0x000000,
+      emissiveIntensity: 0,
+      envMapIntensity: 0,
+      side,
+      flatShading: false,
+    });
+    node.material = material;
+    for (const old of prev) {
+      if (old && old !== material) old.dispose();
+    }
+  });
+  applyShadeSmooth(model, true);
+  return fitTopDown(model);
+}
+
+function mountHeaderApple() {
+  const pose = {
+    xPx: 1513,
+    topPx: 5,
+    rotX: 69.7,
+    rotY: -172.9,
+    rotZ: -33.2,
+    size: 1.54,
+    azimuth: -90,
+    elevation: 52,
+    distance: 6.5422,
+    intensity: 4.45,
+    ambient: 0.72,
+    shadowDark: 0.09,
+    shadowRadius: 11,
+  };
+  const TURN_Y = -11;
+  const TURN_SCALE = 1.248;
+  const GROUND = -0.7;
+  const MOBILE_BOARD = 375;
+  const DESK_GRID_MARGIN = 12;
+  const DESK_GRID_GUTTER = 12;
+  const DESK_GRID_COLS = 12;
+  const DESK_APPLE_COL = 11;
+  const DESK_COL_AT_1440 = (1440 - 2 * DESK_GRID_MARGIN - 11 * DESK_GRID_GUTTER) / DESK_GRID_COLS;
+  const DESK_APPLE_REF_W = 1728;
+  function desktopColumnWidth(width) {
+    return (width - 2 * DESK_GRID_MARGIN - (DESK_GRID_COLS - 1) * DESK_GRID_GUTTER) / DESK_GRID_COLS;
+  }
+  const DESK_APPLE_INTO_COL = (1513
+    - DESK_GRID_MARGIN
+    - DESK_APPLE_COL * (desktopColumnWidth(DESK_APPLE_REF_W) + DESK_GRID_GUTTER))
+    * DESK_COL_AT_1440 / desktopColumnWidth(DESK_APPLE_REF_W);
+  function desktopAppleX(width) {
+    const col = desktopColumnWidth(width);
+    const into = DESK_APPLE_INTO_COL * (col / DESK_COL_AT_1440);
+    return DESK_GRID_MARGIN + DESK_APPLE_COL * (col + DESK_GRID_GUTTER) + into;
+  }
+  function mobileFrameScale() {
+    return Math.max(innerWidth, 1) / MOBILE_BOARD;
+  }
+  function applyAppleLayout() {
+    if (matchMedia('(max-width: 440px)').matches) {
+      const k = mobileFrameScale();
+      pose.size = 5.65 * k;
+      pose.xPx = 111 * k;
+      pose.topPx = 18 * k;
+    } else {
+      pose.xPx = desktopAppleX(Math.max(innerWidth, 1));
+      pose.topPx = 5;
+      pose.size = 1.54;
+    }
+  }
+
+  const host = document.createElement('div');
+  host.className = 'apple-view';
+  host.setAttribute('aria-hidden', 'true');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.domElement.style.pointerEvents = 'none';
+  host.appendChild(renderer.domElement);
+  document.body.appendChild(host);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.05, 40);
+  camera.position.set(0, 8, 0);
+  camera.up.set(0, 0, -1);
+  camera.lookAt(0, 0, 0);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0;
+  const fill = new THREE.AmbientLight(0xffffff, pose.ambient);
+  scene.add(fill);
+  const key = new THREE.DirectionalLight(0xfff7f2, pose.intensity);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.bias = -0.00015;
+  key.shadow.normalBias = 0.004;
+  key.shadow.radius = pose.shadowRadius;
+  scene.add(key, key.target);
+  const groundMat = new THREE.ShadowMaterial({ color: 0x000000, opacity: pose.shadowDark });
+  groundMat.depthWrite = false;
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  ground.renderOrder = 1;
+  scene.add(ground);
+
+  const tilt = new THREE.Group();
+  tilt.rotation.order = 'XYZ';
+  scene.add(tilt);
+  const turn = new THREE.Group();
+  turn.name = 'apple-turn';
+  turn.rotation.order = 'XYZ';
+  turn.rotation.y = TURN_Y * Math.PI / 180;
+  turn.scale.setScalar(TURN_SCALE);
+  tilt.add(turn);
+
+  let alive = true;
+  let appleModel = null;
+  const shadowBox = new THREE.Box3();
+  const shadowSize = new THREE.Vector3();
+  const shadowCenter = new THREE.Vector3();
+  const lightDir = new THREE.Vector3();
+  const gaze = { x: 0, y: 0, sx: 0, sy: 0 };
+  const gazeBase = new THREE.Quaternion();
+  const gazeEuler = new THREE.Euler(0, 0, 0, 'XYZ');
+  const gazePitch = new THREE.Quaternion();
+  const gazeYaw = new THREE.Quaternion();
+  const rollQuat = new THREE.Quaternion();
+  const rollAxis = new THREE.Vector3();
+  const axisX = new THREE.Vector3(1, 0, 0);
+  const axisUp = new THREE.Vector3(0, 0, -1);
+  const GAZE = 8 * Math.PI / 180;
+  const DRAG_LIMIT = 18 * Math.PI / 180;
+  const DRAG_PX = 120;
+  const raycaster = new THREE.Raycaster();
+  const pointerNdc = new THREE.Vector2();
+  const drag = { active: false, pointerId: -1, x0: 0, y0: 0, yaw0: 0, pitch0: 0, yaw: 0, pitch: 0 };
+  let dragClock = performance.now();
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const APPLE_ENTER_MS = 900;
+  const APPLE_ENTER_Y = 300;
+  const APPLE_ENTER_Z = 184;
+  const APPLE_ROLL_MS = 11000;
+  const APPLE_ROLL_STEPS = 480;
+  let appleEnter = null;
+  let appleRoll = null;
+
+  function cubicBezierEase(x1, y1, x2, y2) {
+    const calc = (t, a1, a2) => t * (3 * (1 - t) * ((1 - t) * a1 + t * a2) + t * t);
+    return (x) => {
+      let lower = 0;
+      let upper = 1;
+      let t = x;
+      for (let i = 0; ; i++) {
+        if (!(t >= lower && t <= upper)) t = (lower + upper) / 2;
+        const currentX = calc(t, x1, x2) - x;
+        if (currentX * currentX < 1e-28 || i === 40) break;
+        if (currentX > 0) upper = t;
+        else lower = t;
+        t -= (currentX * 1e-7) / (calc(t + 1e-7, x1, x2) - x - currentX);
+      }
+      return calc(t, y1, y2);
+    };
+  }
+  const easeSlow = cubicBezierEase(0.16, 1, 0.3, 1);
+  function appleEnterEase() {
+    if (reduced || !appleEnter) return appleEnter ? 1 : 0;
+    return easeSlow(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
+  }
+  function appleOffscreen() {
+    return -Math.max(innerHeight, 1) * 1.35;
+  }
+  function appleEnterOffset() {
+    if (reduced) return 0;
+    if (!appleEnter) return appleOffscreen();
+    return appleOffscreen() * (1 - appleEnterEase());
+  }
+  function appleEnterRot() {
+    const left = reduced || !appleEnter ? 0 : 1 - appleEnterEase();
+    return {
+      x: pose.rotX,
+      y: pose.rotY + APPLE_ENTER_Y * left,
+      z: pose.rotZ + APPLE_ENTER_Z * left,
+    };
+  }
+  function appleScreenRadius() {
+    const w = Math.max(innerWidth, 2);
+    const h = Math.max(innerHeight, 2);
+    const headerH = 306 * (w / 1440);
+    const viewH = 2.4 * (h / Math.max(headerH, 1));
+    const poseSize = matchMedia('(max-width: 440px)').matches
+      ? pose.size / mobileFrameScale()
+      : pose.size;
+    return Math.max(12, 0.39 * poseSize * (h / viewH));
+  }
+  function appleRollMargin() {
+    const h = Math.max(innerHeight, 2);
+    const headerH = 306 * (Math.max(innerWidth, 2) / 1440);
+    const viewH = 2.4 * (h / Math.max(headerH, 1));
+    const px = h / Math.max(viewH, 1e-6);
+    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.max.x) && Number.isFinite(shadowBox.max.z)) {
+      const half = 0.5 * Math.max(
+        shadowBox.max.x - shadowBox.min.x,
+        shadowBox.max.z - shadowBox.min.z,
+      ) * px;
+      if (half > 8) return half;
+    }
+    return appleScreenRadius() * TURN_SCALE;
+  }
+  function appleRollSpec() {
+    const mobile = matchMedia('(max-width: 440px)').matches;
+    const h = Math.max(innerHeight, 1);
+    if (mobile) return { radius: h * 0.18, theta0: 32 * Math.PI / 180, dir: 1 };
+    return { radius: h * 0.21, theta0: -160 * Math.PI / 180, dir: -1 };
+  }
+  function appleRollEaseInverse(u) {
+    if (u <= 0) return 0;
+    if (u >= 1) return 1;
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < 22; i++) {
+      const mid = (lo + hi) * 0.5;
+      if (easeSlow(mid) < u) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) * 0.5;
+  }
+  function appleRollClock(spec) {
+    const steps = APPLE_ROLL_STEPS;
+    const times = new Float64Array(steps + 1);
+    const easeAt = new Float64Array(steps + 1);
+    const layout = {
+      ox: pose.xPx,
+      oy: pose.topPx + appleEnterOffset(),
+      w: Math.max(innerWidth, 1),
+      h: Math.max(innerHeight, 1),
+      margin: appleRollMargin(),
+      c0: Math.cos(spec.theta0),
+      s0: Math.sin(spec.theta0),
+    };
+    for (let i = 0; i < steps; i++) {
+      const u1 = (i + 1) / steps;
+      const ease = i + 1 === steps ? 1 : appleRollEaseInverse(u1);
+      const theta = spec.theta0 + spec.dir * Math.PI * 2 * ((i + 0.5) / steps);
+      const x = layout.ox + spec.radius * (Math.cos(theta) - layout.c0);
+      const y = layout.oy + spec.radius * (Math.sin(theta) - layout.s0);
+      const off = x < -layout.margin || y < -layout.margin || x > layout.w + layout.margin || y > layout.h + layout.margin;
+      const dtOld = Math.max(0, (ease - easeAt[i]) * APPLE_ROLL_MS);
+      times[i + 1] = times[i] + dtOld / (off ? 2 : 1);
+      easeAt[i + 1] = ease;
+    }
+    return { times, easeAt, steps, duration: times[steps] };
+  }
+  function appleRolling() {
+    return !!(appleRoll && (performance.now() - appleRoll.start) < appleRoll.clock.duration);
+  }
+  function appleRollParam(clock, elapsed) {
+    if (elapsed <= 0) return 0;
+    if (elapsed >= clock.duration) return 1;
+    let lo = 1;
+    let hi = clock.steps;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (clock.times[mid] < elapsed) lo = mid + 1;
+      else hi = mid;
+    }
+    const t0 = clock.times[lo - 1];
+    const t1 = clock.times[lo];
+    const f = t1 > t0 ? (elapsed - t0) / (t1 - t0) : 0;
+    const ease = clock.easeAt[lo - 1] + (clock.easeAt[lo] - clock.easeAt[lo - 1]) * f;
+    return easeSlow(Math.min(1, Math.max(0, ease)));
+  }
+  function appleRollSample() {
+    if (!appleRoll) return null;
+    const u = appleRollParam(appleRoll.clock, performance.now() - appleRoll.start);
+    if (!(u > 0) || u >= 1) return null;
+    const spec = appleRoll.spec;
+    const theta = spec.theta0 + spec.dir * Math.PI * 2 * u;
+    const turns = Math.max(1, Math.round(spec.radius / appleScreenRadius()));
+    return {
+      dx: spec.radius * (Math.cos(theta) - Math.cos(spec.theta0)),
+      dy: spec.radius * (Math.sin(theta) - Math.sin(spec.theta0)),
+      tx: spec.dir * -Math.sin(theta),
+      ty: spec.dir * Math.cos(theta),
+      angle: Math.PI * 2 * turns * u,
+    };
+  }
+  function startAppleRoll() {
+    if (reduced || appleRolling()) return;
+    const spec = appleRollSpec();
+    appleRoll = { start: performance.now(), spec, clock: appleRollClock(spec) };
+  }
+  function clampDrag(angle) {
+    return Math.max(-DRAG_LIMIT, Math.min(DRAG_LIMIT, angle));
+  }
+  function followPointer() {
+    const now = performance.now();
+    const dt = Math.min(0.05, Math.max(0, (now - dragClock) / 1000));
+    dragClock = now;
+    if (!drag.active) {
+      const k = 1 - Math.exp(-dt * 8);
+      drag.yaw += -drag.yaw * k;
+      drag.pitch += -drag.pitch * k;
+    }
+    gaze.sx += (gaze.x - gaze.sx) * 0.08;
+    gaze.sy += (gaze.y - gaze.sy) * 0.08;
+    const enterRot = appleEnterRot();
+    gazeEuler.set(enterRot.x * Math.PI / 180, enterRot.y * Math.PI / 180, enterRot.z * Math.PI / 180);
+    gazeBase.setFromEuler(gazeEuler);
+    const roll = appleRollSample();
+    if (roll) {
+      const len = Math.hypot(roll.tx, roll.ty) || 1;
+      rollAxis.set(roll.ty / len, 0, -roll.tx / len);
+      rollQuat.setFromAxisAngle(rollAxis, roll.angle);
+      gazeBase.premultiply(rollQuat);
+    }
+    gazePitch.setFromAxisAngle(axisX, gaze.sy * GAZE + drag.pitch);
+    gazeYaw.setFromAxisAngle(axisUp, gaze.sx * GAZE + drag.yaw);
+    gazeYaw.multiply(gazePitch);
+    tilt.quaternion.copy(gazeYaw).multiply(gazeBase);
+    tilt.updateMatrixWorld(true);
+    shadowBox.setFromObject(tilt);
+    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.min.y)) {
+      tilt.position.y += GROUND - shadowBox.min.y;
+    }
+  }
+  function placeApple() {
+    if (!alive) return;
+    applyAppleLayout();
+    const w = Math.max(innerWidth, 2);
+    const h = Math.max(innerHeight, 2);
+    const headerH = 306 * (w / 1440);
+    const viewH = 2.4 * (h / headerH);
+    const viewW = viewH * (w / h);
+    camera.top = viewH / 2;
+    camera.bottom = -viewH / 2;
+    camera.left = -viewW / 2;
+    camera.right = viewW / 2;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    const poseSize = matchMedia('(max-width: 440px)').matches
+      ? pose.size / mobileFrameScale()
+      : pose.size;
+    if (appleModel) appleModel.scale.setScalar(0.78 * poseSize);
+    const roll = appleRollSample();
+    const enterY = appleEnterOffset() + (roll ? roll.dy : 0);
+    const enterX = roll ? roll.dx : 0;
+    tilt.position.set(
+      ((pose.xPx + enterX) / w) * viewW - viewW / 2,
+      0,
+      ((pose.topPx + enterY) / h) * viewH - viewH / 2,
+    );
+    const enterRot = appleEnterRot();
+    tilt.rotation.set(enterRot.x * Math.PI / 180, enterRot.y * Math.PI / 180, enterRot.z * Math.PI / 180);
+    tilt.updateMatrixWorld(true);
+    shadowBox.setFromObject(tilt);
+    const az = pose.azimuth * Math.PI / 180;
+    const el = Math.max(pose.elevation * Math.PI / 180, 0.087);
+    let reach = 1.4;
+    let focusX = tilt.position.x;
+    let focusZ = tilt.position.z;
+    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.min.y)) {
+      tilt.position.y = -shadowBox.min.y + GROUND;
+      tilt.updateMatrixWorld(true);
+      shadowBox.setFromObject(tilt);
+      shadowBox.getSize(shadowSize);
+      shadowBox.getCenter(shadowCenter);
+      reach = Math.min(8, (shadowSize.y + 0.04) / Math.tan(el));
+      focusX = shadowCenter.x - Math.sin(az) * reach * 0.5;
+      focusZ = shadowCenter.z - Math.cos(az) * reach * 0.5;
+      const extent = Math.max(shadowSize.x, shadowSize.z) * 0.9 + reach * 0.7 + 0.45;
+      const cam = key.shadow.camera;
+      cam.left = -extent;
+      cam.right = extent;
+      cam.top = extent;
+      cam.bottom = -extent;
+      cam.near = 0.15;
+      cam.far = pose.distance + reach + shadowSize.y + 6;
+      cam.updateProjectionMatrix();
+    }
+    lightDir.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+    key.target.position.set(focusX, 0.02, focusZ);
+    key.position.copy(key.target.position).addScaledVector(lightDir, pose.distance);
+    key.intensity = pose.intensity;
+    fill.intensity = pose.ambient;
+    key.shadow.radius = pose.shadowRadius;
+    groundMat.opacity = Math.min(1, pose.shadowDark * (pose.intensity / 2.5));
+    key.target.updateMatrixWorld();
+    ground.position.set(0, 0, 0);
+    ground.scale.set(viewW * 1.4, viewH * 1.4, 1);
+    followPointer();
+  }
+
+  function hitsApple(event) {
+    if (!appleModel) return false;
+    const w = Math.max(innerWidth, 1);
+    const h = Math.max(innerHeight, 1);
+    pointerNdc.x = (event.clientX / w) * 2 - 1;
+    pointerNdc.y = -((event.clientY / h) * 2 - 1);
+    raycaster.setFromCamera(pointerNdc, camera);
+    tilt.updateMatrixWorld(true);
+    return raycaster.intersectObject(appleModel, true).length > 0;
+  }
+  function uiOwnsPointer(event) {
+    const el = event.target;
+    return !!(el && el.closest && el.closest('.crosshair, .stamp-panel, .sig-modal, .catalog-entry, .ig-link, .site-credits, .soon, a, button, input, select, textarea, label'));
+  }
+  function onPointerMove(event) {
+    const w = Math.max(innerWidth, 1);
+    const h = Math.max(innerHeight, 1);
+    gaze.x = (event.clientX / w) * 2 - 1;
+    gaze.y = (event.clientY / h) * 2 - 1;
+  }
+  function onPointerLeave() {
+    gaze.x = 0;
+    gaze.y = 0;
+  }
+  function onApplePointerDown(event) {
+    if (!alive || drag.active || event.button !== 0) return;
+    if (uiOwnsPointer(event) || !hitsApple(event)) return;
+    startAppleRoll();
+    drag.active = true;
+    drag.pointerId = event.pointerId;
+    drag.x0 = event.clientX;
+    drag.y0 = event.clientY;
+    drag.yaw0 = drag.yaw;
+    drag.pitch0 = drag.pitch;
+    if (event.cancelable) event.preventDefault();
+  }
+  function onApplePointerMove(event) {
+    if (!drag.active || event.pointerId !== drag.pointerId) return;
+    if (event.pointerType === 'mouse' && (event.buttons & 1) === 0) {
+      drag.active = false;
+      return;
+    }
+    drag.yaw = clampDrag(drag.yaw0 + ((event.clientX - drag.x0) / DRAG_PX) * DRAG_LIMIT);
+    drag.pitch = clampDrag(drag.pitch0 + ((event.clientY - drag.y0) / DRAG_PX) * DRAG_LIMIT);
+  }
+  function onApplePointerUp(event) {
+    if (!drag.active || event.pointerId !== drag.pointerId) return;
+    drag.active = false;
+  }
+  addEventListener('pointermove', onPointerMove);
+  addEventListener('pointerleave', onPointerLeave);
+  addEventListener('pointerdown', onApplePointerDown, { capture: true });
+  addEventListener('pointermove', onApplePointerMove);
+  addEventListener('pointerup', onApplePointerUp);
+  addEventListener('pointercancel', onApplePointerUp);
+  addEventListener('resize', placeApple);
+
+  new GLTFLoader().load(HEADER_APPLE_FILE, (gltf) => {
+    if (!alive) return;
+    const fitted = prepareHeaderApple(gltf);
+    fitted.traverse((node) => {
+      if (!node.isMesh) return;
+      node.castShadow = true;
+      node.receiveShadow = false;
+      const mats = Array.isArray(node.material) ? node.material : [node.material];
+      for (const material of mats) if (material) material.shadowSide = THREE.DoubleSide;
+    });
+    appleModel = new THREE.Group();
+    appleModel.add(fitted);
+    turn.add(appleModel);
+    appleEnter = reduced ? { start: performance.now() - APPLE_ENTER_MS } : { start: performance.now() };
+    host.classList.add('apple-shown');
+    placeApple();
+  });
+
+  applyAppleLayout();
+  placeApple();
+  renderer.setAnimationLoop(() => {
+    if (!alive) return;
+    const flying = appleEnter && performance.now() - appleEnter.start < APPLE_ENTER_MS;
+    if (!appleModel || flying || appleRolling() || drag.active || Math.abs(drag.yaw) > 0.0004 || Math.abs(drag.pitch) > 0.0004 || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {
+      placeApple();
+    } else if (appleRoll && !appleRolling()) {
+      appleRoll = null;
+      placeApple();
+    }
+    renderer.render(scene, camera);
+  });
+}
+
+function mountViewportApple() {
+  if (VIEW_APPLE.xPx == null) VIEW_APPLE.xPx = Math.round(innerWidth * 0.5);
+  if (VIEW_APPLE.topPx == null) VIEW_APPLE.topPx = 0;
+
+  const host = document.createElement('div');
+  host.className = 'apple-view';
+  host.setAttribute('aria-hidden', 'true');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.domElement.style.pointerEvents = 'none';
+  host.appendChild(renderer.domElement);
+  document.body.appendChild(host);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.05, 40);
+  camera.position.set(0, 8, 0);
+  camera.up.set(0, 0, -1);
+  camera.lookAt(0, 0, 0);
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  const fill = new THREE.AmbientLight(0xffffff, 0.62);
+  scene.add(fill);
+  const key = new THREE.DirectionalLight(0xfff7f2, VIEW_APPLE.intensity);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.bias = -0.00015;
+  key.shadow.normalBias = 0.004;
+  key.shadow.radius = VIEW_APPLE.shadowRadius;
+  scene.add(key, key.target);
+
+  const groundMat = new THREE.ShadowMaterial({ color: 0x000000, opacity: VIEW_APPLE.shadowDark });
+  groundMat.depthWrite = false;
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  ground.renderOrder = 1;
+  scene.add(ground);
+
+  const tilt = new THREE.Group();
+  tilt.rotation.order = 'XYZ';
+  scene.add(tilt);
+
+  let alive = true;
+  let appleModel = null;
+  let xInput = null;
+  let topInput = null;
+  let shadeInput = null;
+  let sourceBlock = null;
+  let mapHint = null;
+  const shadowBox = new THREE.Box3();
+  const shadowSize = new THREE.Vector3();
+  const shadowCenter = new THREE.Vector3();
+  const lightDir = new THREE.Vector3();
+  const gaze = { x: 0, y: 0, sx: 0, sy: 0 };
+  const gazeBase = new THREE.Quaternion();
+  const gazeEuler = new THREE.Euler(0, 0, 0, 'XYZ');
+  const gazePitch = new THREE.Quaternion();
+  const gazeYaw = new THREE.Quaternion();
+  const axisX = new THREE.Vector3(1, 0, 0);
+  const axisUp = new THREE.Vector3(0, 0, -1);
+  const GAZE = 8 * Math.PI / 180;
+
+  function followPointer() {
+    gaze.sx += (gaze.x - gaze.sx) * 0.08;
+    gaze.sy += (gaze.y - gaze.sy) * 0.08;
+    gazeEuler.set(
+      VIEW_APPLE.rotX * Math.PI / 180,
+      VIEW_APPLE.rotY * Math.PI / 180,
+      VIEW_APPLE.rotZ * Math.PI / 180,
+    );
+    gazeBase.setFromEuler(gazeEuler);
+    gazePitch.setFromAxisAngle(axisX, gaze.sy * GAZE);
+    gazeYaw.setFromAxisAngle(axisUp, gaze.sx * GAZE);
+    gazeYaw.multiply(gazePitch);
+    tilt.quaternion.copy(gazeYaw).multiply(gazeBase);
+    tilt.updateMatrixWorld(true);
+    shadowBox.setFromObject(tilt);
+    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.min.y)) {
+      tilt.position.y += 0.012 - shadowBox.min.y;
+    }
+  }
+
+  function onPointerMove(event) {
+    const w = Math.max(innerWidth, 1);
+    const h = Math.max(innerHeight, 1);
+    gaze.x = (event.clientX / w) * 2 - 1;
+    gaze.y = (event.clientY / h) * 2 - 1;
+  }
+  function onPointerLeave() {
+    gaze.x = 0;
+    gaze.y = 0;
+  }
+
+  function applySurfaceLight(lit) {
+    tilt.traverse((node) => {
+      if (!node.isMesh) return;
+      const mats = Array.isArray(node.material) ? node.material : [node.material];
+      for (const material of mats) {
+        if (!material) continue;
+        if (material.userData.litEmissive == null) {
+          material.userData.litEmissive = material.emissiveIntensity;
+          material.userData.litEnv = material.envMapIntensity;
+        }
+        material.emissiveIntensity = lit === 'off' ? 0 : material.userData.litEmissive;
+        material.envMapIntensity = 0;
+      }
+    });
+  }
+
+  function placeApple() {
+    if (!alive) return;
+    applyShadeSmooth(tilt, VIEW_APPLE.shadeSmooth === true);
+    if (shadeInput) shadeInput.checked = VIEW_APPLE.shadeSmooth === true;
+    const w = Math.max(innerWidth, 2);
+    const h = Math.max(innerHeight, 2);
+    const headerH = 306 * (w / 1440);
+    const viewH = 2.4 * (h / headerH);
+    const viewW = viewH * (w / h);
+    camera.top = viewH / 2;
+    camera.bottom = -viewH / 2;
+    camera.left = -viewW / 2;
+    camera.right = viewW / 2;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+    if (appleModel) appleModel.scale.setScalar(0.78 * VIEW_APPLE.size);
+    tilt.position.set(
+      (VIEW_APPLE.xPx / w) * viewW - viewW / 2,
+      0,
+      (VIEW_APPLE.topPx / h) * viewH - viewH / 2,
+    );
+    tilt.rotation.set(
+      VIEW_APPLE.rotX * Math.PI / 180,
+      VIEW_APPLE.rotY * Math.PI / 180,
+      VIEW_APPLE.rotZ * Math.PI / 180,
+    );
+    tilt.updateMatrixWorld(true);
+    shadowBox.setFromObject(tilt);
+    const az = VIEW_APPLE.azimuth * Math.PI / 180;
+    const el = Math.max(VIEW_APPLE.elevation * Math.PI / 180, 0.087);
+    let reach = 1.4;
+    let focusX = tilt.position.x;
+    let focusZ = tilt.position.z;
+    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.min.y)) {
+      tilt.position.y = -shadowBox.min.y + 0.012;
+      tilt.updateMatrixWorld(true);
+      shadowBox.setFromObject(tilt);
+      shadowBox.getSize(shadowSize);
+      shadowBox.getCenter(shadowCenter);
+      reach = Math.min(8, (shadowSize.y + 0.04) / Math.tan(el));
+      focusX = shadowCenter.x - Math.sin(az) * reach * 0.5;
+      focusZ = shadowCenter.z - Math.cos(az) * reach * 0.5;
+      const extent = Math.max(shadowSize.x, shadowSize.z) * 0.9 + reach * 0.7 + 0.45;
+      const cam = key.shadow.camera;
+      cam.left = -extent;
+      cam.right = extent;
+      cam.top = extent;
+      cam.bottom = -extent;
+      cam.near = 0.15;
+      cam.far = VIEW_APPLE.distance + reach + shadowSize.y + 6;
+      cam.updateProjectionMatrix();
+    }
+    lightDir.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+    key.target.position.set(focusX, 0.02, focusZ);
+    key.position.copy(key.target.position).addScaledVector(lightDir, VIEW_APPLE.distance);
+    const mode = VIEW_APPLE.lightOn === false
+      ? 'off'
+      : (VIEW_APPLE.lightMode === 'map' ? 'map' : 'source');
+    key.castShadow = mode === 'source';
+    key.intensity = mode === 'source' ? VIEW_APPLE.intensity : 0;
+    fill.intensity = mode === 'off' ? 0 : VIEW_APPLE.ambient;
+    scene.environmentIntensity = 0;
+    key.shadow.radius = VIEW_APPLE.shadowRadius;
+    groundMat.opacity = mode === 'source'
+      ? Math.min(1, VIEW_APPLE.shadowDark * (VIEW_APPLE.intensity / 2.5))
+      : 0;
+    applySurfaceLight(mode);
+    key.target.updateMatrixWorld();
+    ground.position.set(0, 0, 0);
+    ground.scale.set(viewW * 1.4, viewH * 1.4, 1);
+    if (xInput) {
+      xInput.max = String(Math.ceil(w + 400));
+      topInput.max = String(Math.ceil(h + 400));
+    }
+    followPointer();
+  }
+
+  function applyKeyLightAndPlace() {
+    placeApple();
+    if (lightPos) {
+      lightPos.textContent =
+        `x ${key.position.x.toFixed(2)}   y ${key.position.y.toFixed(2)}   z ${key.position.z.toFixed(2)}`;
+    }
+    const map = VIEW_APPLE.lightMode === 'map';
+    if (sourceBlock) sourceBlock.hidden = map;
+    if (mapHint) mapHint.hidden = !map;
+  }
+
+  const panel = document.createElement('aside');
+  panel.className = 'apple-light';
+  panel.hidden = !VIEW_APPLE.panelOpen;
+  panel.setAttribute('aria-label', 'Настройки яблока');
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'close';
+  close.textContent = 'Закрыть';
+  const title = document.createElement('h2');
+  title.textContent = 'Яблоко';
+  const hint = document.createElement('p');
+  hint.className = 'hint';
+  hint.textContent = 'Клавиша L открывает панель. Esc закрывает.';
+  panel.append(close, title, hint);
+
+  function setOpen(open) {
+    VIEW_APPLE.panelOpen = open;
+    panel.hidden = !open;
+  }
+  function togglePanel() { setOpen(panel.hidden); }
+  close.addEventListener('click', () => setOpen(false));
+
+  function addHeading(text, parent = panel) {
+    const heading = document.createElement('h3');
+    heading.textContent = text;
+    parent.append(heading);
+  }
+  function addSlider(label, keyName, min, max, step, format, after, parent = panel) {
+    const row = document.createElement('label');
+    row.className = 'row';
+    const head = document.createElement('span');
+    const name = document.createElement('b');
+    name.textContent = label;
+    const value = document.createElement('i');
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = String(min);
+    input.max = String(max);
+    input.step = String(step);
+    input.value = String(VIEW_APPLE[keyName]);
+    input.setAttribute('aria-label', label);
+    const paintValue = () => { value.textContent = format(Number(input.value)); };
+    input.addEventListener('input', (event) => {
+      if (!event.isTrusted) return;
+      VIEW_APPLE[keyName] = Number(input.value);
+      paintValue();
+      if (after) after();
+      else applyKeyLightAndPlace();
+    });
+    paintValue();
+    head.append(name, value);
+    row.append(head, input);
+    parent.append(row);
+    return input;
+  }
+
+  addHeading('Положение');
+  xInput = addSlider('По горизонтали', 'xPx', -400, Math.ceil(innerWidth + 400), 1, (v) => Math.round(v) + ' px', placeApple);
+  topInput = addSlider('От верха экрана', 'topPx', -400, Math.ceil(innerHeight + 400), 1, (v) => Math.round(v) + ' px', placeApple);
+  addSlider('Размер', 'size', 0.2, 3, 0.01, (v) => Math.round(v * 100) + '%', placeApple);
+  addHeading('Поворот яблока');
+  addSlider('X', 'rotX', -180, 180, 0.1, (v) => v.toFixed(1) + '°', placeApple);
+  addSlider('Y', 'rotY', -180, 180, 0.1, (v) => v.toFixed(1) + '°', placeApple);
+  addSlider('Z', 'rotZ', -180, 180, 0.1, (v) => v.toFixed(1) + '°', placeApple);
+  const shadeChecks = document.createElement('div');
+  shadeChecks.className = 'checks';
+  const shadeLabel = document.createElement('label');
+  shadeInput = document.createElement('input');
+  shadeInput.type = 'checkbox';
+  shadeInput.checked = VIEW_APPLE.shadeSmooth === true;
+  shadeInput.setAttribute('aria-label', 'Shade Smooth');
+  shadeLabel.append(shadeInput, document.createTextNode('Shade Smooth'));
+  shadeInput.addEventListener('change', () => {
+    VIEW_APPLE.shadeSmooth = shadeInput.checked;
+    applyShadeSmooth(tilt, shadeInput.checked);
+  });
+  shadeChecks.append(shadeLabel);
+  panel.append(shadeChecks);
+  addHeading('Источник света');
+  const lightChecks = document.createElement('div');
+  lightChecks.className = 'checks';
+  const lightLabel = document.createElement('label');
+  const lightInput = document.createElement('input');
+  lightInput.type = 'checkbox';
+  lightInput.checked = VIEW_APPLE.lightOn !== false;
+  lightInput.setAttribute('aria-label', 'Свет');
+  lightLabel.append(lightInput, document.createTextNode('Свет'));
+  lightInput.addEventListener('change', () => {
+    VIEW_APPLE.lightOn = lightInput.checked;
+    applyKeyLightAndPlace();
+  });
+  lightChecks.append(lightLabel);
+  for (const [value, label] of [['map', 'Карта'], ['source', 'Источник']]) {
+    const modeLabel = document.createElement('label');
+    const modeInput = document.createElement('input');
+    modeInput.type = 'radio';
+    modeInput.name = 'apple-light-mode';
+    modeInput.value = value;
+    modeInput.checked = VIEW_APPLE.lightMode === value;
+    modeInput.setAttribute('aria-label', label);
+    modeInput.addEventListener('change', () => {
+      if (!modeInput.checked) return;
+      VIEW_APPLE.lightMode = value;
+      applyKeyLightAndPlace();
+    });
+    modeLabel.append(modeInput, document.createTextNode(label));
+    lightChecks.append(modeLabel);
+  }
+  panel.append(lightChecks);
+  mapHint = document.createElement('p');
+  mapHint.className = 'hint';
+  mapHint.textContent = 'Только общее освещение, без лампы и тени.';
+  mapHint.hidden = VIEW_APPLE.lightMode !== 'map';
+  panel.append(mapHint);
+  sourceBlock = document.createElement('div');
+  sourceBlock.hidden = VIEW_APPLE.lightMode === 'map';
+  addSlider('Общее освещение', 'ambient', 0, 2, 0.01, (v) => v.toFixed(2), null, sourceBlock);
+  const ambientHint = document.createElement('p');
+  ambientHint.className = 'hint';
+  ambientHint.textContent = '0.72 и интенсивность 1.70 — свет яблока, которое ставит печать.';
+  sourceBlock.append(ambientHint);
+  addSlider('Азимут', 'azimuth', -180, 180, 1, (v) => Math.round(v) + '°', null, sourceBlock);
+  addSlider('Высота света', 'elevation', 5, 89, 1, (v) => Math.round(v) + '°', null, sourceBlock);
+  addSlider('Интенсивность', 'intensity', 0, 8, 0.05, (v) => v.toFixed(2), null, sourceBlock);
+  const lightPos = document.createElement('p');
+  lightPos.className = 'hint';
+  sourceBlock.append(lightPos);
+  addHeading('Тень света', sourceBlock);
+  const castHint = document.createElement('p');
+  castHint.className = 'hint';
+  castHint.textContent = 'Яблоко отбрасывает тень от этого источника.';
+  sourceBlock.append(castHint);
+  addSlider('Темнота тени', 'shadowDark', 0, 1, 0.01, (v) => v.toFixed(2), placeApple, sourceBlock);
+  addSlider('Мягкость карты тени', 'shadowRadius', 0, 80, 0.1, (v) => v.toFixed(1), placeApple, sourceBlock);
+  panel.append(sourceBlock);
+  const copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.className = 'copy-json';
+  copyBtn.textContent = 'Скопировать JSON';
+  copyBtn.addEventListener('click', async () => {
+    const round = (value, digits) => Number(Number(value).toFixed(digits));
+    const json = JSON.stringify({
+      xPx: Math.round(VIEW_APPLE.xPx),
+      topPx: Math.round(VIEW_APPLE.topPx),
+      size: round(VIEW_APPLE.size, 2),
+      rotX: round(VIEW_APPLE.rotX, 1),
+      rotY: round(VIEW_APPLE.rotY, 1),
+      rotZ: round(VIEW_APPLE.rotZ, 1),
+      lightOn: VIEW_APPLE.lightOn !== false,
+      lightMode: VIEW_APPLE.lightMode === 'map' ? 'map' : 'source',
+      ambient: round(VIEW_APPLE.ambient, 2),
+      azimuth: Math.round(VIEW_APPLE.azimuth),
+      elevation: Math.round(VIEW_APPLE.elevation),
+      intensity: round(VIEW_APPLE.intensity, 2),
+      shadowDark: round(VIEW_APPLE.shadowDark, 2),
+      shadowRadius: round(VIEW_APPLE.shadowRadius, 1),
+      shadeSmooth: VIEW_APPLE.shadeSmooth === true,
+    }, null, 2);
+    try {
+      await navigator.clipboard.writeText(json);
+      copyBtn.textContent = 'Скопировано';
+    } catch {
+      copyBtn.textContent = 'Не скопировалось';
+    }
+    setTimeout(() => { copyBtn.textContent = 'Скопировать JSON'; }, 1200);
+  });
+  panel.append(copyBtn);
+  document.body.appendChild(panel);
+
+  function isTyping(event) {
+    const el = event.target;
+    if (!(el instanceof HTMLElement)) return false;
+    if (el.isContentEditable) return true;
+    const tag = el.tagName;
+    if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (tag !== 'INPUT') return false;
+    const type = (el.type || 'text').toLowerCase();
+    return !['range', 'checkbox', 'radio', 'button', 'submit', 'reset', 'color', 'file'].includes(type);
+  }
+  function onKey(event) {
+    if (event.repeat || isTyping(event)) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.code === 'Escape') {
+      if (!panel.hidden) setOpen(false);
+      return;
+    }
+    if (event.code !== 'KeyL') return;
+    event.preventDefault();
+    togglePanel();
+  }
+  addEventListener('keydown', onKey);
+  addEventListener('resize', applyKeyLightAndPlace);
+  addEventListener('pointermove', onPointerMove);
+  addEventListener('pointerleave', onPointerLeave);
+
+  new GLTFLoader().load(APPLE_FILE, (gltf) => {
+    if (!alive) return;
+    const fitted = prepareApple(gltf, APPLE_GREEN);
+    fitted.traverse((node) => {
+      if (!node.isMesh) return;
+      node.castShadow = true;
+      node.receiveShadow = false;
+      const mats = Array.isArray(node.material) ? node.material : [node.material];
+      for (const material of mats) material.shadowSide = THREE.DoubleSide;
+    });
+    const model = new THREE.Group();
+    model.add(fitted);
+    appleModel = model;
+    tilt.add(model);
+    applyKeyLightAndPlace();
+  });
+
+  applyKeyLightAndPlace();
+  renderer.setAnimationLoop(() => {
+    if (!alive) return;
+    followPointer();
+    renderer.render(scene, camera);
+  });
+
+  function readViewportApple() {
+    let casters = 0;
+    let shading = null;
+    tilt.traverse((node) => {
+      if (node.isMesh && node.castShadow) casters += 1;
+      if (shading || !node.isMesh) return;
+      const mat = Array.isArray(node.material) ? node.material[0] : node.material;
+      shading = {
+        flatShading: !!mat?.flatShading,
+        verts: node.geometry?.attributes?.position?.count ?? 0,
+      };
+    });
+    return {
+      ...VIEW_APPLE,
+      shading,
+      gazeX: gaze.sx,
+      gazeY: gaze.sy,
+      light: { x: key.position.x, y: key.position.y, z: key.position.z },
+      keyIntensity: key.intensity,
+      fillIntensity: fill.intensity,
+      envIntensity: scene.environmentIntensity,
+      castShadow: key.castShadow,
+      model: APPLE_FILE,
+      casters,
+      shadowMap: !!key.shadow.map,
+      groundOpacity: groundMat.opacity,
+      appleY: tilt.position.y,
+      extent: key.shadow.camera.right,
+    };
+  }
+  readViewportApple.set = (patch) => {
+    Object.assign(VIEW_APPLE, patch);
+    applyKeyLightAndPlace();
+  };
+  globalThis.__viewportApple = readViewportApple;
+
   return () => {
-    stopSign();
-    stopBands();
+    alive = false;
+    removeEventListener('keydown', onKey);
+    removeEventListener('resize', applyKeyLightAndPlace);
+    removeEventListener('pointermove', onPointerMove);
+    removeEventListener('pointerleave', onPointerLeave);
+    renderer.setAnimationLoop(null);
+    pmrem.dispose();
+    renderer.dispose();
+    host.remove();
+    panel.remove();
+    if (globalThis.__viewportApple) delete globalThis.__viewportApple;
   };
 }
 
-function mountStrip(root) {
-  const stops = [...root.querySelectorAll('.scroller')].map((scroller, index) => mountScroller(scroller, index));
-  const stopFx = mountBoardFx(root);
+function mountBoardFx(root) {
+  return () => {};
+}
+
+function mountEscalatorControls() {
+  const panel = document.createElement('aside');
+  panel.className = 'stamp-panel';
+  panel.hidden = true;
+  panel.setAttribute('aria-label', 'Геометрия эскалатора');
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'close';
+  close.textContent = 'Закрыть';
+  const title = document.createElement('h2');
+  title.textContent = 'Ступени';
+  const hint = document.createElement('p');
+  hint.className = 'hint';
+  hint.textContent = 'Клавиша G открывает панель. Esc закрывает.';
+  panel.append(close, title, hint);
+
+  function addSlider(label, key, min, max, step, format) {
+    const row = document.createElement('label');
+    row.className = 'row';
+    const head = document.createElement('span');
+    const name = document.createElement('b');
+    name.textContent = label;
+    const val = document.createElement('i');
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = String(min);
+    input.max = String(max);
+    input.step = String(step);
+    input.value = String(escalator[key]);
+    const sync = () => {
+      escalator[key] = Number(input.value);
+      val.textContent = format(escalator[key]);
+      applyEscalatorVars();
+    };
+    input.addEventListener('input', sync);
+    sync();
+    head.append(name, val);
+    row.append(head, input);
+    panel.append(row);
+  }
+
+  addSlider('Высота ступени', 'stepH', 8, 128, 1, (n) => Math.round(n) + '%');
+  addSlider('Скорость ступеней', 'speed', 0.2, 3, 0.05, (n) => n.toFixed(2) + '×');
+  addSlider('Глубина полки', 'tread', 40, 640, 1, (n) => Math.round(n) + 'px');
+  addSlider('Уход по Z', 'recess', 0, 800, 1, (n) => Math.round(n) + 'px');
+  addSlider('Перспектива', 'perspective', 400, 2400, 10, (n) => Math.round(n) + 'px');
+  addSlider('Масштаб', 'scale', 0.4, 2.2, 0.02, (n) => n.toFixed(2));
+  addSlider('Близость к экрану', 'near', -400, 400, 10, (n) => Math.round(n) + 'px');
+  document.body.appendChild(panel);
+  close.addEventListener('click', () => { panel.hidden = true; });
+
+  function typing(el) {
+    while (el && el !== document.body) {
+      if (!(el instanceof HTMLElement)) return false;
+      if (el.isContentEditable) return true;
+      const tag = el.tagName;
+      if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+      if (tag === 'INPUT') {
+        const type = (el.type || 'text').toLowerCase();
+        return !['range', 'checkbox', 'radio', 'button', 'submit', 'reset', 'color', 'file'].includes(type);
+      }
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  function onKey(event) {
+    if (event.repeat) return;
+    if (event.code === 'Escape' && !panel.hidden && !typing(event.target)) {
+      panel.hidden = true;
+      return;
+    }
+    if (event.code !== 'KeyG' || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (typing(event.target) || typing(document.activeElement)) return;
+    event.preventDefault();
+    panel.hidden = !panel.hidden;
+  }
+  addEventListener('keydown', onKey);
   return () => {
+    removeEventListener('keydown', onKey);
+    panel.remove();
+  };
+}
+
+function mountEscalator(root) {
+  const viewport = root.querySelector('.escalator');
+  const track = viewport && viewport.querySelector('.escalator-track');
+  const stage = viewport && viewport.querySelector('.escalator-stage');
+  if (!track) return () => {};
+  const originals = [...track.children].filter((el) => el.classList.contains('case'));
+  for (const step of originals) {
+    const copy = step.cloneNode(true);
+    copy.setAttribute('aria-hidden', 'true');
+    copy.classList.add('is-clone');
+    track.appendChild(copy);
+  }
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let alive = true;
+  let y = 0;
+  let last = performance.now();
+  addEventListener('wheel', onEscalatorWheel, { passive: false });
+  addEventListener('touchstart', onEscalatorTouchStart, { passive: true });
+  addEventListener('touchmove', onEscalatorTouchMove, { passive: false });
+  addEventListener('touchend', onEscalatorTouchEnd);
+  addEventListener('touchcancel', onEscalatorTouchEnd);
+
+  function placeStage() {
+    if (!stage) return;
+    const near = Number(escalator.near) || 0;
+    const zoom = Number(escalator.scale) || 1;
+    stage.style.transform = `translateZ(${near}px) scale(${zoom})`;
+  }
+
+  function articulate() {
+    const viewH = viewport.clientHeight;
+    if (viewH <= 0) return;
+    const recess = escalator.recess;
+    const nose = 0.72;
+    for (const step of track.querySelectorAll('.case')) {
+      const rise = step.offsetHeight;
+      const stepFrac = Math.max(rise / viewH, 0.01);
+      const top = (step.offsetTop - y) / viewH;
+      let depth = -recess * (nose - top) / stepFrac;
+      if (depth > 0) depth = 0;
+      const cap = Math.max(recess, 1) * 8;
+      if (depth < -cap) depth = -cap;
+      const rig = step.querySelector('.step-rig');
+      if (rig) {
+        rig.style.transform = `translateZ(${depth}px)`;
+        const shade = Math.min(1, Math.max(0, -depth / Math.max(recess, 1)));
+        rig.style.setProperty('--step-shade', shade.toFixed(3));
+      }
+      const tread = step.querySelector('.step-tread');
+      if (!tread) continue;
+      let fold = 0;
+      if (top < -0.04) fold = Math.min(1, (-top - 0.04) / 0.2);
+      else if (top > 1.02) fold = Math.min(1, (top - 1.02) / 0.2);
+      tread.style.transform = `rotateX(${-90 * (1 - fold)}deg)`;
+      tread.style.setProperty('--fold', fold.toFixed(3));
+    }
+  }
+
+  function tick(now) {
+    if (!alive) return;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    const step = originals[0];
+    const loopH = step ? step.offsetHeight * originals.length : 0;
+    if (!motion.matches && loopH > 0) {
+      const scale = innerWidth / DESIGN_W;
+      y += STRIP_SPEED * escalator.speed * pageScrollMult() * scale * dt;
+      y = ((y % loopH) + loopH) % loopH;
+    } else {
+      pageScrollMult();
+    }
+    track.style.transform = `translate3d(0, ${-y}px, 0)`;
+    placeStage();
+    articulate();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  return () => {
+    alive = false;
+    removeEventListener('wheel', onEscalatorWheel);
+    removeEventListener('touchstart', onEscalatorTouchStart);
+    removeEventListener('touchmove', onEscalatorTouchMove);
+    removeEventListener('touchend', onEscalatorTouchEnd);
+    removeEventListener('touchcancel', onEscalatorTouchEnd);
+    escalatorTouch = null;
+  };
+}
+
+function fitBoards(root) {
+  const u = innerWidth / DESIGN_W;
+  for (const board of root.querySelectorAll('.board')) {
+    const scroller = board.closest('.scroller');
+    const riser = scroller ? scroller.clientHeight : 0;
+    const natural = 800 * u;
+    const fit = riser > 0 && natural > 0 ? Math.max(1, riser / natural) : 1;
+    board.style.setProperty('--u', `${u * fit}px`);
+    board.style.marginTop = `${(riser - natural * fit) / 2}px`;
+  }
+}
+
+function mountStrip(root) {
+  applyEscalatorVars();
+  const stopEscalator = mountEscalator(root);
+  const stopControls = mountEscalatorControls();
+  const scrollers = [...root.querySelectorAll('.escalator-track > .case .scroller')];
+  const stops = scrollers.map((scroller, index) => mountScroller(scroller, index));
+  const stopFx = mountBoardFx(root);
+  const refit = () => { if (root.querySelector('.board')) fitBoards(root); };
+  if (root.querySelector('.board')) {
+    requestAnimationFrame(refit);
+    addEventListener('resize', refit);
+  }
+  return () => {
+    removeEventListener('resize', refit);
+    stopEscalator();
+    stopControls();
     stops.forEach((stop) => stop());
     stopFx();
   };
 }
 
-function mountScroller(scroller, index) {
+function mountScroller(scroller) {
   const board = scroller.querySelector('.board');
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
-  // Odd bands: pictures travel right → left (scrollLeft grows).
-  // Even bands: pictures travel left → right (scrollLeft shrinks).
-  const dir = index % 2 === 0 ? 1 : -1;
   let alive = true;
   let drag = null;
   let wrapping = false;
-  let primed = dir > 0;
   let pos = scroller.scrollLeft;
 
   function park(next) {
@@ -1982,24 +4070,6 @@ function mountScroller(scroller, index) {
   scroller.addEventListener('pointerup', onUp);
   scroller.addEventListener('pointercancel', onUp);
 
-  let last = performance.now();
-  function tick(now) {
-    if (!alive) return;
-    const dt = (now - last) / 1000;
-    last = now;
-    const loop = loopWidth();
-    if (loop > 0 && !primed) {
-      primed = true;
-      park(loop);
-    }
-    if (!motion.matches && !drag && loop > 0) {
-      const mult = pageScrollMult(now);
-      park(pos + dir * STRIP_SPEED * mult * (loop / STRIP_W) * dt);
-    }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-
   return () => {
     alive = false;
     removeEventListener('resize', ensureCopies);
@@ -2051,6 +4121,7 @@ paint(route);
   fy = destFy = a.fy;
   phase = route === 'hero' ? 'scroll' : 'rest';
 }
+mountHeaderApple();
 
 addEventListener('click', (e) => {
   const link = e.target.closest('a.mark');
@@ -2140,7 +4211,7 @@ const aim = new THREE.Group();
 spin.add(aim);
 scene.add(spin);
 
-const SKIN = { color: 0xaaff28, emissive: 0xb4f040, emissiveIntensity: 0.1, metalness: 0, roughness: 0.42 };
+const SKIN = { color: 0x67c514, emissive: 0x7be81a, emissiveIntensity: 0.1, metalness: 0, roughness: 0.42 };
 const STEM = { color: 0x7a4e28, emissive: 0x000000, emissiveIntensity: 0, metalness: 0, roughness: 0.64 };
 const LEAF = { color: 0x2f861f, emissive: 0x14300a, emissiveIntensity: 0.18, metalness: 0, roughness: 0.52 };
 const FLESH = { color: 0xf6e0b8, emissive: 0xf0d0a0, emissiveIntensity: 0.08, metalness: 0, roughness: 0.62 };
@@ -2497,5 +4568,36 @@ globalThis.__apple = {
   }),
 };
 </script>
+<script>
+(function () {
+  var themes = ['0', '1', '2', '3'];
+  var root = document.documentElement;
+  document.addEventListener('click', function (event) {
+    var btn = event.target.closest && event.target.closest('.crosshair');
+    if (!btn) return;
+    event.preventDefault();
+    var i = themes.indexOf(root.dataset.theme || '0');
+    if (i < 0) i = -1;
+    root.dataset.theme = themes[(i + 1) % themes.length];
+    root.dispatchEvent(new CustomEvent('vanok-theme'));
+  });
+  function syncViewport() {
+    var vv = window.visualViewport;
+    var layoutH = window.innerHeight || root.clientHeight || 0;
+    var top = vv ? vv.offsetTop : 0;
+    var h = vv ? vv.height : layoutH;
+    var lift = Math.max(0, layoutH - top - h);
+    root.style.setProperty('--vv-lift', lift + 'px');
+  }
+  syncViewport();
+  window.addEventListener('resize', syncViewport);
+  window.addEventListener('orientationchange', syncViewport);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncViewport);
+    window.visualViewport.addEventListener('scroll', syncViewport);
+  }
+})();
+</script>
+<script src="design/stub/signatures.js"></script>
 </body>
 </html>

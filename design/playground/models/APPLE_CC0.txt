@@ -1,0 +1,13 @@
+3D Apple 002
+Source: ambientCG — https://ambientcg.com/a/3DApple002
+Files: 3DApple002_SQ-1K-JPG (photogrammetry mesh, color and OpenGL normal map)
+License: CC0 1.0 Universal
+https://docs.ambientcg.com/license/
+https://creativecommons.org/publicdomain/zero/1.0/
+Author: ambientCG (Lennart Demes)
+
+apple_whole_real.glb and apple_half_real.glb are derived from that scan.
+The SQ mesh is Loop-subdivided once. Color and normal JPEGs are embedded;
+texels just outside the UV islands are dilated so the orange atlas background
+does not bleed. The half keeps the scanned skin on one side of a vertical cut,
+with an authored concave flesh, core and two seeds.

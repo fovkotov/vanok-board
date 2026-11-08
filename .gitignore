@@ -1,6 +1,8 @@
 .DS_Store
+design/stamps/custom-signatures.json
 .env
 .env.*
 credentials.json
 .vercel
 .env*
+worker/.wrangler/
