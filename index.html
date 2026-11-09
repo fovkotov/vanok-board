@@ -435,10 +435,14 @@
     transform-style: preserve-3d;
     will-change: transform;
   }
+  /* Лицо ступени. Десктоп — крупнейший 16:9. Coarse/mobile (data-riser) — крупнейший 9:16.
+     --step-pct масштабирует обе стороны, пропорция не меняется. */
   .reel .escalator .case {
+    --step-h: min(calc(var(--step-pct) * 1vh), calc(100vw * 9 / 16 * var(--step-pct) / 100));
+    --step-h: min(calc(var(--step-pct) * 1dvh), calc(100vw * 9 / 16 * var(--step-pct) / 100));
+    --riser-w: calc(var(--step-h) * 16 / 9);
     position: relative;
-    height: calc(var(--step-pct) * 1vh);
-    height: calc(var(--step-pct) * 1dvh);
+    height: var(--step-h);
     gap: 0;
     background: transparent;
     transform-style: preserve-3d;
@@ -451,9 +455,21 @@
   }
   .step-riser {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: calc(50% - var(--riser-w) / 2);
+    width: var(--riser-w);
+    height: var(--step-h);
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     background: #c4c4c4;
+  }
+  html[data-riser="portrait"] .reel .escalator .case {
+    --riser-w: min(calc(var(--step-pct) * 1vw), calc(100vh * 9 / 16 * var(--step-pct) / 100));
+    --riser-w: min(calc(var(--step-pct) * 1vw), calc(100dvh * 9 / 16 * var(--step-pct) / 100));
+    --step-h: calc(var(--riser-w) * 16 / 9);
+  }
+  html[data-riser="portrait"] .step-riser {
+    aspect-ratio: 9 / 16;
   }
   .step-slide {
     position: absolute;
@@ -467,9 +483,9 @@
   .step-tread {
     --fold: 0;
     position: absolute;
-    left: 0;
-    right: 0;
+    left: calc(50% - var(--riser-w) / 2);
     top: 0;
+    width: var(--riser-w);
     height: calc(var(--tread-depth) * 1px);
     transform-origin: center top;
     transform: rotateX(-90deg);
@@ -477,9 +493,9 @@
   }
   .step-nose {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: calc(50% - var(--riser-w) / 2);
     top: 0;
+    width: var(--riser-w);
     height: 2px;
     background: #969696;
     transform: translateZ(1px);
@@ -1457,7 +1473,7 @@ let dragYaw = 0, dragPitch = 0;
 let grab = null;
 
 const STRIP_SPEED = 60;
-const pageScroll = { boost: 8 };
+const pageScroll = { boost: 11.5 };
 const escalator = { stepH: 100, speed: 1, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
 
 function applyEscalatorVars() {
@@ -1468,6 +1484,14 @@ function applyEscalatorVars() {
 }
 let wheelDelta = 0;
 let escalatorTouch = null;
+// Applied multiplier eases toward its target. Idle stays forward 1×.
+// Gesture magnitude aims at boost×2 on desktop and boost×9 on coarse/mobile.
+// Sign flips with the wheel/touch immediately.
+const SCROLL_EASE_MS = 420;
+let scrollMul = 1;
+let scrollMulFrom = 1;
+let scrollMulTo = 1;
+let scrollMulT = 1;
 
 // Phones and tablets. Coarse pointer covers a finger; a narrow touch viewport
 // covers the same breakpoint the page already uses when the pointer query misses.
@@ -1478,16 +1502,31 @@ function coarseScrollDevice() {
   return narrow && touch;
 }
 
+// Тот же признак, что у скролла (coarse или узкий тач), плюс брейкпоинт страницы 440px.
+// Размер остаётся в CSS (vw/dvh и --step-pct), флаг обновляется на ресайз и поворот.
+function riserIsPortrait() {
+  if (coarseScrollDevice()) return true;
+  return matchMedia('(max-width: 440px)').matches;
+}
+function applyRiserFrame() {
+  document.documentElement.dataset.riser = riserIsPortrait() ? 'portrait' : 'landscape';
+}
+applyRiserFrame();
+addEventListener('resize', applyRiserFrame);
+addEventListener('orientationchange', applyRiserFrame);
+for (const query of ['(pointer: coarse)', '(max-width: 440px)', '(hover: none)']) {
+  matchMedia(query).addEventListener('change', applyRiserFrame);
+}
+
 function escalatorTouchBlocked(target) {
   return target instanceof Element && !!target.closest(
     'a, button, input, textarea, select, summary, label, .sig-modal, .stamp-panel'
   );
 }
 
-// Signed ×boost while a vertical wheel/trackpad gesture is actually firing.
+// Vertical wheel/trackpad and one-finger touch feed wheelDelta.
 // Forward (deltaY > 0) and back (deltaY < 0) follow the gesture.
-// The next frame with no new event drops straight back to forward 1×.
-// On a coarse/mobile device the same gesture uses 3× that boost.
+// The page itself does not scroll.
 function onEscalatorWheel(event) {
   if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (!wheelScrollsPage(event)) return;
@@ -1522,12 +1561,39 @@ function onEscalatorTouchEnd(event) {
   if (ended) escalatorTouch = null;
 }
 
-function pageScrollMult() {
+function scrollGestureBoost() {
+  return pageScroll.boost * (coarseScrollDevice() ? 9 : 2);
+}
+
+function retargetScrollMul(next) {
+  if (next === scrollMulTo) return;
+  scrollMulFrom = scrollMul;
+  scrollMulTo = next;
+  scrollMulT = 0;
+}
+
+function stepScrollMul(dt) {
+  if (scrollMulT >= 1) {
+    scrollMul = scrollMulTo;
+    return;
+  }
+  const step = (dt > 0 ? dt : 0) * 1000 / SCROLL_EASE_MS;
+  scrollMulT = Math.min(1, scrollMulT + step);
+  const u = scrollMulT * scrollMulT * (3 - 2 * scrollMulT);
+  scrollMul = scrollMulFrom + (scrollMulTo - scrollMulFrom) * u;
+}
+
+function pageScrollMult(dt) {
   const delta = wheelDelta;
   wheelDelta = 0;
-  if (!delta) return 1;
-  const mobile = coarseScrollDevice() ? 3 : 1;
-  return Math.sign(delta) * pageScroll.boost * mobile;
+  if (delta) {
+    const sign = Math.sign(delta) || 1;
+    retargetScrollMul(sign * scrollGestureBoost());
+  } else {
+    retargetScrollMul(1);
+  }
+  stepScrollMul(dt);
+  return scrollMul;
 }
 
 // Any vertical wheel component scrolls the page, even when deltaX is larger.
@@ -3794,7 +3860,7 @@ function mountEscalatorControls() {
   hint.textContent = 'Клавиша G открывает панель. Esc закрывает.';
   panel.append(close, title, hint);
 
-  function addSlider(label, key, min, max, step, format) {
+  function addSlider(label, key, min, max, step, format, target = escalator) {
     const row = document.createElement('label');
     row.className = 'row';
     const head = document.createElement('span');
@@ -3806,11 +3872,11 @@ function mountEscalatorControls() {
     input.min = String(min);
     input.max = String(max);
     input.step = String(step);
-    input.value = String(escalator[key]);
+    input.value = String(target[key]);
     const sync = () => {
-      escalator[key] = Number(input.value);
-      val.textContent = format(escalator[key]);
-      applyEscalatorVars();
+      target[key] = Number(input.value);
+      val.textContent = format(target[key]);
+      if (target === escalator) applyEscalatorVars();
     };
     input.addEventListener('input', sync);
     sync();
@@ -3819,6 +3885,7 @@ function mountEscalatorControls() {
     panel.append(row);
   }
 
+  addSlider('Скорость скролла', 'boost', 1, 30, 0.5, (n) => n.toFixed(1) + '×', pageScroll);
   addSlider('Высота ступени', 'stepH', 8, 128, 1, (n) => Math.round(n) + '%');
   addSlider('Скорость ступеней', 'speed', 0.2, 3, 0.05, (n) => n.toFixed(2) + '×');
   addSlider('Глубина полки', 'tread', 40, 640, 1, (n) => Math.round(n) + 'px');
@@ -3928,10 +3995,10 @@ function mountEscalator(root) {
     const loopH = step ? step.offsetHeight * originals.length : 0;
     if (!motion.matches && loopH > 0) {
       const scale = innerWidth / DESIGN_W;
-      y += STRIP_SPEED * escalator.speed * pageScrollMult() * scale * dt;
+      y += STRIP_SPEED * escalator.speed * pageScrollMult(dt) * scale * dt;
       y = ((y % loopH) + loopH) % loopH;
     } else {
-      pageScrollMult();
+      pageScrollMult(dt);
     }
     track.style.transform = `translate3d(0, ${-y}px, 0)`;
     placeStage();
