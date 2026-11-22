@@ -35,7 +35,7 @@ export const CASE_COVERS = [
       </div>
       <div data-node-id="850:9455" data-name="10 ассеты и графика 767" style="position:absolute;height:31px;left:calc(33.33% + 94px);top:calc(75% + 112px);width:133px">
         <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none">
-          <img data-preview="design/case-covers/current/euphoria/982fd.webp" alt="" decoding="async" draggable="false" data-src="design/case-covers/current/euphoria/982fd.webp" style="position:absolute;height:100%;left:0.75%;max-width:none;top:0;width:98.5%;display:block">
+          <img data-preview="design/case-covers/preview-assets/euphoria/graphics-767.png" alt="" decoding="async" draggable="false" data-src="design/case-covers/current/euphoria/982fd.webp" style="position:absolute;height:100%;left:0.75%;max-width:none;top:0;width:98.5%;display:block">
         </div>
       </div>
       <div data-node-id="850:9456" data-name="euphoria_vinyl_b 2" style="position:absolute;left:calc(44.44% + 112px);width:95px;height:95px;top:calc(75% + 81px)">
@@ -134,11 +134,11 @@ export const CASE_COVERS = [
           </div>
         </div>
       </div>
-      <div data-node-id="850:9665" data-name="SALUKI_VEDMA_MASTER" style="position:absolute;height:77px;left:calc(44.44% + 100px);top:25px;width:114px"><img data-preview="design/case-covers/current/wild-east/vedma-a.webp" data-preview-video="design/board/vedma-2.mp4" data-src="design/case-covers/current/wild-east/vedma-a.webp" alt="" decoding="async" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></div>
+      <div data-node-id="850:9665" data-name="SALUKI_VEDMA_MASTER" style="position:absolute;height:77px;left:calc(44.44% + 100px);top:25px;width:114px"><img data-preview="design/case-covers/current/wild-east/vedma-a.webp" data-preview-video="design/board/vedma.mp4" data-src="design/case-covers/current/wild-east/vedma-a.webp" alt="" decoding="async" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></div>
       <div data-node-id="850:9666" data-name="Group" style="position:absolute;inset:3.62% 29.43% 88.5% 62.5%">
         <img data-preview="design/case-covers/current/wild-east/0aa95.svg" alt="" decoding="async" draggable="false" data-src="design/case-covers/current/wild-east/0aa95.svg" style="position:absolute;display:block;inset:0;max-width:none;width:100%;height:100%;display:block">
       </div>
-      <div data-node-id="850:9682" data-name="SALUKI_VEDMA_MASTER 3" style="position:absolute;inset:3.25% 18.68% 88.13% 74.24%"><img data-preview="design/case-covers/current/wild-east/vedma-b.webp" data-preview-video="design/board/vedma.mp4" data-src="design/case-covers/current/wild-east/vedma-b.webp" alt="" decoding="async" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></div>
+      <div data-node-id="850:9682" data-name="SALUKI_VEDMA_MASTER 3" style="position:absolute;inset:3.25% 18.68% 88.13% 74.24%"><img data-preview="design/case-covers/current/wild-east/vedma-b.webp" data-preview-video="design/board/vedma-2.mp4" data-src="design/case-covers/current/wild-east/vedma-b.webp" alt="" decoding="async" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></div>
       <div data-node-id="850:9683" data-name="Group" style="position:absolute;inset:5.67% 72.08% 90.14% 17.87%">
         <img data-preview="design/case-covers/current/wild-east/a6075.svg" alt="" decoding="async" draggable="false" data-src="design/case-covers/current/wild-east/a6075.svg" style="position:absolute;display:block;inset:0;max-width:none;width:100%;height:100%;display:block">
       </div>
