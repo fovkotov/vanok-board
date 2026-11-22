@@ -7,6 +7,7 @@
 <link rel="icon" href="design/stub/favicon.png" type="image/png">
 <link rel="icon" href="design/stub/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="design/stub/apple-touch-icon.png">
+<link rel="preload" href="design/stub/models/apple-corner.glb" as="fetch" crossorigin>
 <style>
   /* Кадр 1440×800. --k переводит его пиксели во вьюпорт.
      Хедер и палитра — классический тизер (vanok-teaser/index.html): один синий вордмарк в 12px от верха. */
@@ -56,8 +57,10 @@
 
   #app { position: relative; z-index: 2; }
 
-  /* Classic teaser header. Desktop wordmark is one blue mark, 12px from the top. */
-  .chrome {
+  /* Classic teaser header. Desktop wordmark is one blue mark, 12px from the top.
+     The script mark can leave .chrome and ride in .lettering-ride; the grid vars stay shared. */
+  .chrome,
+  .lettering-ride {
     --hk: calc(100vw / 1440);
     --grid-margin: 12px;
     --grid-gutter: 12px;
@@ -65,6 +68,8 @@
     --letter-w: calc(6 * var(--col) + 5 * var(--grid-gutter));
     --letter-left: calc(var(--grid-margin) + 6 * (var(--col) + var(--grid-gutter)));
     --wordmark-top: calc(6 * var(--hk));
+  }
+  .chrome {
     position: relative;
     z-index: 5;
     height: calc(12px + var(--letter-w) * 233 / 702);
@@ -76,7 +81,6 @@
   .chrome .catalog-entry,
   .chrome .site-credits,
   .chrome .soon { pointer-events: auto; }
-  body[data-route="hero"] .chrome { height: 100vh; }
   body[data-route="board"] .chrome {
     position: fixed;
     top: 0;
@@ -87,15 +91,15 @@
   .chrome > * { position: absolute; }
   .chrome p { margin: 0; }
   .chrome img { display: block; max-width: none; }
-  .chrome .vanok,
-  .chrome .regular,
-  .chrome .lettering { display: none; }
-  html[data-theme="1"] .chrome .lettering-1,
-  html[data-theme="2"] .chrome .lettering-2,
-  html[data-theme="3"] .chrome .lettering-3 { display: block; }
-  html[data-theme="1"] .chrome .wordmark,
-  html[data-theme="2"] .chrome .wordmark,
-  html[data-theme="3"] .chrome .wordmark { display: none; }
+  :is(.chrome, .lettering-ride) .vanok,
+  :is(.chrome, .lettering-ride) .regular,
+  :is(.chrome, .lettering-ride) .lettering { display: none; }
+  html[data-theme="1"] :is(.chrome, .lettering-ride) .lettering-1,
+  html[data-theme="2"] :is(.chrome, .lettering-ride) .lettering-2,
+  html[data-theme="3"] :is(.chrome, .lettering-ride) .lettering-3 { display: block; }
+  html[data-theme="1"] :is(.chrome, .lettering-ride) .wordmark,
+  html[data-theme="2"] :is(.chrome, .lettering-ride) .wordmark,
+  html[data-theme="3"] :is(.chrome, .lettering-ride) .wordmark { display: none; }
 
   .chrome .crosshair,
   .chrome .catalog-entry {
@@ -160,27 +164,36 @@
   .chrome .catalog-entry {
     left: calc(var(--grid-margin) + 9 * (var(--col) + var(--grid-gutter)));
   }
-  .chrome .wordmark {
+  :is(.chrome, .lettering-ride) .wordmark {
     left: var(--letter-left);
     top: 12px;
     width: var(--letter-w);
     height: calc(var(--letter-w) * 233 / 702);
   }
-  .chrome .lettering-1,
-  .chrome .lettering-2,
-  .chrome .lettering-3 {
+  /* Board moves the script into .lettering-ride so it translates with the steps. */
+  .lettering-ride {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .lettering-ride > * { position: absolute; }
+  .lettering-ride img { display: block; max-width: none; }
+  :is(.chrome, .lettering-ride) .lettering-1,
+  :is(.chrome, .lettering-ride) .lettering-2,
+  :is(.chrome, .lettering-ride) .lettering-3 {
     left: var(--letter-left);
     width: var(--letter-w);
   }
-  .chrome .lettering-1 {
+  :is(.chrome, .lettering-ride) .lettering-1 {
     top: calc(var(--wordmark-top) + 23px);
     height: calc(var(--letter-w) * 135 / 619);
   }
-  .chrome .lettering-2 {
+  :is(.chrome, .lettering-ride) .lettering-2 {
     top: calc(var(--wordmark-top) + 32px);
     height: calc(var(--letter-w) * 82 / 702);
   }
-  .chrome .lettering-3 {
+  :is(.chrome, .lettering-ride) .lettering-3 {
     top: calc(var(--wordmark-top) + 12px);
     height: calc(var(--letter-w) * 124 / 702);
   }
@@ -217,23 +230,25 @@
     .chrome .site-credits:hover .credits-name { visibility: visible; }
   }
   @media (max-width: 440px) {
-    .chrome {
+    .chrome,
+    .lettering-ride {
       --hk: calc(100vw / 375);
       --wordmark-top: calc(58 * var(--hk) + 24px);
+    }
+    .chrome {
       height: calc(var(--wordmark-top) + 110 * var(--hk));
     }
-    body[data-route="hero"] .chrome { height: 100vh; }
-    .chrome .wordmark,
+      :is(.chrome, .lettering-ride) .wordmark,
     .chrome .catalog-entry,
     .chrome .site-credits { display: none; }
-    .chrome .vanok,
-    .chrome .regular { display: block; }
-    html[data-theme="1"] .chrome .vanok,
-    html[data-theme="1"] .chrome .regular,
-    html[data-theme="2"] .chrome .vanok,
-    html[data-theme="2"] .chrome .regular,
-    html[data-theme="3"] .chrome .vanok,
-    html[data-theme="3"] .chrome .regular { display: none; }
+    :is(.chrome, .lettering-ride) .vanok,
+    :is(.chrome, .lettering-ride) .regular { display: block; }
+    html[data-theme="1"] :is(.chrome, .lettering-ride) .vanok,
+    html[data-theme="1"] :is(.chrome, .lettering-ride) .regular,
+    html[data-theme="2"] :is(.chrome, .lettering-ride) .vanok,
+    html[data-theme="2"] :is(.chrome, .lettering-ride) .regular,
+    html[data-theme="3"] :is(.chrome, .lettering-ride) .vanok,
+    html[data-theme="3"] :is(.chrome, .lettering-ride) .regular { display: none; }
     .chrome .crosshair {
       left: calc(23.231 * var(--hk));
       top: calc(23.231 * var(--hk));
@@ -271,28 +286,28 @@
       font-size: calc(12 * var(--hk));
       line-height: calc(14 * var(--hk));
     }
-    .chrome .vanok {
+    :is(.chrome, .lettering-ride) .vanok {
       left: calc(24 * var(--hk));
       top: var(--wordmark-top);
       width: calc(156.387 * var(--hk));
       height: calc(108.538 * var(--hk));
     }
-    .chrome .regular {
+    :is(.chrome, .lettering-ride) .regular {
       left: calc(136.341 * var(--hk));
       top: calc(var(--wordmark-top) + (93.593 - 77) * var(--hk));
       width: calc(214.658 * var(--hk));
       height: calc(90.339 * var(--hk));
     }
-    .chrome .lettering-1,
-    .chrome .lettering-2,
-    .chrome .lettering-3 {
+    :is(.chrome, .lettering-ride) .lettering-1,
+    :is(.chrome, .lettering-ride) .lettering-2,
+    :is(.chrome, .lettering-ride) .lettering-3 {
       left: calc(24 * var(--hk));
       top: var(--wordmark-top);
       width: calc(327 * var(--hk));
     }
-    .chrome .lettering-1 { height: calc(71.32 * var(--hk)); }
-    .chrome .lettering-2 { height: calc(327 * var(--hk) * 82 / 702); }
-    .chrome .lettering-3 { height: calc(327 * var(--hk) * 124 / 702); }
+    :is(.chrome, .lettering-ride) .lettering-1 { height: calc(71.32 * var(--hk)); }
+    :is(.chrome, .lettering-ride) .lettering-2 { height: calc(327 * var(--hk) * 82 / 702); }
+    :is(.chrome, .lettering-ride) .lettering-3 { height: calc(327 * var(--hk) * 124 / 702); }
   }
 
   .sheet {
@@ -383,10 +398,12 @@
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
+    background: #E9E9E9;
+    overscroll-behavior: none;
   }
   body[data-route="board"] {
     --u: var(--k);
-    background: #e4e7ec;
+    background: #E9E9E9;
   }
   body[data-route="board"] #stage {
     visibility: hidden;
@@ -416,7 +433,8 @@
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
-    background: #d0d0d0;
+    background: #E9E9E9;
+    touch-action: none;
     perspective: var(--shaft-perspective);
     perspective-origin: 50% 24%;
   }
@@ -438,9 +456,9 @@
   /* Лицо ступени. Десктоп — крупнейший 16:9. Coarse/mobile (data-riser) — крупнейший 9:16.
      --step-pct масштабирует обе стороны, пропорция не меняется. */
   .reel .escalator .case {
-    --step-h: min(calc(var(--step-pct) * 1vh), calc(100vw * 9 / 16 * var(--step-pct) / 100));
-    --step-h: min(calc(var(--step-pct) * 1dvh), calc(100vw * 9 / 16 * var(--step-pct) / 100));
-    --riser-w: calc(var(--step-h) * 16 / 9);
+    --step-h: min(calc(var(--step-pct) * 1vh), calc(100vw * 800 / 1440 * var(--step-pct) / 100));
+    --step-h: min(calc(var(--step-pct) * 1dvh), calc(100vw * 800 / 1440 * var(--step-pct) / 100));
+    --riser-w: calc(var(--step-h) * 1440 / 800);
     position: relative;
     height: var(--step-h);
     gap: 0;
@@ -448,6 +466,7 @@
     transform-style: preserve-3d;
   }
   .step-rig {
+    --rib-pitch: 8px;
     position: absolute;
     inset: 0;
     overflow: visible;
@@ -480,6 +499,58 @@
     display: block;
     pointer-events: none;
   }
+  html[data-page-theme="1"] .step-riser { background: var(--original-step-color, #c4c4c4); }
+  html[data-page-theme="1"] .step-tread { background-color: color-mix(in srgb, var(--original-step-color, #c4c4c4) 86%, black); }
+  html[data-page-theme="2"] .step-riser { background: var(--screen-color); }
+  html[data-page-theme="2"] .step-tread {
+    background: color-mix(in srgb, var(--screen-color) 86%, black);
+  }
+  html[data-page-theme="2"] .step-nose {
+    background: color-mix(in srgb, var(--screen-color) 70%, black);
+  }
+  html[data-page-theme="2"] .escalator .case-meta { color: #222; }
+  html[data-separate-tread="true"] .step-tread {
+    background-color: var(--tread-colour) !important;
+    background-image: none !important;
+  }
+  html[data-separate-tread="true"][data-baked="true"] .step-tread {
+    background-image: url('design/steps/rib-escalator-10.png') !important;
+    background-size: 8px 32px;
+  }
+  .screen-palette { display: flex; gap: 6px; margin-top: 10px; }
+  .screen-palette i { height: 20px; flex: 1; border: 1px solid #888; }
+  /* Ribs live on the metal beneath the transparent artwork. */
+  .step-riser { isolation: isolate; }
+  html[data-baked="true"] .step-riser::before,
+  html[data-baked="true"] .step-riser::after,
+  html[data-baked="true"] .step-tread::before { display: none; }
+  html[data-baked="true"] .step-tread {
+    background-image: var(--baked-tread);
+    background-repeat: repeat;
+    background-size: 8px 32px;
+  }
+  .step-tread::before { opacity: var(--rib-strength, 1); }
+  .step-riser::before, .step-tread::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: var(--rib-texture); background-size: var(--rib-size); opacity: var(--rib-strength, 1);
+  }
+  .step-slide { z-index: 1; }
+  .step-riser::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    pointer-events: none; background: var(--rib-texture); background-size: var(--rib-size);
+    opacity: var(--rib-over-art, 0);
+  }
+  .stamp-panel { overscroll-behavior: contain; touch-action: pan-y; }
+  .stamp-panel.escalator-controls { width: min(390px, calc(100vw - 32px)); }
+  .escalator-controls fieldset { border: 0; border-top: 1px solid #aaa; padding: 16px 0; margin: 12px 0 0; min-width: 0; }
+  .escalator-controls legend { font-size: 14px; padding: 0 8px 0 0; }
+  .rib-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rib-option { display: flex; align-items: start; gap: 7px; padding: 10px; border: 1px solid #aaa; cursor: pointer; }
+  .rib-option:has(input:checked) { border-color: var(--blue); background: #e9e9e9; }
+  .rib-option input { margin: 2px 0; accent-color: var(--blue); }
+  .rib-option small { display: block; margin-top: 4px; color: #555; }
+  .escalator-controls .close { position: sticky; top: 0; float: right; background: #d7d7d7; z-index: 2; padding: 6px; }
+  .stamp-teaser { width: 100%; height: 100%; border: 0; display: block; }
   .step-tread {
     --fold: 0;
     position: absolute;
@@ -654,6 +725,18 @@
     user-select: none;
   }
   .signoff.is-placed { cursor: default; }
+  .escalator > .signoff {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    height: 100%;
+    overflow: hidden;
+    transform: translateY(100%);
+    font-size: clamp(14px, 1.2vw, 18px);
+    gap: 12px;
+  }
+  .escalator > .signoff .sign-lines { width: min(304px, 65vw); }
+  .escalator > .signoff .sign-lines i { width: 100%; }
   .sign-stage {
     position: fixed;
     pointer-events: none;
@@ -795,6 +878,10 @@
     z-index: 6;
     pointer-events: none;
   }
+  body[data-route="board"] .header-apple {
+    transform: translate3d(0, var(--header-shift, 0px), 0);
+  }
+  body.apple-hover { cursor: pointer; }
   .apple-view canvas { display: block; width: 100%; height: 100%; }
   .apple-readout { display: none; }
   .apple-light {
@@ -1243,6 +1330,65 @@
     .sig-upload,
     .sig-create { font-size: calc(14 * var(--k)); padding: 12px 0; }
   }
+  /* Keep the stamp library on its 1440px design scale on large displays. */
+  @media (min-width: 441px) {
+    .sig-modal { --k: clamp(0.85px, calc(100vw / 1440), 2.6667px); }
+    .sig-close, .sig-back {
+      left: calc(24 * var(--k));
+      top: calc(24 * var(--k));
+      width: calc(24 * var(--k));
+      height: calc(24 * var(--k));
+    }
+    .sig-close::before, .sig-back::before {
+      left: calc(5 * var(--k));
+      top: calc(5 * var(--k));
+      width: calc(14 * var(--k));
+      height: calc(14 * var(--k));
+    }
+    .sig-close::after, .sig-back::after {
+      left: calc(12 * var(--k));
+      top: calc(12 * var(--k));
+      width: calc(44 * var(--k));
+      height: calc(44 * var(--k));
+    }
+    .sig-title { top: calc(24 * var(--k)); }
+    .sig-head { width: min(calc(464 * var(--k)), calc(100% - 24 * var(--k))); gap: calc(12 * var(--k)); padding: calc(12 * var(--k)) 0; }
+    .sig-head-side { gap: calc(8 * var(--k)); }
+    .sig-grid {
+      left: calc(12 * var(--k));
+      width: calc(100vw - 24 * var(--k));
+      padding: calc(100 * var(--k)) 0 calc(24 * var(--k));
+      column-gap: calc(12 * var(--k));
+      row-gap: calc(16 * var(--k));
+    }
+    .sig-shapes { --shape: min(calc(342.873 * var(--k)), calc((100% - 16.253 * var(--k)) / 2)); }
+    .sig-shape[data-kind="stamp"] { left: calc(50% - var(--shape) - 8.1265 * var(--k)); }
+    .sig-shape[data-kind="apple"] { left: calc(50% + 8.1265 * var(--k)); }
+    .sig-seal {
+      width: min(calc(461.859 * var(--k)), calc(100vw - 48 * var(--k)));
+      height: min(calc(461.859 * var(--k)), calc(100vw - 48 * var(--k)));
+    }
+    .sig-swatches {
+      top: calc(50% + min(230.93 * var(--k), (100vw - 48 * var(--k)) / 2) + 24 * var(--k));
+    }
+    .sig-swatches button { width: calc(32 * var(--k)); height: calc(32 * var(--k)); }
+    .sig-swatches button.on::after {
+      width: calc(8 * var(--k));
+      height: calc(8 * var(--k));
+    }
+    .sig-bar {
+      width: min(calc(462 * var(--k)), calc(100% - 48 * var(--k)));
+      padding: calc(12 * var(--k)) 0;
+    }
+    .sig-upload, .sig-create {
+      gap: calc(8 * var(--k));
+      padding: calc(12 * var(--k)) 0;
+    }
+    .sig-upload-mark, .sig-create-mark {
+      width: calc(14 * var(--k));
+      height: calc(14 * var(--k));
+    }
+  }
   .sig-card {
     grid-column: span 2;
     aspect-ratio: 1;
@@ -1300,6 +1446,122 @@
       z-index: 2;
     }
   }
+
+  /* Keep stamp controls and library previews at a readable size on 4K screens. */
+  @media (min-width: 441px) {
+    .sig-modal { --k: clamp(0.85px, calc(100vw / 1440), 1.25px); }
+    .sig-grid {
+      left: 12px;
+      right: auto;
+      width: calc(100vw - 24px);
+      padding: 100px 0 24px;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 220px));
+      justify-content: start;
+      column-gap: 12px;
+      row-gap: 16px;
+    }
+    .sig-grid .sig-card {
+      grid-column: span 1;
+      width: 100%;
+      max-width: 220px;
+    }
+  }
+
+  body[data-route="board"], html:has(body[data-route="board"]), body[data-route="board"] .escalator { background: #d7d7d7; }
+  body[data-route="board"] .chrome { transform: translateY(var(--intro-header-top, calc(50dvh - 55px))); height: 40px; }
+  body[data-route="board"] .header-apple { transform: none; }
+  body[data-route="board"] .chrome .ig-link { left: 74.375%; }
+  body[data-route="board"] .chrome .catalog-entry { display: none; }
+  body[data-route="board"] .chrome .index-link { position: absolute; left: 91.74%; top: calc(12 * var(--hk)); font-size: calc(14 * var(--hk)); line-height: normal; white-space: nowrap; text-decoration: none; color: inherit; pointer-events: auto; }
+  body[data-route="board"] .chrome .bio { left: 9.1%; }
+  body[data-route="board"] .chrome .site-credits { display: none; }
+  body[data-route="board"] .lettering-ride { top: max(120px, calc(50dvh - 55px)); }
+  body[data-route="board"] .lettering-ride > :not(.intro-script) { display: none !important; }
+  .intro-script { position:absolute; transform: scale(calc(100vw / 1440px)); transform-origin: top left; pointer-events:none; }
+  .intro-script-vanok { left: 41.94%; top: 0; }
+  .intro-script-regular { left: 62.54%; top: calc(41 * var(--k)); }
+  @media(max-width:700px) {
+    body[data-route="board"] .chrome .bio { left: 12%; max-width: 54%; white-space: normal; font-size: 11px; }
+    body[data-route="board"] .chrome .ig-link { left: 69%; font-size:10px; }
+    body[data-route="board"] .chrome .index-link { left: 82%; font-size:10px; }
+    body[data-route="board"] .chrome .soon { font-size:10px; }
+  }
+
+  /* Editable case covers, scaled uniformly from the Figma 1440 × 800 layout. */
+  .case-cover { position: absolute; inset: 0; z-index: 1; overflow: hidden; container-type: size; }
+  .case-cover-plane { width: 1440px !important; height: 800px !important; transform: scale(calc(100cqw / 1440px)); transform-origin: top left; overflow: hidden; }
+  .step-tread, .step-nose, .lettering-ride { pointer-events: none; }
+  .case-cover-plane img { max-width: none; user-select: none; }
+  .case-cover-caption { max-width: none !important; font-weight: 400; text-shadow: none !important; }
+
+  .case-cover [data-preview] { pointer-events: auto !important; cursor: zoom-in; }
+  .case-hover-preview[hidden], .case-hover-art[hidden] { display: none !important; }
+  .case-hover-preview { position: absolute; z-index: 20; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .case-cover .case-hover-preview * { pointer-events: none !important; }
+  .case-hover-art { position: absolute; inset: 20.5% 22%; width: 56%; height: 59%; object-fit: contain; }
+  .case-hover-group { position: absolute; left: 50%; top: 50%; width: 1440px; height: 800px; transform-origin: top left; transform: scale(5.45) translate(-483.43px, -727px); }
+  .case-cover [data-preview-group] { pointer-events: auto; }
+  .chrome a.index-link, .chrome a.soon { text-decoration: underline !important; }
+  .email-copy { position: relative; }
+  .email-copy-action { position: absolute; inset: 0; text-align: left; visibility: hidden; }
+  .email-copy:is(:hover, :focus-visible, [data-copied]) .email-copy-address { visibility: hidden; }
+  .email-copy:is(:hover, :focus-visible, [data-copied]) .email-copy-action { visibility: visible; }
+  .case-cover { cursor: url("design/case-covers/case-soon.svg") 3 4, auto; }
+  .case-cover .case-cover-caption { pointer-events: auto; user-select: text; -webkit-user-select: text; cursor: text; }
+  .case-cover[data-preview-open] .case-cover-caption { visibility: hidden; }
+  .route-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--bg);
+    color: var(--blue);
+    font: inherit;
+    --route-column: calc(464 * var(--k));
+  }
+  .route-dialog[open] { display: grid; place-items: center; }
+  .route-dialog .stamp-teaser { position: absolute; inset: 0; }
+  .route-dialog .stamp-teaser[hidden] { display: none; }
+  .route-dialog-head {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--route-column);
+    padding: calc(12 * var(--k)) 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .route-dialog-head h2 { margin: 0; font-size: calc(14 * var(--k)); font-weight: 400; }
+  .route-dialog-close {
+    display: grid;
+    place-items: center;
+    padding: calc(8 * var(--k));
+    margin: calc(-8 * var(--k));
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .route-dialog-close img { width: calc(12.715 * var(--k)); height: auto; }
+  .route-dialog-copy {
+    position: relative;
+    width: var(--route-column);
+    display: grid;
+    gap: calc(8 * var(--k));
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .route-dialog-copy img { width: 100%; height: auto; }
+  .route-dialog-copy p { margin: 0; text-align: center; font-size: calc(14 * var(--k)); }
 </style>
 </head>
 <body>
@@ -1307,10 +1569,13 @@
 <script>
 (function () {
   var raw = (location.hash || '').replace(/^#/, '').replace(/^\//, '');
-  document.body.dataset.route = (raw === 'index' || raw === 'about' || raw === 'board') ? raw : 'hero';
+  document.body.dataset.route = (raw === 'index' || raw === 'about' || raw === 'board') ? raw : 'board';
 })();
 </script>
 <header class="chrome">
+  <img class="intro-script intro-script-vanok" src="design/assets/intro-vanok.svg" alt="Vanök">
+  <img class="intro-script intro-script-regular" src="design/assets/intro-regular.svg" alt="Regular">
+  <a class="index-link" href="#/index">Index</a>
   <img class="wordmark" src="design/stub/wordmark.svg" alt="Vanök Regular">
   <img class="vanok" src="design/stub/wordmark-vanok-ui.svg" alt="">
   <img class="regular" src="design/stub/wordmark-regular-ui.svg" alt="">
@@ -1325,8 +1590,8 @@
       <path d="M0.769115 10.3846L20.7661 10.3846" stroke-width="0.769115" stroke="currentColor"/>
     </svg>
   </button>
-  <p class="bio">Vanök Regular — a graphic designer and art director based in Belgrad, Serbia</p>
-  <a class="ig-link" href="https://www.instagram.com/vanok.regular/" target="_blank" rel="noopener noreferrer">Instagram</a>
+  <p class="bio">Vanök Regular — a graphic designer and art director based in Belgrade, Serbia</p>
+  <a class="ig-link email-copy" href="mailto:vanokregular@gmail.com" aria-label="Copy email address"><span class="email-copy-address">vanokregular@gmail.com</span><span class="email-copy-action" aria-live="polite">Copy Email</span></a>
   <button type="button" class="catalog-entry">Custom signature</button>
   <a class="soon" href="#/about">About</a>
   <a class="site-credits" href="https://fovkotov.framer.website" target="_blank" rel="noopener noreferrer"><span class="credits-full">Site Credits</span><span class="credits-name">fovkotov</span></a>
@@ -1341,6 +1606,7 @@
 </script>
 
 <script type="module">
+import { CASE_COVERS } from './design/case-covers/cases.js?v=wild-east-tint';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -1351,10 +1617,28 @@ const DESIGN_MID = 400;
 const APPLE_CX = 609;
 const APPLE_CY = 200;
 const APPLE_D = 304;
-const SPIN_PER_PX = 0.0065;
 const G = 2.35;
 
 const app = document.getElementById('app');
+const emailLink = document.querySelector('.email-copy');
+const emailAction = emailLink.querySelector('.email-copy-action');
+let emailReset;
+emailLink.addEventListener('click', async event => {
+  event.preventDefault();
+  try {
+    await navigator.clipboard.writeText(emailLink.getAttribute('href').slice(7));
+    emailAction.textContent = 'Copied';
+  } catch {
+    emailAction.textContent = 'Copy failed';
+  }
+  emailLink.dataset.copied = '';
+  clearTimeout(emailReset);
+  emailReset = setTimeout(() => {
+    delete emailLink.dataset.copied;
+    emailAction.textContent = 'Copy Email';
+  }, 1500);
+});
+
 const stage = document.getElementById('stage');
 
 function shot(src, alt, x, y, w, h, cls = 'cover') {
@@ -1366,68 +1650,243 @@ function archivedBoardMarkup() {
   return "function caseBand(num, title, year, shots) {\n  return `<section class=\"case\">\n    <p class=\"case-meta\"><span>${num}</span><span>${title}</span><span>${year}</span><span class=\"full\">Full case</span></p>\n    <div class=\"step-rig\">\n      <div class=\"step-face\">\n      <div class=\"step-tread\" aria-hidden=\"true\"></div>\n      <div class=\"step-lip\" aria-hidden=\"true\"></div>\n      <div class=\"scroller\">\n        <div class=\"track\"><div class=\"board\">${shots}</div></div>\n      </div>\n      </div>\n    </div>\n  </section>`;\n}\n\n  board: () => `\n    <div class=\"reel\">\n      <div class=\"escalator\">\n        <div class=\"escalator-track\">\n      <section class=\"case\">\n        <p class=\"case-meta\"><span>01</span><span>Wild Ea$t album identity for SALUKI</span><span>2024</span><span class=\"full\">Full case</span></p>\n        <div class=\"step-rig\">\n          <div class=\"step-face\">\n          <div class=\"step-tread\" aria-hidden=\"true\"></div>\n          <div class=\"step-lip\" aria-hidden=\"true\"></div>\n          <div class=\"scroller\">\n          <div class=\"track\">\n            <div class=\"board\">\n          <div class=\"piece dark\" style=\"left: calc(2047.844 * var(--u)); top: calc(477 * var(--u)); width: calc(340.825 * var(--u)); height: calc(323.057 * var(--u))\">\n            <img alt=\"Wild East vinyl\" src=\"design/board/shot-2215.webp\" style=\"left: calc(-134.555 * var(--u)); top: 0; width: calc(609.935 * var(--u)); height: calc(340.825 * var(--u))\">\n          </div>\n          <video class=\"loose cover\" src=\"design/board/vedma-2.mp4\" autoplay muted loop playsinline style=\"left: calc(1499 * var(--u)); top: calc(373.313 * var(--u)); width: calc(346.966 * var(--u)); height: calc(231.822 * var(--u))\"></video>\n          <div class=\"piece dark\" style=\"left: calc(1214 * var(--u)); top: 0; width: calc(346.294 * var(--u)); height: calc(346.294 * var(--u))\">\n            <img alt=\"Two figures against a pale wall\" src=\"design/board/shot-2230.webp\" style=\"left: 0; top: calc(-14.078 * var(--u)); width: calc(346.294 * var(--u)); height: calc(387.417 * var(--u))\">\n            <img alt=\"\" src=\"design/board/logo-b.svg\" style=\"left: 31.53%; top: 65.25%; width: 8.36%; height: 9.09%\">\n            <img alt=\"\" src=\"design/board/logo-c.svg\" style=\"left: 44.78%; top: 65.77%; width: 10.4%; height: 8.8%\">\n            <img alt=\"\" src=\"design/board/logo-a.svg\" style=\"left: 60.09%; top: 65.26%; width: 8.33%; height: 9.05%\">\n            <img alt=\"\" src=\"design/board/logo-d.svg\" style=\"left: 9.01%; top: 25.47%; width: 81.93%; height: 25.32%\">\n          </div>\n          <img class=\"loose cover\" alt=\"Embroidered caps\" src=\"design/board/photo-1121.webp\" style=\"left: calc(1879 * var(--u)); top: 0; width: calc(346.659 * var(--u)); height: calc(433.324 * var(--u))\">\n          <video class=\"loose cover\" src=\"design/board/vedma.mp4\" autoplay muted loop playsinline style=\"left: calc(2868 * var(--u)); top: 0; width: calc(735 * var(--u)); height: calc(496 * var(--u))\"></video>\n          <div class=\"piece\" style=\"left: calc(3193 * var(--u)); top: calc(610 * var(--u)); width: calc(205 * var(--u)); height: calc(190 * var(--u))\">\n            <img alt=\"Rider\" src=\"design/board/poster-11.webp\" style=\"left: 0; top: -0.38%; width: 99.79%; height: 118.97%\">\n          </div>\n          <div class=\"piece\" style=\"left: calc(3681 * var(--u)); top: calc(500 * var(--u)); width: calc(340 * var(--u)); height: calc(300 * var(--u))\">\n            <img alt=\"Blister pack with flowers\" src=\"design/board/poster-09.webp\" style=\"left: -0.02%; top: 0; width: 100.04%; height: 119%\">\n          </div>\n          <div class=\"piece dark\" style=\"left: calc(2244.383 * var(--u)); top: 0; width: calc(343.896 * var(--u)); height: calc(275.428 * var(--u))\">\n            <img class=\"cover\" alt=\"Portrait in a red headscarf\" src=\"design/board/poster-15.webp\">\n          </div>\n          <img class=\"loose flip\" alt=\"\" src=\"design/board/vector-2.webp\" style=\"left: calc(2817.326 * var(--u)); top: calc(605 * var(--u)); width: calc(112.053 * var(--u)); height: calc(191.494 * var(--u))\">\n          <img class=\"loose\" alt=\"Pair of socks\" src=\"design/board/vector-1.webp\" style=\"left: calc(2744.561 * var(--u)); top: calc(609.18 * var(--u)); width: calc(144.666 * var(--u)); height: calc(198.184 * var(--u))\">\n          <img class=\"loose cover\" alt=\"Ceramic plate\" src=\"design/board/layer-18.webp\" style=\"left: calc(2541 * var(--u)); top: calc(610.156 * var(--u)); width: calc(176.268 * var(--u)); height: calc(179.915 * var(--u))\">\n          <video class=\"loose cover\" src=\"design/board/ventonyl.webm\" autoplay muted loop playsinline style=\"left: calc(-189 * var(--u)); top: calc(-67.789 * var(--u)); width: calc(718.981 * var(--u)); height: calc(650.507 * var(--u))\"></video>\n          <video class=\"loose cover\" src=\"design/board/jacket.webm\" autoplay muted loop playsinline style=\"left: calc(-0.172 * var(--u)); top: calc(539.797 * var(--u)); width: calc(346.966 * var(--u)); height: calc(219.54 * var(--u))\"></video>\n          <img class=\"loose cover\" alt=\"Calligraphy over a crowd\" src=\"design/board/we.webp\" style=\"left: calc(365.227 * var(--u)); top: 0; width: calc(712.355 * var(--u)); height: calc(712.355 * var(--u))\">\n            </div>\n          </div>\n          </div>\n          </div>\n        </div>\n      </section>\n      ${caseBand('02', 'identity, titles, font, lettering, logo, vinyl and poster for Glukoza', '2026', [\n        shot('glu-artbook.webp', 'Glukoza artbook', -24, 236, 1226, 613),\n        shot('glu-mark.svg', '', 1404, 0, 214.156, 306.217, ''),\n        shot('glu-poster.webp', 'Glukoza listening poster', 3685, 0, 402, 569),\n        shot('glu-8933.webp', '', 1680, 0, 802, 800),\n        shot('glu-0118.webp', '', 2557, 288, 514, 512),\n        shot('glu-0115.webp', '', 3256, 0, 367, 367),\n      ].join(''))}\n      ${caseBand('03', 'Created Kaik is an educational playground for graphic designers', '2026', [\n        shot('kaik-word.svg', 'Created Kaik', 58, 37, 863, 116, ''),\n        shot('kaik-photo.webp', '', 1776, 0, 418, 624),\n        shot('kaik-photo.webp', '', 2194, 0, 418, 624, 'cover flip'),\n        shot('kaik-1.webp', '', 3772, 0, 314, 419),\n        shot('kaik-2.webp', '', 220, 440, 270, 360),\n        shot('kaik-3.webp', '', 2960, 194, 454, 606),\n        shot('kaik-group.svg', '', 2360, 86, 532.902, 673.717, ''),\n        shot('kaik-corner.svg', '', 3631, 585, 358.689, 200, ''),\n        shot('kaik-dog.svg', '', 572.01, 202, 1354.68, 627.538, ''),\n      ].join(''))}\n      ${caseBand('04', 'Font, logo, posters and merch for Feduk', '2026', [\n        shot('feduk-a.webp', '', 296, 452, 246.996, 348.189),\n        shot('feduk-b.webp', '', 0, 0, 348.189, 348.189),\n        shot('feduk-shirt.webp', '', 592, 0, 554, 554),\n        shot('feduk-c.webp', '', 1911, -27, 456.998, 456.998),\n        shot('feduk-09.webp', '', 1184, 245, 549.213, 309.018),\n        shot('feduk-04.webp', '', 3552, 0, 414, 591),\n        shot('feduk-12.webp', '', 2664, 0, 560, 800),\n      ].join(''))}\n      ${caseBand('04', 'Titles, lettering, posters for Sub Urban', '2026', [\n        shot('sub-08.webp', '', 0, 0, 472, 629),\n        shot('sub-02.webp', '', 1600, 0, 472, 629),\n        shot('sub-06.webp', '', 3552, 36, 472, 629),\n        shot('sub-04.webp', '', 2251, 171, 472, 629),\n      ].join(''))}\n        </div>\n      </div>\n    </div>\n  `,\n";
 }
 
-const CASES = [
-  { num: '01', title: 'Wild Ea$t album identity for SALUKI', year: '2024' },
-  { num: '02', title: 'identity, titles, font, lettering, logo, vinyl and poster for Glukoza', year: '2026' },
-  { num: '03', title: 'Created Kaik is an educational playground for graphic designers', year: '2026' },
-  { num: '04', title: 'Font, logo, posters and merch for Feduk', year: '2026' },
-  { num: '05', title: 'Titles, lettering, posters for Sub Urban', year: '2026' },
-];
+const CASES = CASE_COVERS.map((cover, index) => ({
+  num: String(index + 1).padStart(2, '0'),
+  title: cover.title,
+  cover,
+}));
 
-const STEP_SLIDES = ['design/steps/frame-a.png', 'design/steps/frame-b.png'];
+const STEP_SLIDES = ['design/steps/riser-a.png?v=transparent-1', 'design/steps/riser-b.png?v=transparent-1'];
 
 function grayStep(item, index) {
-  const slide = STEP_SLIDES[index % STEP_SLIDES.length];
-  return `<section class="case" data-step="${item.num}">
+  return `<section class="case" data-step="${item.num}" data-case="${item.cover.slug}" aria-label="${item.title}" style="--screen-color: ${SCREEN_COLORS[index]}">
     <div class="step-rig">
       <div class="step-tread" aria-hidden="true"></div>
       <div class="step-nose" aria-hidden="true"></div>
       <div class="step-riser">
-        <img class="step-slide" alt="" src="${slide}">
-        <p class="case-meta"><span>${item.num}</span><span>${item.title}</span><span>${item.year}</span></p>
+        <div class="case-cover" data-figma-node="${item.cover.figmaNode}">${item.cover.html}</div>
       </div>
     </div>
   </section>`;
 }
 
+// Load the next covers before they reach the viewport. Every image remains a separate DOM layer.
+function mountCaseCovers(root) {
+  const covers = [...root.querySelectorAll('.case-cover')];
+  const hoverTargets = [];
+  let hoveredCover = null;
+  for (const cover of covers) {
+    const plane = cover.querySelector('.case-cover-plane');
+    const overlay = document.createElement('div');
+    overlay.className = 'case-hover-preview';
+    overlay.hidden = true;
+    overlay.setAttribute('aria-hidden', 'true');
+    plane.append(overlay);
+    const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
+    let active = null;
+    const hide = () => {
+      active = null;
+      delete root.dataset.previewHover;
+      delete cover.dataset.previewOpen;
+      overlay.hidden = true;
+      overlay.replaceChildren();
+    };
+    const show = thumb => {
+      active = thumb;
+      root.dataset.previewHover = '';
+      cover.dataset.previewOpen = '';
+      if (thumb.hasAttribute('data-preview-group')) {
+        const composite = document.createElement('div');
+        if (thumb.dataset.previewGroup === 'self') {
+          composite.className = 'case-hover-art';
+          const clone = thumb.cloneNode(true);
+          const width = thumb.offsetWidth;
+          const height = thumb.offsetHeight;
+          const scale = Math.min(1440 * .56 / width, 800 * .59 / height);
+          Object.assign(clone.style, {
+            inset: '50% auto auto 50%',
+            width: width + 'px',
+            height: height + 'px',
+            transform: `translate(-50%, -50%) scale(${scale})`,
+          });
+          composite.append(clone);
+        } else {
+          composite.className = 'case-hover-group';
+          composite.append(thumb.parentElement.cloneNode(true));
+        }
+        overlay.replaceChildren(composite);
+      } else if (thumb.dataset.previewVideo) {
+        const video = document.createElement('video');
+        video.className = 'case-hover-art';
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.poster = thumb.currentSrc || thumb.dataset.preview;
+        video.src = thumb.dataset.previewVideo;
+        overlay.replaceChildren(video);
+        video.play().catch(() => {});
+      } else {
+        const art = new Image();
+        art.alt = '';
+        art.className = 'case-hover-art';
+        art.src = thumb.currentSrc || thumb.dataset.preview;
+        overlay.replaceChildren(art);
+        if (art.src !== new URL(thumb.dataset.preview, document.baseURI).href) {
+          const highRes = new Image();
+          highRes.src = thumb.dataset.preview;
+          highRes.decode().then(() => {
+            if (active === thumb) art.src = highRes.src;
+          }).catch(() => {});
+        }
+      }
+      overlay.hidden = false;
+    };
+    hoverTargets.push({cover, thumbs, hide, show: thumb => {
+      if (active !== thumb) show(thumb);
+    }});
+    for (const thumb of thumbs) {
+      thumb.addEventListener('click', () => {
+        if (active !== thumb) show(thumb);
+      });
+    }
+    cover.addEventListener('click', event => {
+      if (!event.target.closest('[data-preview], [data-preview-group]')) hide();
+    });
+  }
+
+  // The perspective track can win native hit testing in front of its recessed faces.
+  // Use screen coordinates so the 30px padding stays constant in perspective.
+  function thumbnailAt(thumbs, coverBounds, x, y) {
+    const rows = [[], []];
+    const middle = coverBounds.top + coverBounds.height / 2;
+    for (const thumb of thumbs) {
+      const bounds = thumb.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) continue;
+      const {left, right, top, bottom} = bounds;
+      if (x >= left && x < right && y >= top && y < bottom) return thumb;
+      rows[(top + bottom) / 2 < middle ? 0 : 1].push({thumb, left, right, top, bottom});
+    }
+    for (const row of rows) {
+      row.sort((a, b) => (a.left + a.right) - (b.left + b.right));
+      for (const [index, {thumb, left, right, top, bottom}] of row.entries()) {
+        const previous = row[index - 1];
+        const next = row[index + 1];
+        // Adjacent zones meet halfway across the gap between thumbnails.
+        const start = previous ? (previous.right + left) / 2 : left;
+        const end = next ? (right + next.left) / 2 : right;
+        if (x >= start && x < end && y >= top - 30 && y < bottom + 30) return thumb;
+      }
+    }
+    return null;
+  }
+
+  function clearHover() {
+    hoveredCover?.hide();
+    hoveredCover = null;
+  }
+  function onHover(event) {
+    if (event.pointerType === 'touch') return;
+    const {clientX: x, clientY: y} = event;
+    if (event.target.closest?.('.escalator') && !event.target.closest('.signoff')) {
+      for (const entry of hoverTargets) {
+        const bounds = entry.cover.getBoundingClientRect();
+        if (x < bounds.left || x >= bounds.right || y < bounds.top || y >= bounds.bottom) continue;
+        const thumb = thumbnailAt(entry.thumbs, bounds, x, y);
+        if (!thumb) continue;
+        if (hoveredCover !== entry) clearHover();
+        hoveredCover = entry;
+        entry.show(thumb);
+        return;
+      }
+    }
+    clearHover();
+  }
+  window.addEventListener('pointermove', onHover, true);
+  document.documentElement.addEventListener('pointerleave', clearHover);
+
+  const videos = new IntersectionObserver(entries => {
+    for (const {target, isIntersecting} of entries) {
+      if (isIntersecting) {
+        if (!target.src) target.src = target.dataset.src;
+        target.play().catch(() => {});
+      } else target.pause();
+    }
+  }, { threshold: 0.05 });
+  covers.forEach(cover => cover.querySelectorAll('video[data-src]').forEach(video => videos.observe(video)));
+
+  const load = cover => {
+    cover.querySelectorAll('img[data-src]').forEach(img => {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    });
+  };
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) {
+      load(entry.target);
+      observer.unobserve(entry.target);
+    }
+  }, { rootMargin: '150% 0px' });
+  covers.forEach((cover, index) => index < 2 ? load(cover) : observer.observe(cover));
+  return () => {
+    observer.disconnect();
+    videos.disconnect();
+    window.removeEventListener('pointermove', onHover, true);
+    document.documentElement.removeEventListener('pointerleave', clearHover);
+    delete root.dataset.previewHover;
+  };
+}
+
+
+const ROUTE_DIALOGS = {
+  index: ['Index', 'Everything I’ve made throughout my career will be here'],
+  about: ['About', 'A little about me will be here.'],
+};
+
+const routeDialog = document.createElement('dialog');
+routeDialog.className = 'route-dialog';
+routeDialog.setAttribute('aria-labelledby', 'route-dialog-title');
+routeDialog.innerHTML = `<header class="route-dialog-head">
+  <h2 id="route-dialog-title"></h2>
+  <button type="button" class="route-dialog-close" aria-label="Close" autofocus>
+    <img src="design/assets/route-close.svg" alt="">
+  </button>
+</header>
+<div class="route-dialog-copy">
+  <img src="design/assets/route-rule.svg" alt="">
+  <p></p>
+</div>`;
+document.body.append(routeDialog);
+const routeStampFrames = new Map();
+
+function showRouteStamps(name) {
+  if (!routeStampFrames.has(name)) {
+    const frame = document.createElement('iframe');
+    frame.className = 'stamp-teaser';
+    frame.title = `${ROUTE_DIALOGS[name][0]} stamps`;
+    frame.src = 'stub.html?embed=stamps&surface=dialog';
+    frame.tabIndex = -1;
+    routeStampFrames.set(name, frame);
+    routeDialog.prepend(frame);
+  }
+  for (const [route, frame] of routeStampFrames) frame.hidden = route !== name;
+}
+
+function closeRouteDialog() {
+  routeDialog.close();
+  if (parseRoute() !== 'board') location.hash = '/board';
+}
+routeDialog.querySelector('button').addEventListener('click', closeRouteDialog);
+routeDialog.addEventListener('cancel', event => {
+  event.preventDefault();
+  closeRouteDialog();
+});
+addEventListener('message', event => {
+  if (!routeDialog.open || event.origin !== location.origin) return;
+  if (event.source !== routeStampFrames.get(parseRoute())?.contentWindow) return;
+  if (event.data?.type === 'vanok-settings' && event.data.code === 'Escape') closeRouteDialog();
+});
 
 const TEMPLATES = {
-  hero: () => `
-    <section class="sheet" id="work">
-      <h2>SALUKI Wild Ea$t album identity</h2>
-      <p>A graphic world for an artist’s release with millions of listens.</p>
-      <a class="pill" href="#/index">full case</a>
-    </section>
-    <section class="sheet" id="notes">
-      <h2>Selected work</h2>
-      <ul class="index-list">
-        <li><span>SALUKI — Wild Ea$t</span><span>2024</span></li>
-        <li><span>Ventonyl — type specimen</span><span>2024</span></li>
-        <li><span>Cofef — packaging</span><span>2023</span></li>
-        <li><span>Poster series — Belgrad</span><span>2023</span></li>
-      </ul>
-    </section>
-  `,
-  index: () => `
-    <section class="case">
-      <h2>SALUKI Wild Ea$t album identity</h2>
-      <p>A graphic world for an artist’s release with millions of listens.</p>
-      <a class="pill" href="#/index">full case</a>
-    </section>
-    <div class="tiles" aria-hidden="true">
-      <div class="tile"></div>
-      <div class="tile"></div>
-      <div class="tile wide"></div>
-    </div>
-  `,
-  about: () => `
-    <section class="about-block">
-      <h2>About</h2>
-      <p>A graphic world for an artist’s release with millions of listens — identity, type and art direction.</p>
-      <p>Belgrad, Serbia. Available for commissions.</p>
-    </section>
-    <p class="quiet"><a href="#/board">board</a> · <a href="viewer.html">model viewer</a></p>
-  `,
   board: () => `
     <div class="reel">
       <div class="escalator">
@@ -1436,6 +1895,9 @@ const TEMPLATES = {
             ${CASES.map(grayStep).join('')}
           </div>
         </div>
+        <section class="signoff" aria-label="Leave a stamp">
+          <iframe class="stamp-teaser" data-src="stub.html?embed=stamps" title="Sign Here — печати из тизера" loading="lazy"></iframe>
+        </section>
       </div>
     </div>
   `,
@@ -1446,22 +1908,14 @@ function parseRoute() {
   if (raw === 'index') return 'index';
   if (raw === 'about') return 'about';
   if (raw === 'board') return 'board';
-  return 'hero';
-}
-
-function heroAnchor() {
-  const k = innerWidth / DESIGN_W;
-  return {
-    fx: APPLE_CX / DESIGN_W,
-    fy: 0.5 + (APPLE_CY - DESIGN_MID) * k / innerHeight,
-  };
+  return 'board';
 }
 
 function anchorFor(name) {
   if (name === 'index') return { fx: 0.5, fy: 0.7 };
   if (name === 'about') return { fx: 0.7, fy: 0.58 };
   if (name === 'board') return { fx: 0.88, fy: 0.12 };
-  return heroAnchor();
+  return { fx: 0.88, fy: 0.12 };
 }
 
 let route = parseRoute();
@@ -1472,26 +1926,119 @@ let yaw = 0, yawVel = 0;
 let dragYaw = 0, dragPitch = 0;
 let grab = null;
 
+let introScrollProgress = 0;
 const STRIP_SPEED = 60;
-const pageScroll = { boost: 11.5 };
-const escalator = { stepH: 100, speed: 1, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
+const SCREEN_COLORS = CASE_COVERS.map(() => '#C4C4C4');
+const escalator = { introStairsY: matchMedia('(max-width: 700px)').matches ? 91.375 : 111.375, separateTreadColor: false, treadColor: '#D0D0D0', stepColor: '#F0F0F0', autoPlay: true, pageTheme: 1, ribs: 2, ribStrength: .1, stepH: 100, speed: .2, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
+
+const RIB_PRESETS = [
+  {name:'01 · Гладкий', desc:'Без канавок — для сравнения', pitch:8, dark:0, light:0},
+  {name:'02 · Тонкий металл', desc:'Мелкие мягкие рёбра под работами', pitch:6, dark:.13, light:.3},
+  {name:'03 · Эскалатор', desc:'Классические частые канавки', pitch:8, dark:.3, light:.45},
+  {name:'04 · Широкий профиль', desc:'Крупные металлические гребни', pitch:14, dark:.26, light:.4},
+  {name:'05 · Микрорельеф', desc:'Очень мелкий сатиновый металл', pitch:10, dark:.055, light:.10},
+  {name:'06 · Глубокие пазы', desc:'Контрастные узкие углубления', pitch:10, dark:.5, light:.5},
+  {name:'07 · Лёгкий отпечаток', desc:'Едва заметный рельеф поверх работ', pitch:8, dark:.22, light:.3, over:.12},
+  {name:'08 · Печать на металле', desc:'Работы повторяют рельеф ступени', pitch:12, dark:.3, light:.45, over:.25},
+];
+
+const stepImageLoads = new Map();
+const stepColourRenders = new Map();
+function loadStepImage(src) {
+  if (!stepImageLoads.has(src)) {
+    const image = new Image();
+    image.src = src;
+    stepImageLoads.set(src, image.decode().then(() => image));
+  }
+  return stepImageLoads.get(src);
+}
+
+async function renderStepColour(step, index, sourceIndex, colour) {
+  const key = `${sourceIndex}|${colour}`;
+  step.dataset.colourRender = key;
+  try {
+    let rendered = stepColourRenders.get(index);
+    if (!rendered || rendered.key !== key) {
+      const [art, texture] = await Promise.all([
+        loadStepImage(STEP_SLIDES[sourceIndex]),
+        loadStepImage('design/steps/rib-escalator-10.png'),
+      ]);
+      const canvas = document.createElement('canvas');
+      canvas.width = 1920;
+      canvas.height = 1067;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.fillStyle = colour;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const pattern = ctx.createPattern(texture, 'repeat');
+      pattern.setTransform(new DOMMatrix().scale(4 / 3));
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(art, 0, 0, canvas.width, canvas.height);
+      const tread = document.createElement('canvas');
+      tread.width = 8;
+      tread.height = 32;
+      const tc = tread.getContext('2d', { alpha: false });
+      tc.fillStyle = colour;
+      tc.fillRect(0, 0, 8, 32);
+      tc.fillStyle = 'rgba(0,0,0,.14)';
+      tc.fillRect(0, 0, 8, 32);
+      tc.drawImage(texture, 0, 0, 8, 32);
+      rendered = { key, face: canvas.toDataURL('image/jpeg', .92), tread: tread.toDataURL() };
+      if (step.dataset.colourRender !== key) return;
+      stepColourRenders.set(index, rendered);
+    }
+    if (step.dataset.colourRender !== key || !step.isConnected) return;
+    step.querySelector('.step-slide').src = rendered.face;
+    step.style.setProperty('--baked-tread', `url("${rendered.tread}")`);
+  } catch {
+    step.dataset.colourRender = '';
+  }
+}
 
 function applyEscalatorVars() {
   const root = document.documentElement;
+  root.dataset.pageTheme = String(escalator.pageTheme);
+  root.dataset.separateTread = String(escalator.separateTreadColor);
+  root.style.setProperty('--tread-colour', escalator.treadColor);
+  const baked = escalator.ribs === 2 && Math.abs(escalator.ribStrength - .1) < .001;
+  root.dataset.baked = String(baked);
+  document.querySelectorAll('.escalator-track > .case').forEach((step, index) => {
+    if (step.querySelector('.case-cover')) {
+      const colour = escalator.pageTheme === 1 ? escalator.stepColor : SCREEN_COLORS[index];
+      step.style.setProperty('--screen-color', colour);
+      step.style.setProperty('--original-step-color', colour);
+      step.style.setProperty('--baked-tread', 'url("design/steps/tread-1-0.png")');
+      return;
+    }
+    const img = step.querySelector('.step-slide');
+    // Theme one retains the original sequence; the colour study starts with EUPHORIA.
+    const sourceIndex = index < 2 ? 1 - index : index % STEP_SLIDES.length;
+    const src = baked ? `design/steps/baked-${escalator.pageTheme === 2 ? 'neutral' : '1'}-${escalator.pageTheme === 1 && index < 2 ? 1 - index : index}.webp` : STEP_SLIDES[sourceIndex];
+    const colour = escalator.pageTheme === 1 ? escalator.stepColor : SCREEN_COLORS[index];
+    step.style.setProperty('--screen-color', colour);
+    step.style.setProperty('--original-step-color', escalator.stepColor);
+    if (baked && colour.toUpperCase() !== '#C4C4C4') {
+      renderStepColour(step, index, sourceIndex, colour);
+    } else {
+      step.dataset.colourRender = '';
+      if (img && img.getAttribute('src') !== src) img.src = src;
+      step.style.setProperty('--baked-tread', `url("design/steps/tread-1-${index}.png")`);
+    }
+    const title = step.querySelector('.case-meta span:nth-child(2)');
+    if (title) title.textContent = escalator.pageTheme === 2 && index < 2
+      ? (index === 0 ? 'Graphics, typography, font for SALUKI EUPHORIA' : 'Wild Ea$t album identity for SALUKI')
+      : CASES[index].title;
+  });
+  const rib = RIB_PRESETS[escalator.ribs] || RIB_PRESETS[1];
+  const pitch = Math.max(8, rib.pitch);
+  root.style.setProperty('--rib-texture', rib.dark === 0 ? 'none' : escalator.ribs === 2 ? 'url("design/steps/rib-escalator-10.png")' : 'url("design/steps/rib-soft.png")');
+  root.style.setProperty('--rib-size', `${escalator.ribs === 2 ? 8 : Math.max(18, pitch * 2)}px 32px`);
+  root.style.setProperty('--rib-strength', escalator.ribs === 2 ? escalator.ribStrength / .1 : escalator.ribStrength);
+  root.style.setProperty('--rib-over-art', (rib.over || 0) * escalator.ribStrength);
   root.style.setProperty('--step-pct', String(escalator.stepH));
   root.style.setProperty('--tread-depth', String(escalator.tread));
   root.style.setProperty('--shaft-perspective', escalator.perspective + 'px');
 }
-let wheelDelta = 0;
-let escalatorTouch = null;
-// Applied multiplier eases toward its target. Idle stays forward 1×.
-// Gesture magnitude aims at boost×2 on desktop and boost×9 on coarse/mobile.
-// Sign flips with the wheel/touch immediately.
-const SCROLL_EASE_MS = 420;
-let scrollMul = 1;
-let scrollMulFrom = 1;
-let scrollMulTo = 1;
-let scrollMulT = 1;
 
 // Phones and tablets. Coarse pointer covers a finger; a narrow touch viewport
 // covers the same breakpoint the page already uses when the pointer query misses.
@@ -1524,80 +2071,9 @@ function escalatorTouchBlocked(target) {
   );
 }
 
-// Vertical wheel/trackpad and one-finger touch feed wheelDelta.
-// Forward (deltaY > 0) and back (deltaY < 0) follow the gesture.
-// The page itself does not scroll.
-function onEscalatorWheel(event) {
-  if (event.metaKey || event.ctrlKey || event.altKey) return;
-  if (!wheelScrollsPage(event)) return;
-  event.preventDefault();
-  wheelDelta += event.deltaY;
-}
-
-function onEscalatorTouchStart(event) {
-  if (!coarseScrollDevice() || event.touches.length !== 1) return;
-  if (escalatorTouchBlocked(event.target)) return;
-  const t = event.touches[0];
-  escalatorTouch = { id: t.identifier, x: t.clientX, y: t.clientY };
-}
-
-function onEscalatorTouchMove(event) {
-  if (!escalatorTouch) return;
-  const t = [...event.touches].find((touch) => touch.identifier === escalatorTouch.id);
-  if (!t) return;
-  const dx = t.clientX - escalatorTouch.x;
-  const dy = escalatorTouch.y - t.clientY;
-  escalatorTouch.x = t.clientX;
-  escalatorTouch.y = t.clientY;
-  const onScroller = event.target instanceof Element && !!event.target.closest('.scroller');
-  if (onScroller && Math.abs(dx) > Math.abs(dy)) return;
-  if (event.cancelable) event.preventDefault();
-  if (dy) wheelDelta += dy;
-}
-
-function onEscalatorTouchEnd(event) {
-  if (!escalatorTouch) return;
-  const ended = [...event.changedTouches].some((touch) => touch.identifier === escalatorTouch.id);
-  if (ended) escalatorTouch = null;
-}
-
-function scrollGestureBoost() {
-  return pageScroll.boost * (coarseScrollDevice() ? 9 : 2);
-}
-
-function retargetScrollMul(next) {
-  if (next === scrollMulTo) return;
-  scrollMulFrom = scrollMul;
-  scrollMulTo = next;
-  scrollMulT = 0;
-}
-
-function stepScrollMul(dt) {
-  if (scrollMulT >= 1) {
-    scrollMul = scrollMulTo;
-    return;
-  }
-  const step = (dt > 0 ? dt : 0) * 1000 / SCROLL_EASE_MS;
-  scrollMulT = Math.min(1, scrollMulT + step);
-  const u = scrollMulT * scrollMulT * (3 - 2 * scrollMulT);
-  scrollMul = scrollMulFrom + (scrollMulTo - scrollMulFrom) * u;
-}
-
-function pageScrollMult(dt) {
-  const delta = wheelDelta;
-  wheelDelta = 0;
-  if (delta) {
-    const sign = Math.sign(delta) || 1;
-    retargetScrollMul(sign * scrollGestureBoost());
-  } else {
-    retargetScrollMul(1);
-  }
-  stepScrollMul(dt);
-  return scrollMul;
-}
-
-// Any vertical wheel component scrolls the page, even when deltaX is larger.
+// Shift+wheel stays on the page helper and does not drive the escalator.
 function wheelScrollsPage(event) {
+  if (event.target instanceof Element && event.target.closest('.stamp-panel, .sig-modal')) return false;
   if (event.shiftKey) return false;
   return Math.abs(event.deltaY) > 0;
 }
@@ -2085,7 +2561,6 @@ function mountSignStamp(host) {
   stampTab.addEventListener('click', () => showPane('stamp'));
   appleTab.addEventListener('click', () => showPane('apple'));
   const scrollHost = document.createElement('div');
-  addSlider(scrollHost, pageScroll, 'Ускорение лент при скролле', 'boost', 1, 30, 0.5, (n) => n.toFixed(1) + '×', false);
   addSlider(scrollHost, escalator, 'Высота ступени', 'stepH', 40, 200, 1, (n) => Math.round(n) + '%', false);
   addSlider(scrollHost, escalator, 'Скорость ступеней', 'speed', 0.2, 3, 0.05, (n) => n.toFixed(2) + '×', false);
   applyEscalatorVars();
@@ -2941,20 +3416,16 @@ function mountHeaderApple() {
     return Math.max(innerWidth, 1) / MOBILE_BOARD;
   }
   function applyAppleLayout() {
-    if (matchMedia('(max-width: 440px)').matches) {
-      const k = mobileFrameScale();
-      pose.size = 5.65 * k;
-      pose.xPx = 111 * k;
-      pose.topPx = 18 * k;
-    } else {
-      pose.xPx = desktopAppleX(Math.max(innerWidth, 1));
-      pose.topPx = 5;
-      pose.size = 1.54;
-    }
+    const k = innerWidth / 1440;
+    pose.xPx = innerWidth * (794 / 1440);
+    const startY = innerHeight * .5 - 43 * k;
+    const endY = -50 * k;
+    pose.topPx = startY + (endY - startY) * introScrollProgress;
+    pose.size = 2.35;
   }
 
   const host = document.createElement('div');
-  host.className = 'apple-view';
+  host.className = 'apple-view header-apple';
   host.setAttribute('aria-hidden', 'true');
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -3024,10 +3495,9 @@ function mountHeaderApple() {
   const drag = { active: false, pointerId: -1, x0: 0, y0: 0, yaw0: 0, pitch0: 0, yaw: 0, pitch: 0 };
   let dragClock = performance.now();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const APPLE_ENTER_MS = 900;
-  const APPLE_ENTER_Y = 300;
-  const APPLE_ENTER_Z = 184;
-  const APPLE_ROLL_MS = 11000;
+  const APPLE_ENTER_MS = 2200;
+  const easeAppleEntry = cubicBezierEase(.22, .18, .32, 1);
+  const APPLE_ROLL_MS = 6200;
   const APPLE_ROLL_STEPS = 480;
   let appleEnter = null;
   let appleRoll = null;
@@ -3052,23 +3522,22 @@ function mountHeaderApple() {
   const easeSlow = cubicBezierEase(0.16, 1, 0.3, 1);
   function appleEnterEase() {
     if (reduced || !appleEnter) return appleEnter ? 1 : 0;
-    return easeSlow(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
+    return easeAppleEntry(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
   }
   function appleOffscreen() {
-    return -Math.max(innerHeight, 1) * 1.35;
+    const restingY = innerHeight * .5 - 43 * innerWidth / 1440;
+    return -restingY - appleScreenRadius() * 1.4;
   }
-  function appleEnterOffset() {
-    if (reduced) return 0;
-    if (!appleEnter) return appleOffscreen();
-    return appleOffscreen() * (1 - appleEnterEase());
+  function appleEntryPosition(progress = appleEnterEase()) {
+    const remaining = reduced ? 0 : 1 - progress;
+    const arcWidth = Math.min(innerWidth * .32, innerHeight * .5);
+    return {
+      x: -arcWidth * remaining * (.38 + .62 * (1 - remaining)),
+      y: appleOffscreen() * remaining,
+    };
   }
   function appleEnterRot() {
-    const left = reduced || !appleEnter ? 0 : 1 - appleEnterEase();
-    return {
-      x: pose.rotX,
-      y: pose.rotY + APPLE_ENTER_Y * left,
-      z: pose.rotZ + APPLE_ENTER_Z * left,
-    };
+    return { x: pose.rotX, y: pose.rotY, z: pose.rotZ };
   }
   function appleScreenRadius() {
     const w = Math.max(innerWidth, 2);
@@ -3118,7 +3587,7 @@ function mountHeaderApple() {
     const easeAt = new Float64Array(steps + 1);
     const layout = {
       ox: pose.xPx,
-      oy: pose.topPx + appleEnterOffset(),
+      oy: pose.topPx + appleEntryPosition().y,
       w: Math.max(innerWidth, 1),
       h: Math.max(innerHeight, 1),
       margin: appleRollMargin(),
@@ -3180,7 +3649,7 @@ function mountHeaderApple() {
   function clampDrag(angle) {
     return Math.max(-DRAG_LIMIT, Math.min(DRAG_LIMIT, angle));
   }
-  function followPointer() {
+  function followPointer(entryProgress, roll) {
     const now = performance.now();
     const dt = Math.min(0.05, Math.max(0, (now - dragClock) / 1000));
     dragClock = now;
@@ -3189,12 +3658,30 @@ function mountHeaderApple() {
       drag.yaw += -drag.yaw * k;
       drag.pitch += -drag.pitch * k;
     }
-    gaze.sx += (gaze.x - gaze.sx) * 0.08;
-    gaze.sy += (gaze.y - gaze.sy) * 0.08;
+    const gazeBlend = 1 - Math.exp(-dt * 2.5);
+    gaze.sx += (gaze.x - gaze.sx) * gazeBlend;
+    gaze.sy += (gaze.y - gaze.sy) * gazeBlend;
     const enterRot = appleEnterRot();
     gazeEuler.set(enterRot.x * Math.PI / 180, enterRot.y * Math.PI / 180, enterRot.z * Math.PI / 180);
     gazeBase.setFromEuler(gazeEuler);
-    const roll = appleRollSample();
+    const radius = appleScreenRadius();
+    // Work backwards from the resting pose, rolling along each segment of the arc.
+    let point = appleEntryPosition(1);
+    for (let segment = 1; segment <= 16 && entryProgress < 1 && !reduced; segment++) {
+      const previous = appleEntryPosition(1 - (1 - entryProgress) * segment / 16);
+      const dx = previous.x - point.x;
+      const dy = previous.y - point.y;
+      const distance = Math.hypot(dx, dy);
+      if (distance) {
+        rollAxis.set(dy / distance, 0, -dx / distance);
+        rollQuat.setFromAxisAngle(rollAxis, distance / radius);
+        gazeBase.premultiply(rollQuat);
+      }
+      point = previous;
+    }
+    const scrollDistance = introScrollProgress * (innerHeight * .5 + 7 * innerWidth / 1440);
+    rollQuat.setFromAxisAngle(axisX, -scrollDistance / radius);
+    gazeBase.premultiply(rollQuat);
     if (roll) {
       const len = Math.hypot(roll.tx, roll.ty) || 1;
       rollAxis.set(roll.ty / len, 0, -roll.tx / len);
@@ -3224,21 +3711,25 @@ function mountHeaderApple() {
     camera.left = -viewW / 2;
     camera.right = viewW / 2;
     camera.updateProjectionMatrix();
-    renderer.setSize(w, h, false);
+    if (renderer.domElement.width !== Math.floor(w * renderer.getPixelRatio()) ||
+        renderer.domElement.height !== Math.floor(h * renderer.getPixelRatio())) {
+      renderer.setSize(w, h, false);
+    }
     const poseSize = matchMedia('(max-width: 440px)').matches
       ? pose.size / mobileFrameScale()
       : pose.size;
     if (appleModel) appleModel.scale.setScalar(0.78 * poseSize);
     const roll = appleRollSample();
-    const enterY = appleEnterOffset() + (roll ? roll.dy : 0);
-    const enterX = roll ? roll.dx : 0;
+    const entryProgress = appleEnterEase();
+    const entry = appleEntryPosition(entryProgress);
+    const enterY = entry.y + (roll ? roll.dy : 0);
+    const enterX = entry.x + (roll ? roll.dx : 0);
     tilt.position.set(
       ((pose.xPx + enterX) / w) * viewW - viewW / 2,
       0,
       ((pose.topPx + enterY) / h) * viewH - viewH / 2,
     );
-    const enterRot = appleEnterRot();
-    tilt.rotation.set(enterRot.x * Math.PI / 180, enterRot.y * Math.PI / 180, enterRot.z * Math.PI / 180);
+    followPointer(entryProgress, roll);
     tilt.updateMatrixWorld(true);
     shadowBox.setFromObject(tilt);
     const az = pose.azimuth * Math.PI / 180;
@@ -3275,7 +3766,6 @@ function mountHeaderApple() {
     key.target.updateMatrixWorld();
     ground.position.set(0, 0, 0);
     ground.scale.set(viewW * 1.4, viewH * 1.4, 1);
-    followPointer();
   }
 
   function hitsApple(event) {
@@ -3290,15 +3780,17 @@ function mountHeaderApple() {
   }
   function uiOwnsPointer(event) {
     const el = event.target;
-    return !!(el && el.closest && el.closest('.crosshair, .stamp-panel, .sig-modal, .catalog-entry, .ig-link, .site-credits, .soon, a, button, input, select, textarea, label'));
+    return !!(el && el.closest && el.closest('.crosshair, .stamp-panel, .sig-modal, .catalog-entry, .ig-link, .site-credits, .soon, .case-cover-caption, [data-preview], [data-preview-group], a, button, input, select, textarea, label'));
   }
   function onPointerMove(event) {
     const w = Math.max(innerWidth, 1);
     const h = Math.max(innerHeight, 1);
     gaze.x = (event.clientX / w) * 2 - 1;
     gaze.y = (event.clientY / h) * 2 - 1;
+    document.body.classList.toggle('apple-hover', !uiOwnsPointer(event) && hitsApple(event));
   }
   function onPointerLeave() {
+    document.body.classList.remove('apple-hover');
     gaze.x = 0;
     gaze.y = 0;
   }
@@ -3355,10 +3847,16 @@ function mountHeaderApple() {
 
   applyAppleLayout();
   placeApple();
+  let lastIntroProgress = -1;
+  let wasFlying = false;
   renderer.setAnimationLoop(() => {
-    if (!alive) return;
+    if (!alive || document.hidden) return;
     const flying = appleEnter && performance.now() - appleEnter.start < APPLE_ENTER_MS;
-    if (!appleModel || flying || appleRolling() || drag.active || Math.abs(drag.yaw) > 0.0004 || Math.abs(drag.pitch) > 0.0004 || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {
+    const introChanged = introScrollProgress !== lastIntroProgress;
+    lastIntroProgress = introScrollProgress;
+    const landed = wasFlying && !flying;
+    wasFlying = flying;
+    if (introChanged || !appleModel || flying || landed || appleRolling() || drag.active || Math.abs(drag.yaw) > 0.0004 || Math.abs(drag.pitch) > 0.0004 || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {
       placeApple();
     } else if (appleRoll && !appleRolling()) {
       appleRoll = null;
@@ -3848,17 +4346,163 @@ function mountEscalatorControls() {
   const panel = document.createElement('aside');
   panel.className = 'stamp-panel';
   panel.hidden = true;
-  panel.setAttribute('aria-label', 'Геометрия эскалатора');
+  panel.classList.add('escalator-controls');
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', 'Настройки эскалатора');
   const close = document.createElement('button');
   close.type = 'button';
   close.className = 'close';
   close.textContent = 'Закрыть';
   const title = document.createElement('h2');
-  title.textContent = 'Ступени';
+  title.textContent = 'Эскалатор';
   const hint = document.createElement('p');
   hint.className = 'hint';
   hint.textContent = 'Клавиша G открывает панель. Esc закрывает.';
   panel.append(close, title, hint);
+  const introOptions = document.createElement('fieldset');
+  introOptions.innerHTML = '<legend>Первый экран</legend>';
+  const introLabel = document.createElement('label');
+  introLabel.className = 'row';
+  const introHead = document.createElement('span');
+  const introName = document.createElement('b');
+  introName.textContent = 'Позиция лестницы по высоте';
+  const introValue = document.createElement('i');
+  const introInput = document.createElement('input');
+  introInput.type = 'range';
+  introInput.min = '20';
+  introInput.max = '150';
+  introInput.step = '.125';
+  introInput.value = String(escalator.introStairsY);
+  const updateIntroValue = () => {
+    introValue.textContent = Number(escalator.introStairsY.toFixed(1)) + '% экрана';
+  };
+  updateIntroValue();
+  introInput.addEventListener('input', () => {
+    escalator.introStairsY = Number(introInput.value);
+    updateIntroValue();
+    dispatchEvent(new Event('vanok-intro-layout'));
+  });
+  introHead.append(introName, introValue);
+  introLabel.append(introHead, introInput);
+  const introHint = document.createElement('p');
+  introHint.className = 'hint';
+  introHint.textContent = 'Влево — выше, вправо — ниже. Положение начала первой ступени от верха экрана.';
+  introOptions.append(introLabel, introHint);
+  panel.append(introOptions);
+  const themes = document.createElement('fieldset');
+  themes.innerHTML = '<legend>Оформление страницы</legend>';
+  const themeOptions = document.createElement('div');
+  themeOptions.className = 'rib-options';
+  for (const [value, name, desc] of [
+    [1, '01 · Исходная', 'Текущие серые ступени'],
+    [2, '02 · Свои цвета', 'Цвет каждой ступени'],
+  ]) {
+    const label = document.createElement('label');
+    label.className = 'rib-option';
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'page-theme'; radio.value = String(value);
+    radio.checked = escalator.pageTheme === value;
+    const text = document.createElement('span');
+    const heading = document.createElement('b'); heading.textContent = name;
+    const description = document.createElement('small'); description.textContent = desc;
+    text.append(heading, description); label.append(radio, text); themeOptions.append(label);
+    radio.addEventListener('change', () => { escalator.pageTheme = value; syncColourControls(); applyEscalatorVars(); });
+  }
+  themes.append(themeOptions);
+  const colours = document.createElement('fieldset');
+  colours.innerHTML = '<legend>Цвета ступеней</legend>';
+  SCREEN_COLORS.forEach((colour, index) => {
+    const row = document.createElement('label');
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 44px 90px;gap:10px;align-items:center;margin:8px 0;';
+    const name = document.createElement('span');
+    name.textContent = `Ступень ${index + 1}`;
+    const picker = document.createElement('input');
+    picker.type = 'color'; picker.value = colour;
+    picker.setAttribute('aria-label', `Цвет ступени ${index + 1}`);
+    const hex = document.createElement('input');
+    hex.type = 'text'; hex.value = colour; hex.maxLength = 7;
+    hex.setAttribute('aria-label', `HEX ступени ${index + 1}`);
+    hex.style.cssText = 'width:100%;padding:5px;font:inherit;';
+    let timer;
+    const update = value => {
+      if (!/^#[0-9a-f]{6}$/i.test(value)) return;
+      SCREEN_COLORS[index] = value;
+      picker.value = value; hex.value = value.toUpperCase();
+      escalator.pageTheme = 2;
+      themeOptions.querySelector('[value="2"]').checked = true;
+      clearTimeout(timer);
+      timer = setTimeout(applyEscalatorVars, 120);
+    };
+    picker.addEventListener('input', () => update(picker.value));
+    hex.addEventListener('input', () => update(hex.value));
+    row.append(name, picker, hex); colours.append(row);
+  });
+  const sharedColour = document.createElement('fieldset');
+  sharedColour.innerHTML = '<legend>Цвет всех ступеней</legend>';
+  const sharedRow = document.createElement('div');
+  sharedRow.style.cssText = 'display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:center;';
+  const sharedPicker = document.createElement('input');
+  sharedPicker.type = 'color'; sharedPicker.value = escalator.stepColor;
+  sharedPicker.setAttribute('aria-label', 'Цвет всех ступеней');
+  const sharedHex = document.createElement('input');
+  sharedHex.type = 'text'; sharedHex.value = escalator.stepColor; sharedHex.maxLength = 7;
+  sharedHex.setAttribute('aria-label', 'HEX всех ступеней');
+  sharedHex.style.cssText = 'width:100%;padding:6px;font:inherit;';
+  let sharedTimer;
+  function updateSharedColour(value) {
+    if (!/^#[0-9a-f]{6}$/i.test(value)) return;
+    escalator.stepColor = value;
+    sharedPicker.value = value;
+    sharedHex.value = value.toUpperCase();
+    clearTimeout(sharedTimer);
+    sharedTimer = setTimeout(applyEscalatorVars, 120);
+  }
+  sharedPicker.addEventListener('input', () => updateSharedColour(sharedPicker.value));
+  sharedHex.addEventListener('input', () => updateSharedColour(sharedHex.value));
+  sharedRow.append(sharedPicker, sharedHex); sharedColour.append(sharedRow);
+  function syncColourControls() {
+    sharedColour.hidden = escalator.pageTheme !== 1;
+    colours.hidden = escalator.pageTheme !== 2;
+  }
+  syncColourControls();
+  themes.append(sharedColour, colours); panel.append(themes);
+  const treadControls = document.createElement('fieldset');
+  treadControls.innerHTML = '<legend>Горизонтальные полки</legend>';
+  const treadToggleLabel = document.createElement('label');
+  treadToggleLabel.className = 'rib-option';
+  const treadToggle = document.createElement('input');
+  treadToggle.type = 'checkbox';
+  treadToggle.checked = escalator.separateTreadColor;
+  treadToggleLabel.append(treadToggle, document.createTextNode('Отдельный цвет полок'));
+  const treadRow = document.createElement('div');
+  treadRow.style.cssText = 'display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:center;margin-top:10px;';
+  const treadPicker = document.createElement('input');
+  treadPicker.type = 'color'; treadPicker.value = escalator.treadColor;
+  treadPicker.setAttribute('aria-label', 'Цвет горизонтальных полок');
+  const treadHex = document.createElement('input');
+  treadHex.type = 'text'; treadHex.value = escalator.treadColor; treadHex.maxLength = 7;
+  treadHex.setAttribute('aria-label', 'HEX горизонтальных полок');
+  treadHex.style.cssText = 'width:100%;padding:6px;font:inherit;';
+  function syncTreadControls() {
+    treadPicker.disabled = treadHex.disabled = !treadToggle.checked;
+    escalator.separateTreadColor = treadToggle.checked;
+    applyEscalatorVars();
+  }
+  function updateTreadColour(value) {
+    if (!/^#[0-9a-f]{6}$/i.test(value)) return;
+    escalator.treadColor = value;
+    treadPicker.value = value;
+    treadHex.value = value.toUpperCase();
+    applyEscalatorVars();
+  }
+  treadToggle.addEventListener('change', syncTreadControls);
+  treadPicker.addEventListener('input', () => updateTreadColour(treadPicker.value));
+  treadHex.addEventListener('input', () => updateTreadColour(treadHex.value));
+  treadRow.append(treadPicker, treadHex);
+  treadControls.append(treadToggleLabel, treadRow);
+  panel.append(treadControls);
+  syncTreadControls();
+
 
   function addSlider(label, key, min, max, step, format, target = escalator) {
     const row = document.createElement('label');
@@ -3882,17 +4526,82 @@ function mountEscalatorControls() {
     sync();
     head.append(name, val);
     row.append(head, input);
-    panel.append(row);
+    section.append(row);
   }
 
-  addSlider('Скорость скролла', 'boost', 1, 30, 0.5, (n) => n.toFixed(1) + '×', pageScroll);
-  addSlider('Высота ступени', 'stepH', 8, 128, 1, (n) => Math.round(n) + '%');
-  addSlider('Скорость ступеней', 'speed', 0.2, 3, 0.05, (n) => n.toFixed(2) + '×');
-  addSlider('Глубина полки', 'tread', 40, 640, 1, (n) => Math.round(n) + 'px');
-  addSlider('Уход по Z', 'recess', 0, 800, 1, (n) => Math.round(n) + 'px');
-  addSlider('Перспектива', 'perspective', 400, 2400, 10, (n) => Math.round(n) + 'px');
-  addSlider('Масштаб', 'scale', 0.4, 2.2, 0.02, (n) => n.toFixed(2));
-  addSlider('Близость к экрану', 'near', -400, 400, 10, (n) => Math.round(n) + 'px');
+  const section = document.createElement('fieldset');
+  section.innerHTML = '<legend>1. Рифление</legend>';
+  const options = document.createElement('div');
+  options.className = 'rib-options';
+  RIB_PRESETS.forEach((preset, index) => {
+    const label = document.createElement('label');
+    label.className = 'rib-option';
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'rib-preset'; radio.value = String(index);
+    radio.checked = escalator.ribs === index;
+    const text = document.createElement('span');
+    const name = document.createElement('b'); name.textContent = preset.name;
+    const desc = document.createElement('small'); desc.textContent = preset.desc;
+    text.append(name, desc); label.append(radio, text); options.append(label);
+    radio.addEventListener('change', () => { escalator.ribs = index; applyEscalatorVars(); });
+  });
+  section.append(options); panel.append(section);
+  addSlider('Выраженность рёбер', 'ribStrength', 0, 1, .05, n => Math.round(n * 100) + '%');
+  const movement = document.createElement('fieldset');
+  movement.innerHTML = '<legend>2. Движение</legend>'; panel.append(movement);
+  const autoLabel = document.createElement('label');
+  autoLabel.className = 'rib-option';
+  const autoInput = document.createElement('input');
+  autoInput.type = 'checkbox'; autoInput.checked = escalator.autoPlay;
+  autoInput.addEventListener('change', () => { escalator.autoPlay = autoInput.checked; });
+  autoLabel.append(autoInput, document.createTextNode('Автоматическое движение'));
+  movement.append(autoLabel);
+
+  addSlider('Скорость', 'speed', 0, 3, .05, n => n === 0 ? 'Пауза' : n.toFixed(2) + '×');
+  movement.append(section.lastElementChild);
+  const geometry = document.createElement('fieldset');
+  geometry.innerHTML = '<legend>3. Геометрия и перспектива</legend>'; panel.append(geometry);
+  for (const [label, key, min, max, step, suffix] of [
+    ['Высота ступени', 'stepH', 8, 128, 1, '%'],
+    ['Глубина полки', 'tread', 40, 640, 1, 'px'],
+    ['Уход в глубину', 'recess', 0, 800, 1, 'px'],
+    ['Перспектива', 'perspective', 400, 2400, 10, 'px'],
+    ['Масштаб', 'scale', .4, 2.2, .02, '×'],
+    ['Близость к экрану', 'near', -400, 400, 10, 'px'],
+  ]) { addSlider(label, key, min, max, step, n => Number(n.toFixed(2)) + suffix); geometry.append(section.lastElementChild); }
+  const copy = document.createElement('button');
+  copy.type = 'button';
+  copy.textContent = 'Копировать JSON';
+  copy.style.cssText = 'width:100%;padding:10px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;cursor:pointer;';
+  const copyStatus = document.createElement('p');
+  copyStatus.className = 'hint';
+  copyStatus.setAttribute('role', 'status');
+  const fallback = document.createElement('textarea');
+  fallback.hidden = true;
+  fallback.readOnly = true;
+  fallback.setAttribute('aria-label', 'JSON настроек эскалатора');
+  fallback.style.cssText = 'width:100%;min-height:160px;';
+  copy.addEventListener('click', async () => {
+    const json = JSON.stringify({
+      type: 'vanok-escalator',
+      version: 1,
+      settings: { ...escalator },
+      ribPreset: RIB_PRESETS[escalator.ribs].name,
+      screenColors: [...SCREEN_COLORS],
+    }, null, 2);
+    try {
+      await navigator.clipboard.writeText(json);
+      fallback.hidden = true;
+      copyStatus.textContent = 'Скопировано — можно вставить в чат.';
+    } catch {
+      fallback.value = json;
+      fallback.hidden = false;
+      fallback.focus();
+      fallback.select();
+      copyStatus.textContent = 'Скопируйте выделенный JSON: ⌘C / Ctrl+C.';
+    }
+  });
+  panel.append(copy, copyStatus, fallback);
   document.body.appendChild(panel);
   close.addEventListener('click', () => { panel.hidden = true; });
 
@@ -3933,23 +4642,237 @@ function mountEscalator(root) {
   const viewport = root.querySelector('.escalator');
   const track = viewport && viewport.querySelector('.escalator-track');
   const stage = viewport && viewport.querySelector('.escalator-stage');
+  const signoff = viewport && viewport.querySelector('.signoff');
   if (!track) return () => {};
+  const chrome = document.querySelector('.chrome');
+  const ride = document.createElement('div');
+  ride.className = 'lettering-ride';
+  const marks = chrome
+    ? [...chrome.querySelectorAll(':scope > .wordmark, :scope > .lettering, :scope > .vanok, :scope > .regular, :scope > .intro-script')]
+    : [];
+  const markAnchor = chrome && chrome.querySelector('.crosshair');
+  marks.forEach((node) => ride.appendChild(node));
+  viewport.appendChild(ride);
   const originals = [...track.children].filter((el) => el.classList.contains('case'));
-  for (const step of originals) {
-    const copy = step.cloneNode(true);
-    copy.setAttribute('aria-hidden', 'true');
-    copy.classList.add('is-clone');
-    track.appendChild(copy);
-  }
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   let alive = true;
   let y = 0;
   let last = performance.now();
-  addEventListener('wheel', onEscalatorWheel, { passive: false });
-  addEventListener('touchstart', onEscalatorTouchStart, { passive: true });
-  addEventListener('touchmove', onEscalatorTouchMove, { passive: false });
-  addEventListener('touchend', onEscalatorTouchEnd);
-  addEventListener('touchcancel', onEscalatorTouchEnd);
+  let held = null;
+  const dragSamples = [];
+  let velocity = 0;
+  let coasting = false;
+  const wheelSamples = [];
+  let lastWheelAt = 0;
+  let wheelLive = false;
+
+  function syncLettering() {
+    const zoom = Number(escalator.scale) || 1;
+    const near = Number(escalator.near) || 0;
+    const persp = Number(escalator.perspective) || 1100;
+    const denom = persp - near;
+    const project = denom > 16 ? persp / denom : 1;
+    const headerShift = -y * zoom * project;
+    ride.style.transform = `translate3d(0, ${headerShift}px, 0)`;
+    const introDistance = Math.max(120, viewport.clientHeight * .5 - 55);
+    introScrollProgress = Math.max(0, Math.min(2, -headerShift / introDistance));
+    document.documentElement.style.setProperty('--intro-header-top', `${Math.max(0, introDistance + headerShift)}px`);
+    if (signoff) {
+      const remaining = Math.max(0, range().max - y);
+      const lastRiser = originals[originals.length - 1]?.querySelector('.step-riser');
+      const edge = lastRiser && remaining * zoom * project < viewport.clientHeight * 2
+        ? lastRiser.getBoundingClientRect().bottom - viewport.getBoundingClientRect().top
+        : viewport.clientHeight;
+      const top = remaining === 0 ? 0 : Math.max(0, Math.min(viewport.clientHeight, edge));
+      const frame = signoff.querySelector('iframe');
+      if (frame && !frame.hasAttribute('src') && remaining * zoom * project < viewport.clientHeight * 2) {
+        frame.src = frame.dataset.src;
+      }
+      signoff.style.transform = `translate3d(0, ${top}px, 0)`;
+      signoff.inert = top >= viewport.clientHeight;
+    }
+  }
+
+  function restoreLettering() {
+    document.documentElement.style.removeProperty('--header-shift');
+    if (chrome) marks.forEach((node) => chrome.insertBefore(node, markAnchor));
+    ride.remove();
+  }
+
+  const WHEEL_GAIN = 1;
+  const INERTIA_TAU = 0.28;
+  const INERTIA_STOP = 18;
+  const INERTIA_V_CAP = 1600;
+  const SAMPLE_MS = 100;
+  const WHEEL_GAP_MS = 70;
+
+  function placeLead() {
+    const chrome = document.querySelector('.chrome');
+    const zoom = Number(escalator.scale) || 1;
+    const target = viewport.clientHeight * escalator.introStairsY / 100;
+    const savedY = y;
+    y = 0;
+    track.style.transform = 'translate3d(0, 0, 0)';
+    let pad = target;
+    track.style.paddingTop = Math.round(pad) + 'px';
+    const riser = originals[0] && originals[0].querySelector('.step-riser');
+    if (riser) {
+      placeStage();
+      for (let i = 0; i < 6; i++) {
+        articulate();
+        const visual = riser.getBoundingClientRect().top - viewport.getBoundingClientRect().top;
+        const error = target - visual;
+        if (Math.abs(error) < 1.5) break;
+        pad = Math.max(0, pad + error / zoom);
+        track.style.paddingTop = Math.round(pad) + 'px';
+      }
+    }
+    y = savedY;
+    applyDelta(0);
+    track.style.transform = `translate3d(0, ${-y}px, 0)`;
+    articulate();
+    syncLettering();
+  }
+
+  function range() {
+    const lastStep = originals[originals.length - 1];
+    if (!lastStep) return { min: 0, max: 0 };
+    const end = lastStep.offsetTop + lastStep.offsetHeight;
+    return { min: 0, max: Math.max(0, end) };
+  }
+
+  function applyDelta(dy) {
+    const { min, max } = range();
+    const next = Math.min(max, Math.max(min, y + dy));
+    const applied = next - y;
+    y = next;
+    return applied;
+  }
+
+  function pushSample(list, dy, now) {
+    list.push({ t: now, dy });
+    const cutoff = now - SAMPLE_MS;
+    while (list.length && list[0].t < cutoff) list.shift();
+  }
+
+  function velocityFrom(list) {
+    if (!list.length) return 0;
+    const sum = list.reduce((acc, sample) => acc + sample.dy, 0);
+    const span = Math.max(0.016, (list[list.length - 1].t - list[0].t) / 1000);
+    const speed = sum / span;
+    return Math.max(-INERTIA_V_CAP, Math.min(INERTIA_V_CAP, speed));
+  }
+
+  function armCoast(speed) {
+    const { min, max } = range();
+    let next = speed;
+    if ((y <= min + 0.5 && next < 0) || (y >= max - 0.5 && next > 0)) next = 0;
+    velocity = next;
+    coasting = Math.abs(velocity) > INERTIA_STOP;
+    if (!coasting) velocity = 0;
+  }
+
+  function onWheel(event) {
+    if (routeDialog.open) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (!wheelScrollsPage(event)) return;
+    event.preventDefault();
+    if (held) return;
+    let dy = event.deltaY;
+    if (event.deltaMode === 1) dy *= 16;
+    else if (event.deltaMode === 2) dy *= viewport.clientHeight || innerHeight;
+    dy *= WHEEL_GAIN;
+    const applied = applyDelta(dy);
+    const now = performance.now();
+    coasting = false;
+    const notch = event.deltaMode !== 0;
+    if (notch) {
+      velocity = 0;
+      wheelLive = false;
+      wheelSamples.length = 0;
+      return;
+    }
+    pushSample(wheelSamples, applied, now);
+    lastWheelAt = now;
+    const avg = wheelSamples.reduce((acc, sample) => acc + Math.abs(sample.dy), 0) / wheelSamples.length;
+    if (wheelSamples.length >= 2 && avg < 70) {
+      velocity = velocityFrom(wheelSamples);
+      wheelLive = true;
+    } else {
+      velocity = 0;
+      wheelLive = false;
+    }
+  }
+
+  function onTouchStart(event) {
+    if (event.touches.length !== 1) return;
+    if (escalatorTouchBlocked(event.target)) return;
+    if (!(event.target instanceof Element) || !viewport.contains(event.target)) return;
+    const t = event.touches[0];
+    held = { id: t.identifier, x: t.clientX, y: t.clientY };
+    dragSamples.length = 0;
+    coasting = false;
+    wheelLive = false;
+    velocity = 0;
+    wheelSamples.length = 0;
+  }
+
+  function onTouchMove(event) {
+    if (!held) return;
+    const t = [...event.touches].find((touch) => touch.identifier === held.id);
+    if (!t) return;
+    const dx = t.clientX - held.x;
+    const dy = t.clientY - held.y;
+    const onScroller = event.target instanceof Element && !!event.target.closest('.scroller');
+    if (onScroller && Math.abs(dx) > Math.abs(dy)) {
+      held.x = t.clientX;
+      held.y = t.clientY;
+      return;
+    }
+    if (event.cancelable) event.preventDefault();
+    const applied = applyDelta(-dy);
+    pushSample(dragSamples, applied, performance.now());
+    held.x = t.clientX;
+    held.y = t.clientY;
+    coasting = false;
+    wheelLive = false;
+    velocity = 0;
+  }
+
+  function onTouchEnd(event) {
+    if (!held) return;
+    const ended = [...event.changedTouches].some((touch) => touch.identifier === held.id);
+    if (!ended) return;
+    armCoast(velocityFrom(dragSamples));
+    held = null;
+    dragSamples.length = 0;
+  }
+
+  function onTeaserMessage(event) {
+    const frame = signoff && signoff.querySelector('iframe');
+    if (!frame || event.source !== frame.contentWindow || event.origin !== location.origin) return;
+    if (event.data?.type === 'vanok-scroll') {
+      coasting = false; wheelLive = false; velocity = 0;
+      applyDelta(Number(event.data.delta) || 0);
+    }
+    if (event.data?.type === 'vanok-settings') {
+      dispatchEvent(new KeyboardEvent('keydown', { code: event.data.code, key: event.data.key }));
+    }
+  }
+  addEventListener('message', onTeaserMessage);
+  function onResize() {
+    placeLead();
+    applyDelta(0);
+  }
+
+  placeLead();
+  addEventListener('vanok-intro-layout', onResize);
+  addEventListener('resize', onResize);
+  addEventListener('wheel', onWheel, { passive: false });
+  addEventListener('touchstart', onTouchStart, { passive: true });
+  addEventListener('touchmove', onTouchMove, { passive: false });
+  addEventListener('touchend', onTouchEnd);
+  addEventListener('touchcancel', onTouchEnd);
 
   function placeStage() {
     if (!stage) return;
@@ -3963,10 +4886,11 @@ function mountEscalator(root) {
     if (viewH <= 0) return;
     const recess = escalator.recess;
     const nose = 0.72;
-    for (const step of track.querySelectorAll('.case')) {
-      const rise = step.offsetHeight;
+    // Read geometry in one batch before changing any transforms.
+    const geometry = originals.map(step => ({step, rise: step.offsetHeight, offset: step.offsetTop}));
+    for (const {step, rise, offset} of geometry) {
       const stepFrac = Math.max(rise / viewH, 0.01);
-      const top = (step.offsetTop - y) / viewH;
+      const top = (offset - y) / viewH;
       let depth = -recess * (nose - top) / stepFrac;
       if (depth > 0) depth = 0;
       const cap = Math.max(recess, 1) * 8;
@@ -3979,41 +4903,64 @@ function mountEscalator(root) {
       }
       const tread = step.querySelector('.step-tread');
       if (!tread) continue;
-      let fold = 0;
-      if (top < -0.04) fold = Math.min(1, (-top - 0.04) / 0.2);
-      else if (top > 1.02) fold = Math.min(1, (top - 1.02) / 0.2);
-      tread.style.transform = `rotateX(${-90 * (1 - fold)}deg)`;
-      tread.style.setProperty('--fold', fold.toFixed(3));
+      // Keep the tread perpendicular: folding it flat creates overlapping planes.
+      tread.style.transform = 'rotateX(-90deg)';
     }
   }
 
+  let lastLayout = '';
   function tick(now) {
     if (!alive) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    const step = originals[0];
-    const loopH = step ? step.offsetHeight * originals.length : 0;
-    if (!motion.matches && loopH > 0) {
-      const scale = innerWidth / DESIGN_W;
-      y += STRIP_SPEED * escalator.speed * pageScrollMult(dt) * scale * dt;
-      y = ((y % loopH) + loopH) % loopH;
-    } else {
-      pageScrollMult(dt);
+    if (held) {
+      // The finger already moved y one-to-one.
+    } else if (wheelLive) {
+      if (now - lastWheelAt > WHEEL_GAP_MS) {
+        const speed = velocity;
+        wheelLive = false;
+        wheelSamples.length = 0;
+        armCoast(speed);
+      }
+    } else if (coasting) {
+      velocity *= Math.exp(-dt / INERTIA_TAU);
+      const step = velocity * dt;
+      const applied = applyDelta(step);
+      if (Math.abs(applied - step) > 0.5 || Math.abs(velocity) < INERTIA_STOP) {
+        velocity = 0;
+        coasting = false;
+      }
+    } else if (y > 0 && !routeDialog.open && escalator.autoPlay && !root.hasAttribute('data-preview-hover') && !document.querySelector('.case-cover-caption:active') && !motion.matches && !document.querySelector('.escalator-controls:not([hidden])')) {
+      const { max } = range();
+      if (y < max) {
+        const scale = innerWidth / DESIGN_W;
+        applyDelta(STRIP_SPEED * escalator.speed * scale * dt);
+      }
     }
-    track.style.transform = `translate3d(0, ${-y}px, 0)`;
-    placeStage();
-    articulate();
+    const layout = [y, viewport.clientWidth, viewport.clientHeight, escalator.stepH,
+      escalator.recess, escalator.tread, escalator.scale, escalator.near, escalator.perspective].join('|');
+    if (layout !== lastLayout) {
+      track.style.transform = `translate3d(0, ${-y}px, 0)`;
+      placeStage();
+      articulate();
+      syncLettering();
+      lastLayout = layout;
+    }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
   return () => {
     alive = false;
-    removeEventListener('wheel', onEscalatorWheel);
-    removeEventListener('touchstart', onEscalatorTouchStart);
-    removeEventListener('touchmove', onEscalatorTouchMove);
-    removeEventListener('touchend', onEscalatorTouchEnd);
-    removeEventListener('touchcancel', onEscalatorTouchEnd);
-    escalatorTouch = null;
+    restoreLettering();
+    removeEventListener('message', onTeaserMessage);
+    removeEventListener('vanok-intro-layout', onResize);
+    removeEventListener('resize', onResize);
+    removeEventListener('wheel', onWheel);
+    removeEventListener('touchstart', onTouchStart);
+    removeEventListener('touchmove', onTouchMove);
+    removeEventListener('touchend', onTouchEnd);
+    removeEventListener('touchcancel', onTouchEnd);
+    held = null;
   };
 }
 
@@ -4030,8 +4977,10 @@ function fitBoards(root) {
 }
 
 function mountStrip(root) {
+  const stopCovers = mountCaseCovers(root);
   applyEscalatorVars();
   const stopEscalator = mountEscalator(root);
+
   const stopControls = mountEscalatorControls();
   const scrollers = [...root.querySelectorAll('.escalator-track > .case .scroller')];
   const stops = scrollers.map((scroller, index) => mountScroller(scroller, index));
@@ -4043,6 +4992,7 @@ function mountStrip(root) {
   }
   return () => {
     removeEventListener('resize', refit);
+    stopCovers();
     stopEscalator();
     stopControls();
     stops.forEach((stop) => stop());
@@ -4144,17 +5094,21 @@ function mountScroller(scroller) {
 }
 
 function paint(name) {
-  if (unmountStrip) {
-    unmountStrip();
-    unmountStrip = null;
-  }
-  document.body.dataset.route = name;
-  app.innerHTML = TEMPLATES[name]();
-  if (name === 'board') {
-    grab = null;
-    document.body.style.cursor = '';
+  if (!unmountStrip) {
+    document.body.dataset.route = 'board';
+    app.innerHTML = TEMPLATES.board();
+    applyEscalatorVars();
     unmountStrip = mountStrip(app);
   }
+  const content = ROUTE_DIALOGS[name];
+  if (!content) {
+    if (routeDialog.open) routeDialog.close();
+    return;
+  }
+  routeDialog.querySelector('h2').textContent = content[0];
+  routeDialog.querySelector('p').textContent = content[1];
+  showRouteStamps(name);
+  if (!routeDialog.open) routeDialog.showModal();
 }
 
 function nearestTurn(target, current) {
@@ -4186,7 +5140,7 @@ paint(route);
   const a = anchorFor(route);
   fx = destFx = a.fx;
   fy = destFy = a.fy;
-  phase = route === 'hero' ? 'scroll' : 'rest';
+  phase = 'rest';
 }
 mountHeaderApple();
 
@@ -4208,7 +5162,7 @@ addEventListener('hashchange', () => {
   else {
     fx = destFx = a.fx;
     fy = destFy = a.fy;
-    phase = route === 'hero' ? 'scroll' : 'rest';
+    phase = 'rest';
   }
 });
 
@@ -4518,19 +5472,8 @@ function step(dt) {
     spin.scale.setScalar(1 + air * 0.07);
     shadow.scale.setScalar(4.1 * (1 + air * 0.35));
     shadowMat.opacity = 0.48 * (1 - air * 0.28);
-  } else if (phase === 'scroll') {
-    const target = -scrollY * SPIN_PER_PX;
-    yaw += (target - yaw) * (1 - Math.exp(-dt * 8));
-    yawVel = 0;
-    const a = heroAnchor();
-    fx += (a.fx - fx) * (1 - Math.exp(-dt * 10));
-    fy += (a.fy - fy) * (1 - Math.exp(-dt * 10));
-    spin.scale.setScalar(1);
-    shadow.scale.setScalar(4.1);
-    shadowMat.opacity = 0.48;
   } else if (phase === 'settle') {
-    const raw = route === 'hero' ? -scrollY * SPIN_PER_PX : 0;
-    const target = route === 'hero' ? raw : nearestTurn(raw, yaw);
+    const target = nearestTurn(0, yaw);
     yaw += (target - yaw) * (1 - Math.exp(-dt * 4));
     yawVel = 0;
     fx += (destFx - fx) * (1 - Math.exp(-dt * 8));
@@ -4539,7 +5482,7 @@ function step(dt) {
     shadow.scale.setScalar(4.1);
     shadowMat.opacity = 0.48;
     if (Math.abs(target - yaw) < 0.02 && Math.abs(destFy - fy) < 0.004) {
-      phase = route === 'hero' ? 'scroll' : 'rest';
+      phase = 'rest';
     }
   } else {
     yaw += (nearestTurn(0, yaw) - yaw) * (1 - Math.exp(-dt * 4));
@@ -4606,6 +5549,7 @@ addEventListener('pointercancel', endGrab);
 
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
+  if (document.hidden || document.body.dataset.route === 'board') return;
   const dt = Math.min(clock.getDelta(), 0.05);
   if (ready) step(dt);
   updateCamera();

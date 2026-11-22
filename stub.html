@@ -39,7 +39,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="twitter:image" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.jpg">
 <link rel="icon" href="design/stub/favicon.png" type="image/png">
 <link rel="icon" href="design/stub/favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="design/stub/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20261121">
+<link rel="icon" href="/favicon.ico?v=20261121" sizes="any">
+<meta name="apple-mobile-web-app-title" content="Vanök Regular">
 <link rel="preload" href="design/stub/wordmark.svg" as="image">
 <style>
   /* Desktop frame 110:1711 is 1440×800. Mobile frame 141:1647 is 375×812.
@@ -70,7 +72,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     color: #ffffff;
   }
 
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Touch browsers paint a gray tap flash and a focus ring after a tap.
+     Keyboard focus on a fine pointer is left alone. The signature field
+     keeps its caret; this only removes the browser chrome. */
+  @media (hover: none), (pointer: coarse) {
+    :focus,
+    :focus-visible,
+    :active {
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
 
   html, body {
     margin: 0;
@@ -252,7 +268,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     height: calc(var(--letter-w) * 82 / 702);
   }
   .desk .lettering-3 {
-    top: calc(var(--wordmark-top) + 12px);
+    top: calc(var(--wordmark-top) + 32px);
     height: calc(var(--letter-w) * 124 / 702);
   }
 
@@ -435,7 +451,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     transform: translate(-50%, -50%);
     visibility: hidden;
   }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .site-credits:hover .credits-full { visibility: hidden; }
     .site-credits:hover .credits-name { visibility: visible; }
   }
@@ -492,51 +508,87 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
   }
-  /* Wet ink settles onto the sharp print. The bitmap reveal lives in JS. */
-  .sign-imprint .ink-dry {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform-origin: center center;
-    animation: ink-dry-settle 760ms cubic-bezier(0.16, 0.64, 0.2, 1) both;
-  }
-  @keyframes ink-dry-settle {
-    from { transform: scale(1.028); }
-    to { transform: none; }
-  }
   .stamp-panel {
     position: fixed;
     z-index: 100;
     right: 16px;
     bottom: 16px;
-    width: min(300px, calc(100vw - 32px));
-    max-height: min(680px, calc(100vh - 32px));
-    overflow: auto;
-    padding: 12px 14px 14px;
+    width: min(440px, calc(100vw - 32px));
+    max-height: min(760px, calc(100vh - 32px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
     background: #E9E9E9;
     color: #0A1AE9;
     border: 1px solid #0A1AE9;
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 12px;
-    line-height: 1.3;
+    font-size: 15px;
+    line-height: 1.35;
   }
   .stamp-panel,
   .apple-light { touch-action: auto; }
   .stamp-panel[hidden] { display: none; }
+  .stamp-panel .panel-head {
+    position: relative;
+    z-index: 2;
+    flex: none;
+    padding: 14px 16px 10px;
+    background: #E9E9E9;
+    border-bottom: 1px solid rgba(12, 109, 244, 0.35);
+  }
+  .stamp-panel .panel-content {
+    min-height: 0;
+    overflow: auto;
+    padding: 0 16px 16px;
+    overscroll-behavior: contain;
+  }
+  .stamp-panel .panel-footer {
+    flex: none;
+    padding: 10px 16px 14px;
+    background: #E9E9E9;
+    border-top: 1px solid rgba(12, 109, 244, 0.35);
+  }
+  .stamp-panel .panel-copy {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 12px;
+    border: 1px solid #0A1AE9;
+    background: #0A1AE9;
+    color: #E9E9E9;
+    font: inherit;
+    font-size: 16px;
+    cursor: pointer;
+  }
   .stamp-panel h2 {
     margin: 0;
-    padding-right: 52px;
-    font-size: 14px;
+    padding-right: 72px;
+    font-size: 20px;
     font-weight: 400;
   }
+  .stamp-panel .panel-head .hint { margin: 4px 0 0; font-size: 13px; }
   .stamp-panel h3 {
-    margin: 12px 0 0;
-    font-size: 12px;
+    margin: 14px 0 4px;
+    font-size: 16px;
     font-weight: 400;
   }
+  .stamp-panel .settings-section { border-bottom: 1px solid rgba(12, 109, 244, 0.28); }
+  .stamp-panel .settings-section > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 16px;
+  }
+  .stamp-panel .settings-section > summary::-webkit-details-marker { display: none; }
+  .stamp-panel .settings-section > summary::after { content: '+'; font-size: 21px; line-height: 1; }
+  .stamp-panel .settings-section[open] > summary::after { content: '−'; }
+  .stamp-panel .settings-body { padding: 0 0 14px; }
   .stamp-panel .ice-light {
-    margin: 0 0 10px;
+    margin: 0;
     padding-bottom: 4px;
     border-bottom: 1px solid rgba(12, 109, 244, 0.35);
   }
@@ -566,16 +618,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     cursor: pointer;
     padding: 2px 4px;
   }
-  .stamp-panel label.row { display: block; margin-top: 8px; }
+  .stamp-panel label.row { display: block; margin-top: 12px; }
   .stamp-panel label.row span { display: flex; justify-content: space-between; gap: 8px; }
   .stamp-panel b { font-weight: 400; }
   .stamp-panel i { font-style: normal; }
   .stamp-panel input[type="range"] {
     display: block;
     width: 100%;
-    margin-top: 4px;
+    min-height: 24px;
+    margin-top: 5px;
     accent-color: #0A1AE9;
   }
+  .stamp-panel .vector-control { margin-top: 12px; font-size: 18px; }
+  .stamp-panel .vector-control input[type="range"] { min-height: 32px; margin-top: 7px; }
+  .stamp-panel .vector-control i { flex: none; font-variant-numeric: tabular-nums; }
   .stamp-panel select,
   .stamp-panel input[type="color"] {
     display: block;
@@ -777,6 +833,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   html:not(.page-ready) .ig-link,
   html:not(.page-ready) .site-credits { pointer-events: none; }
 
+  /* The apple owns the stage until its entrance finishes, on every screen. */
+  html.page-ready .apple-view.apple-shown { transition: none; }
+  html:not(.apple-home) .frame,
+  html:not(.apple-home) .draw-sig-btn,
+  html:not(.apple-home) #sign-host {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  html:not(.apple-home) .sign-line,
+  html:not(.apple-home) .sign p { animation-play-state: paused; }
+  html.page-ready:not(.apple-home) :is(.vanok, .regular, .wordmark, .lettering, .bio, .soon, .crosshair, .draw-sig-btn, .catalog-entry, .ig-link, .site-credits, #sign-host) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .draw-sig-btn {
     position: fixed;
     z-index: 9;
@@ -850,8 +921,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .sig-editor, .sig-shapes { overflow: hidden; }
   .sig-library { overflow: hidden; }
   .sig-head, .sig-head-side { display: contents; }
-  .sig-shapes .sig-close,
-  .sig-editor .sig-close { display: none; }
   @media (prefers-reduced-motion: reduce) {
     .sig-modal, .sig-editor, .sig-library, .sig-shapes { transition: none; }
   }
@@ -1005,6 +1074,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   /* Phone width, not the 375×812 frame. A short screen used to freeze the
      seal; the circle and the apple share this box and grow with the width. */
   @media (max-width: 440px) {
+    .sig-editor .sig-close,
+    .sig-shapes .sig-close {
+      display: block;
+      left: auto;
+      right: calc(24 * var(--k));
+      top: calc(24 * var(--k));
+      width: calc(24 * var(--k));
+      height: calc(24 * var(--k));
+    }
     .sig-seal {
       width: calc(326 * 100vw / 375);
       height: calc(326 * 100vw / 375);
@@ -1054,12 +1132,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     background: currentColor;
   }
   .sig-upload-mark {
-    -webkit-mask: url("design/stub/sig-upload.svg") center / 14px 14px no-repeat;
-    mask: url("design/stub/sig-upload.svg") center / 14px 14px no-repeat;
+    -webkit-mask: url("design/stub/sig-upload.svg") center / 100% 100% no-repeat;
+    mask: url("design/stub/sig-upload.svg") center / 100% 100% no-repeat;
   }
   .sig-create-mark {
-    -webkit-mask: url("design/stub/sig-create-arrow.svg") center / 14px 14px no-repeat;
-    mask: url("design/stub/sig-create-arrow.svg") center / 14px 14px no-repeat;
+    -webkit-mask: url("design/stub/sig-create-arrow.svg") center / 100% 100% no-repeat;
+    mask: url("design/stub/sig-create-arrow.svg") center / 100% 100% no-repeat;
   }
   .sig-file {
     position: fixed;
@@ -1119,6 +1197,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     scrollbar-width: none;
   }
   .sig-grid::-webkit-scrollbar { display: none; }
+  .sig-slide text { white-space: pre; }
   @media (min-width: 441px) {
     .sig-modal { --k: calc(100vw / 1440); }
     .sig-head {
@@ -1211,14 +1290,113 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .sig-upload,
     .sig-create { font-size: calc(14 * var(--k)); padding: 12px 0; }
   }
+  /* Preserve the 1440px library grid and scale its controls with the layout. */
+  @media (min-width: 441px) {
+    .sig-modal { --k: clamp(0.85px, calc(100vw / 1440), 2.6667px); }
+    .sig-close, .sig-back {
+      left: auto;
+      top: auto;
+      width: calc(24 * var(--k));
+      height: calc(24 * var(--k));
+    }
+    .sig-close::before, .sig-back::before {
+      left: calc(5 * var(--k));
+      top: calc(5 * var(--k));
+      width: calc(14 * var(--k));
+      height: calc(14 * var(--k));
+    }
+    .sig-close::before {
+      -webkit-mask-size: calc(14 * var(--k)) calc(14 * var(--k));
+      mask-size: calc(14 * var(--k)) calc(14 * var(--k));
+    }
+    .sig-close::after, .sig-back::after {
+      left: calc(12 * var(--k));
+      top: calc(12 * var(--k));
+      width: calc(44 * var(--k));
+      height: calc(44 * var(--k));
+    }
+    .sig-title { top: calc(24 * var(--k)); }
+    .sig-head { width: min(calc(464 * var(--k)), calc(100% - 24 * var(--k))); gap: calc(12 * var(--k)); padding: calc(12 * var(--k)) 0; }
+    .sig-head-side { gap: calc(8 * var(--k)); }
+    .sig-grid {
+      position: relative;
+      left: 0;
+      bottom: auto;
+      width: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+      overflow: visible;
+      padding: calc(100 * var(--k)) calc(12 * var(--k)) calc(24 * var(--k));
+      column-gap: calc(12 * var(--k));
+      row-gap: calc(16 * var(--k));
+    }
+    .sig-library { overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+    .sig-library::-webkit-scrollbar { display: none; }
+    .sig-library .sig-head { position: fixed; }
+    .sig-shapes { --shape: min(calc(342.873 * var(--k)), calc((100% - 16.253 * var(--k)) / 2)); }
+    .sig-shape[data-kind="stamp"] { left: calc(50% - var(--shape) - 8.1265 * var(--k)); }
+    .sig-shape[data-kind="apple"] { left: calc(50% + 8.1265 * var(--k)); }
+    .sig-seal {
+      width: min(calc(461.859 * var(--k)), calc(100vw - 48 * var(--k)));
+      height: min(calc(461.859 * var(--k)), calc(100vw - 48 * var(--k)));
+    }
+    .sig-swatches {
+      top: calc(50% + min(230.93 * var(--k), (100vw - 48 * var(--k)) / 2) + 24 * var(--k));
+    }
+    .sig-swatches button { width: calc(32 * var(--k)); height: calc(32 * var(--k)); }
+    .sig-swatches button.on::after {
+      width: calc(8 * var(--k));
+      height: calc(8 * var(--k));
+    }
+    .sig-bar {
+      width: min(calc(462 * var(--k)), calc(100% - 48 * var(--k)));
+      padding: calc(12 * var(--k)) 0;
+    }
+    .sig-upload, .sig-create {
+      gap: calc(8 * var(--k));
+      padding: calc(12 * var(--k)) 0;
+    }
+    .sig-upload-mark, .sig-create-mark {
+      width: calc(14 * var(--k));
+      height: calc(14 * var(--k));
+    }
+  }
   .sig-card {
     grid-column: span 2;
     aspect-ratio: 1;
+    overflow: visible;
     background: transparent;
     transform-origin: top left;
   }
   .sig-grid .sig-card:not(.sig-add) { cursor: pointer; }
   .sig-card img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .sig-card img.is-pixel-preview { image-rendering: pixelated; }
+  .sig-card.is-loading { position: relative; isolation: isolate; }
+  .sig-card.is-loading::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: url("design/stub/stamp-loading.svg") 0 0 / calc(var(--loader-width, 500px) / 2) 100% repeat-x;
+    animation: stamp-loading-drift 6s steps(44, end) infinite;
+  }
+  @keyframes stamp-loading-drift {
+    from { background-position-x: 0; }
+    to { background-position-x: calc(-0.5 * var(--loader-width, 500px)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sig-card.is-loading::before { animation: none; }
+  }
+  .sig-card[data-expanded-export] img {
+    transform: scale(var(--sig-library-mobile-scale, 1));
+    transform-origin: center;
+  }
+  @media (min-width: 441px) {
+    .sig-card[data-expanded-export] img {
+      transform: scale(var(--sig-library-desktop-scale, 1));
+    }
+  }
   .sig-add {
     margin: 0;
     padding: 0;
@@ -1234,7 +1412,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   }
   .draw-sig-btn.is-held,
   .catalog-entry.is-held { visibility: hidden; pointer-events: none; }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     html.page-ready .draw-sig-btn,
     html.page-ready .catalog-entry,
     html.page-ready .ig-link,
@@ -1298,6 +1476,281 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
     .layout-grid span:nth-child(n + 5) { display: none; }
   }
+
+  /* Custom signature editor: draw, image placement, and explicit text entry. */
+  .sig-editor { --editor-ui: clamp(1px, calc(100vw / 1440), 2.6667px); }
+  .sig-editor-head {
+    position: absolute;
+    z-index: 6;
+    top: calc(9 * var(--editor-ui));
+    left: 50%;
+    width: min(calc(492 * var(--editor-ui)), calc(100% - 18px));
+    height: max(44px, calc(44 * var(--editor-ui)));
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sig-editor-head button,
+  .sig-toolbar .sig-tool,
+  .sig-text-done,
+  .sig-photo-orbit button {
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: var(--blue);
+    cursor: pointer;
+    touch-action: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sig-editor-head button { width: calc(44 * var(--editor-ui)); height: calc(44 * var(--editor-ui)); }
+  .sig-editor-head button img { display: block; }
+  .sig-editor-title {
+    margin: 0;
+    font: 400 calc(12 * var(--editor-ui))/1.2 Arial, sans-serif;
+    text-align: center;
+  }
+  .sig-editor .sig-create::before,
+  .sig-editor .sig-create::after { display: none; }
+  .sig-editor .sig-seal { z-index: 2; }
+  .sig-editor .sig-toolbar {
+    left: 50%;
+    right: auto;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: min(calc(462 * var(--editor-ui)), calc(100% - 48px));
+    padding: 0;
+    height: max(52px, calc(52 * var(--editor-ui)));
+    transform: translateX(-50%);
+    justify-content: stretch;
+    z-index: 6;
+  }
+  .sig-toolbar .sig-tool {
+    position: relative;
+    flex: 1 1 0;
+    height: 100%;
+    gap: 0;
+    overflow: visible;
+  }
+  .sig-toolbar .sig-tool img { display: block; flex: none; }
+  .sig-toolbar .sig-upload[aria-pressed="true"]::after,
+  .sig-toolbar .sig-type[aria-pressed="true"]::after {
+    content: "";
+    position: absolute;
+    top: calc(50% - 26px);
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blue);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .sig-toolbar .sig-draw img { transform: translateY(10px); transition: transform 90ms ease-out; }
+  .sig-toolbar .sig-draw:active img { transform: translateY(16px); }
+  @media (prefers-reduced-motion: reduce) {
+    .sig-toolbar .sig-draw img { transition: none; }
+  }
+  .sig-toolbar .sig-tool,
+  .sig-toolbar .sig-tool:hover { opacity: 1; }
+  .sig-toolbar .sig-tool:disabled { opacity: .3; cursor: default; }
+  .sig-toolbar .sig-tool:not(.sig-draw):not(:disabled):active { opacity: .3; }
+  .sig-editor .sig-swatches { z-index: 5; flex-direction: row-reverse; }
+  .sig-editor .sig-swatches button {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .sig-editor .sig-swatches button::before {
+    content: "";
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--swatch-color);
+  }
+  .sig-editor .sig-swatches button.on::after {
+    width: 6px;
+    height: 6px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .sig-editor .sig-swatches button:first-child::before,
+  .sig-editor .sig-swatches button:first-child.on::after { left: calc(50% - 6px); }
+  .sig-editor .sig-swatches button:last-child::before,
+  .sig-editor .sig-swatches button:last-child.on::after { left: calc(50% + 6px); }
+  .sig-text-done {
+    display: none;
+    position: fixed;
+    z-index: 8;
+    left: 50%;
+    width: min(calc(462 * var(--editor-ui)), calc(100% - 48px));
+    transform: translateX(-50%);
+    top: calc(var(--vv-top, 0px) + var(--vvh, 100dvh) - 104px - env(safe-area-inset-bottom));
+    font: 400 calc(12 * var(--editor-ui))/1.2 Arial, sans-serif;
+  }
+  .sig-editor[data-mode="text"] .sig-text-done { display: flex; }
+  @media (min-width: 441px) {
+    .sig-editor[data-mode="text"] .sig-text-done {
+      display: none;
+      top: auto;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      width: auto;
+      min-width: 80px;
+      height: max(52px, calc(52 * var(--editor-ui)));
+    }
+  }
+  .sig-photo-orbit {
+    position: absolute;
+    z-index: 4;
+    border: 1px dashed var(--blue);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+  .sig-photo-orbit[hidden] { display: none; }
+  .sig-photo-orbit button {
+    position: absolute;
+    pointer-events: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .sig-photo-orbit button[data-handle="top"] { top: 0; }
+  .sig-photo-orbit button[data-handle="bottom"] { top: 100%; }
+  .sig-photo-orbit button[data-handle="left"] { left: 0; top: 50%; }
+  .sig-photo-orbit button[data-handle="right"] { left: 100%; top: 50%; }
+  .sig-editor[data-mode="image"] .sig-stage { cursor: move; }
+  @media (min-width: 441px) {
+    .sig-editor { --editor-ui: var(--k); }
+    .sig-shapes .sig-back::before {
+      -webkit-mask: url("design/stub/editor/back.svg") center / contain no-repeat;
+      mask: url("design/stub/editor/back.svg") center / contain no-repeat;
+    }
+    .sig-editor-head {
+      top: 0;
+      width: min(calc(464 * var(--k)), calc(100% - 24 * var(--k)));
+      height: calc(48 * var(--k));
+    }
+    .sig-editor-title {
+      position: absolute;
+      left: calc(32 * var(--k));
+      font-size: calc(14 * var(--k));
+      line-height: normal;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .sig-editor-head button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .sig-editor-head .sig-editor-back { left: calc(-10 * var(--k)); }
+    .sig-editor-head .sig-create { right: calc(-10 * var(--k)); }
+    .sig-editor-head button img {
+      width: calc(14 * var(--k));
+      height: calc(14 * var(--k));
+    }
+  }
+  @media (max-width: 440px) {
+    /* Mobile Figma headers: 24px insets, 20px icons, 14px type.
+       The 44px buttons extend 12px around each visible icon. */
+    .sig-title {
+      top: 26px;
+      font-size: 14px;
+      line-height: 16px;
+    }
+    .sig-close, .sig-back {
+      left: 12px;
+      top: 12px;
+      width: 44px;
+      height: 44px;
+    }
+    .sig-close::before, .sig-back::before {
+      left: 12px;
+      top: 12px;
+      width: 20px;
+      height: 20px;
+      -webkit-mask-size: contain;
+      mask-size: contain;
+    }
+    .sig-close::before {
+      -webkit-mask-image: url("design/stub/editor/mobile-close.svg");
+      mask-image: url("design/stub/editor/mobile-close.svg");
+    }
+    .sig-back::before {
+      -webkit-mask-image: url("design/stub/editor/mobile-back.svg");
+      mask-image: url("design/stub/editor/mobile-back.svg");
+    }
+    .sig-close::after, .sig-back::after { content: none; }
+    .sig-shapes .sig-close { display: none; }
+    .sig-editor-head {
+      top: 12px;
+      width: calc(100% - 24px);
+      height: 44px;
+    }
+    .sig-editor-head button { width: 44px; height: 44px; }
+    .sig-editor-head .sig-editor-back img { content: url("design/stub/editor/mobile-back.svg"); }
+    .sig-editor-head .sig-create img { content: url("design/stub/editor/mobile-done.svg"); }
+    .sig-editor-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      line-height: 16px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .sig-editor[data-mode="text"] .sig-text-done { display: none; }
+    .sig-editor .sig-swatches { top: calc(50% + 163 * var(--sig-k) + 32px); }
+    .sig-editor[data-mode="text"] .sig-seal {
+      top: calc(var(--vv-top, 0px) + (var(--vvh, 100dvh) - 100px) / 2);
+      width: var(--text-seal-width);
+      height: var(--text-seal-height);
+    }
+    .sig-editor[data-mode="text"] .sig-swatches {
+      top: var(--text-swatches-top);
+    }
+  }
+
+</style>
+<script>
+const embedParams = new URLSearchParams(location.search);
+if (embedParams.get('embed') === 'stamps') {
+  document.documentElement.classList.add('stamps-embed');
+  if (embedParams.get('surface') === 'dialog') document.documentElement.classList.add('dialog-stamps');
+  addEventListener('wheel', e => {
+    e.preventDefault();
+    parent.postMessage({type:'vanok-scroll', delta:e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1)}, location.origin);
+  }, {passive:false});
+  addEventListener('keydown', e => {
+    if ((e.code !== 'KeyG' && e.code !== 'Escape') || e.shiftKey) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    parent.postMessage({type:'vanok-settings', code:e.code, key:e.key}, location.origin);
+  }, true);
+}
+</script>
+<style>
+html.stamps-embed .frame > :not(.sign),
+html.stamps-embed .apple-view,
+html.stamps-embed .apple-light,
+html.stamps-embed .stamp-panel { display: none !important; }
+html.stamps-embed .frame .sign { left: 50%; top: 50%; width: min(304px, 65vw); transform: translate(-50%, -50%); }
+html.stamps-embed .frame .sign p { top: 10px; font-size: 16px; }
+html.dialog-stamps .frame .sign { display: none; }
 </style>
 </head>
 <body>
@@ -1365,7 +1818,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     setTimeout(function () {
       if (root.classList.contains('page-ready')) return;
       root.classList.add('page-ready');
-      window.__vanokStampsAt = performance.now() + 500;
+      window.__vanokStampsAt = Infinity;
     }, 8000);
     function cycle(event) {
       event.preventDefault();
@@ -1397,7 +1850,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         root.dispatchEvent(new CustomEvent('vanok-theme'));
         return;
       }
-      if (event.code !== 'KeyR') return;
+      if (event.code !== 'KeyG' || !event.shiftKey) return;
       if (typing) return;
       var grid = document.querySelector('.layout-grid');
       if (!grid) return;
@@ -1434,7 +1887,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }, { passive: false, capture: true });
   })();
 </script>
-<script src="design/stub/signatures.js?v=20261107-analytics"></script>
+<script src="design/stub/signatures.js?v=20261122-transparent-catalog"></script>
 <script type="importmap">
 { "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
@@ -2064,8 +2517,8 @@ function applyPlane(root, colorHex) {
 // The open tab only. Switching L tabs fetches the other models then.
 const bootTab = currentModelTab();
 loadGltf(bootTab.apple);
-loadGltf(bootTab.half);
-loadGltf(bootTab.stamp);
+
+
 
 const pageScroll = { boost: 15 };
 
@@ -2331,8 +2784,9 @@ function planeSources(kind) {
 }
 
 function queuePlanePrints() {
-  const srcs = planeSources('stamp').concat(planeSources('apple'));
-  for (let i = 0; i < srcs.length; i++) queueChromeSample(srcs[i]);
+  // A representative color is enough until a specific imprint is selected.
+  queueChromeSample(planeSources('stamp')[0]);
+  queueChromeSample(planeSources('apple')[0]);
 }
 
 function planePoolHex(kind) {
@@ -2366,7 +2820,7 @@ function revealTeaser() {
   const root = document.documentElement;
   if (root.classList.contains('page-ready')) return;
   root.classList.add('page-ready');
-  window.__vanokStampsAt = performance.now() + INTRO_FADE_MS;
+  window.__vanokStampsAt = Infinity;
 }
 
 const introImages = [
@@ -2558,17 +3012,75 @@ function mountSignStamp(host) {
   appleRig.imprintRot = 19.2;
   appleRig.imprintScale = 0.95;
 
-  for (const item of [...STAMP_IMPRINTS, ...APPLE_IMPRINTS]) {
-    const preload = new Image();
-    preload.src = item.src;
+  // Keep decoded source images alive and limit background downloads on phones.
+  const inkImages = new Map();
+  const inkQueue = [];
+  let inkDownloads = 0;
+  function prepareInk(src) {
+    let entry = inkImages.get(src);
+    if (entry) return entry;
+    entry = { image: null, ready: false, resolve: null };
+    entry.promise = new Promise((resolve) => { entry.resolve = resolve; });
+    inkImages.set(src, entry);
+    inkQueue.push({ src, entry });
+    loadNextInk();
+    return entry;
   }
-  if (window.VanokSignatures && typeof window.VanokSignatures.catalog === 'function') {
-    for (const item of window.VanokSignatures.catalog()) {
-      if (!item || !item.src) continue;
-      const preload = new Image();
-      preload.src = item.src;
+  function loadNextInk() {
+    while (inkDownloads < 3 && inkQueue.length) {
+      const { src, entry } = inkQueue.shift();
+      inkDownloads += 1;
+      const image = new Image();
+      image.crossOrigin = 'anonymous';
+      image.decoding = 'async';
+      let settled = false;
+      const timeout = setTimeout(() => finish(false), 15000);
+      const finish = (ready) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        entry.ready = ready;
+        entry.failed = !ready;
+        entry.image = ready ? image : null;
+        entry.resolve(entry.image);
+        inkDownloads -= 1;
+        loadNextInk();
+        if (!ready) fillInkReserve();
+      };
+      image.onload = () => {
+        image.decode().then(() => finish(true), () => finish(image.naturalWidth > 0));
+      };
+      image.onerror = () => finish(false);
+      image.src = src;
     }
   }
+  let inkReserve = [];
+  let inkCatalogKey = '';
+  function fillInkReserve() {
+    const unused = [...inkImages.values()].filter((entry) => !entry.used && !entry.failed).length;
+    let available = unused;
+    while (available < 6 && inkReserve.length) {
+      prepareInk(inkReserve.pop());
+      available += 1;
+    }
+  }
+  function prepareCatalogInk() {
+    const catalog = window.VanokSignatures?.catalog() || [];
+    const sources = [...new Set([...STAMP_IMPRINTS, ...APPLE_IMPRINTS, ...catalog].map((item) => item.src).filter(Boolean))];
+    const key = sources.join('|');
+    if (key === inkCatalogKey) return;
+    inkCatalogKey = key;
+    inkReserve = sources.filter((src) => !inkImages.has(src));
+    for (let i = inkReserve.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [inkReserve[i], inkReserve[j]] = [inkReserve[j], inkReserve[i]];
+    }
+    // Two local fallbacks are ready before the first stamping gesture.
+    for (const item of [...STAMP_IMPRINTS, ...APPLE_IMPRINTS]) prepareInk(item.src);
+    fillInkReserve();
+  }
+  document.addEventListener('vanok-catalog', prepareCatalogInk);
+  prepareCatalogInk();
 
   const panel = document.createElement('aside');
   panel.className = 'stamp-panel';
@@ -2583,7 +3095,12 @@ function mountSignStamp(host) {
   const hint = document.createElement('p');
   hint.className = 'hint';
   hint.textContent = 'Клавиша G открывает панель. Настройки только в этой вкладке.';
-  panel.append(close, title, hint);
+  const panelHead = document.createElement('div');
+  panelHead.className = 'panel-head';
+  const panelContent = document.createElement('div');
+  panelContent.className = 'panel-content';
+  panelHead.append(title, hint, close);
+  panel.append(panelHead, panelContent);
   document.body.appendChild(panel);
 
   const pct = (n) => Math.round(n * 100) + '%';
@@ -2619,7 +3136,8 @@ function mountSignStamp(host) {
         }
       }
       sync();
-      paintMarks();
+      if (rig === libraryScale) syncLibraryScale();
+      else paintMarks();
     });
     sync();
     head.append(name, val);
@@ -2729,6 +3247,8 @@ function mountSignStamp(host) {
       btn.title = item.file;
       const img = document.createElement('img');
       img.alt = item.file;
+      img.loading = 'lazy';
+      img.decoding = 'async';
       img.src = item.src;
       btn.append(img);
       btn.addEventListener('click', () => {
@@ -2919,6 +3439,44 @@ function mountSignStamp(host) {
   }
   const xDeg = (n) => Math.round(n) + '°';
   const xScale = (n) => n.toFixed(2);
+  addXformHeading('Яблочная подпись');
+  function addVectorSlider(label, min, max, initial, onInput) {
+    const row = document.createElement('label');
+    row.className = 'row vector-control';
+    const head = document.createElement('span');
+    const name = document.createElement('b');
+    name.textContent = label;
+    const value = document.createElement('i');
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = String(min);
+    input.max = String(max);
+    input.step = '0.01';
+    input.value = String(initial);
+    input.setAttribute('aria-label', label);
+    const sync = () => {
+      const current = Number(input.value);
+      value.textContent = current.toFixed(2) + '×';
+      onInput(current);
+    };
+    input.addEventListener('input', sync);
+    sync();
+    head.append(name, value);
+    row.append(head, input);
+    xformBlock.append(row);
+  }
+  addVectorSlider('Масштаб вектора', 0.4, 1.8, 1.27, (value) => {
+    const api = window.VanokSignatures;
+    if (api && typeof api.setEditorVectorScale === 'function') api.setEditorVectorScale(value);
+  });
+  addVectorSlider('Размер шрифта', 0.5, 2.5, 1.01, (value) => {
+    const api = window.VanokSignatures;
+    if (api && typeof api.setEditorFontScale === 'function') api.setEditorFontScale(value);
+  });
+  addVectorSlider('Масштаб пути текста', 0.5, 2, 0.95, (value) => {
+    const api = window.VanokSignatures;
+    if (api && typeof api.setEditorTextPathScale === 'function') api.setEditorTextPathScale(value);
+  });
   addXformHeading('Трансформ');
   addXformHeading('Яблоко');
   addXformSlider('view', 'Поворот X', 'x', -180, 180, 1, xDeg);
@@ -2937,7 +3495,68 @@ function mountSignStamp(host) {
   addXformSlider('stamp', 'Масштаб', 'scale', 0.2, 3, 0.01, xScale);
   const scrollHost = document.createElement('div');
   addSlider(scrollHost, pageScroll, 'Ускорение лент при скролле', 'boost', 1, 30, 0.5, (n) => n.toFixed(1) + '×', false);
-  panel.append(iceBlock, xformBlock, scrollHost, tabs, stampPane, applePane);
+  function settingsSection(label, content, open) {
+    const section = document.createElement('details');
+    section.className = 'settings-section';
+    section.open = open;
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    const body = document.createElement('div');
+    body.className = 'settings-body';
+    body.append(content);
+    section.append(summary, body);
+    return section;
+  }
+  const printSettings = document.createElement('div');
+  printSettings.append(tabs, stampPane, applePane);
+  const libraryScale = { mobile: 1.27, desktop: 1.27 };
+  function syncLibraryScale() {
+    const root = document.documentElement;
+    root.style.setProperty('--sig-library-mobile-scale', String(libraryScale.mobile));
+    root.style.setProperty('--sig-library-desktop-scale', String(libraryScale.desktop));
+  }
+  syncLibraryScale();
+  const librarySettings = document.createElement('div');
+  addSlider(librarySettings, libraryScale, 'Мобильный · до 440 px', 'mobile', 0.3, 2.5, 0.01, pct, true);
+  addSlider(librarySettings, libraryScale, 'Десктоп · от 441 px', 'desktop', 0.3, 2.5, 0.01, pct, true);
+  panelContent.append(
+    settingsSection('Масштаб новых яблочных печатей в библиотеке', librarySettings, true),
+    settingsSection('Вектор и трансформ', xformBlock, true),
+    settingsSection('Оттиск и анимация', printSettings, true),
+    settingsSection('Свет и материалы', iceBlock, false),
+    settingsSection('Прокрутка', scrollHost, false)
+  );
+  const panelFooter = document.createElement('div');
+  panelFooter.className = 'panel-footer';
+  const panelCopy = document.createElement('button');
+  panelCopy.type = 'button';
+  panelCopy.className = 'panel-copy';
+  panelCopy.textContent = 'Скопировать настройки JSON';
+  panelCopy.addEventListener('click', async () => {
+    const api = window.VanokSignatures;
+    const config = {
+      stamp: { ...stampRig },
+      apple: { ...appleRig },
+      libraryScale: { ...libraryScale },
+      transform: {
+        viewportApple: { ...viewAppleXform },
+        half: { ...toolXform.apple },
+        print: { ...toolXform.stamp },
+      },
+      lighting: { ...iceLight },
+      scroll: { ...pageScroll },
+      signature: api && typeof api.getEditorControls === 'function' ? api.getEditorControls() : null,
+    };
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(config, null, 2));
+      panelCopy.textContent = 'JSON скопирован';
+    } catch {
+      panelCopy.textContent = 'Не удалось скопировать';
+    }
+    setTimeout(() => { panelCopy.textContent = 'Скопировать настройки JSON'; }, 1400);
+  });
+  panelFooter.append(panelCopy);
+  panel.append(panelFooter);
 
   let alive = true;
   let stampModel = null;
@@ -2951,87 +3570,10 @@ function mountSignStamp(host) {
   function stampCap() {
     return stampCapQuery.matches ? 6 : 20;
   }
-  const INK_DRY_MS = 760;
-  const INK_DRY_EASE = 'cubic-bezier(0.16, 0.64, 0.2, 1)';
-
-  function inkDryEase(t) {
-    return 1 - (1 - t) ** 2.15;
-  }
-
-  function paintInkAt(dry, e) {
-    const src = dry.src;
-    const order = dry.order;
-    const cw = dry.cw;
-    const ch = dry.ch;
-    const out = dry.out;
-    const n = cw * ch;
-    for (let i = 0; i < n; i++) {
-      const when = order[i];
-      const p = i * 4;
-      let u = when > 2 ? 0 : (e - when) / 0.18 + 0.34;
-      if (u <= 0) {
-        out[p] = out[p + 1] = out[p + 2] = out[p + 3] = 0;
-        continue;
-      }
-      if (u > 1) u = 1;
-      else u = u * u * (3 - 2 * u);
-      out[p] = src[p];
-      out[p + 1] = src[p + 1];
-      out[p + 2] = src[p + 2];
-      out[p + 3] = Math.round(src[p + 3] * u);
-    }
-    dry.bctx.putImageData(dry.frameData, 0, 0);
-    dry.vctx.clearRect(0, 0, cw, ch);
-    const blur = (1 - e) * 0.45 * (cw / Math.max(dry.cssW, 1));
-    dry.vctx.filter = blur > 0.25 ? `blur(${blur.toFixed(2)}px)` : 'none';
-    dry.vctx.drawImage(dry.buffer, 0, 0);
-    dry.vctx.filter = 'none';
-  }
-
-  // Exit rewinds the appear pass: ink-dry-settle (scale 1.028 → 1, 760ms,
-  // cubic-bezier(0.16, 0.64, 0.2, 1)) and the same ink ease 1-(1-t)**2.15.
   function releaseMark(mark) {
     if (!mark || !mark.el || mark.leaving) return;
     mark.leaving = true;
-    const el = mark.el;
-    const finish = () => {
-      if (el.isConnected) el.remove();
-    };
-    const dry = mark.inkDry;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !dry || !dry.src || !dry.view) {
-      finish();
-      return;
-    }
-    dry.stopForward = true;
-    const fromT = dry.done ? 1 : Math.max(0, Math.min(1, dry.t || 0));
-    if (fromT <= 0.001) {
-      finish();
-      return;
-    }
-    const photo = el.querySelector('img.ink');
-    if (photo) photo.style.visibility = 'hidden';
-    if (mark.dye) mark.dye.style.visibility = 'hidden';
-    dry.view.style.animation = 'none';
-    if (!dry.view.isConnected) el.insertBefore(dry.view, el.firstChild);
-    el.classList.add('is-leaving');
-    const scale = dry.view.animate(
-      [{ transform: 'scale(1.028)' }, { transform: 'none' }],
-      { duration: INK_DRY_MS, easing: INK_DRY_EASE, fill: 'both', direction: 'reverse' }
-    );
-    if (fromT < 0.999) scale.currentTime = (1 - fromT) * INK_DRY_MS;
-    const started = performance.now();
-    const span = fromT * INK_DRY_MS;
-    const paint = (now) => {
-      if (!el.isConnected) return;
-      const u = Math.min(1, (now - started) / span);
-      paintInkAt(dry, inkDryEase(tFrom(u)));
-      if (u < 1) requestAnimationFrame(paint);
-      else finish();
-    };
-    function tFrom(u) {
-      return fromT * (1 - u);
-    }
-    paint(started);
+    mark.el.remove();
   }
 
   function dropOldestStamp() {
@@ -3059,8 +3601,19 @@ function mountSignStamp(host) {
   refreshFiles();
 
   function placeInk(current) {
-    if (current.placed || !current.src) return;
+    if (current.placed || current.preparing || !current.src) return;
+    const prepared = prepareInk(current.src);
+    if (!prepared.ready) {
+      current.preparing = true;
+      prepared.promise.then((image) => {
+        current.preparing = false;
+        if (image && alive && host.isConnected) placeInk(current);
+      });
+      return;
+    }
     current.placed = true;
+    prepared.used = true;
+    fillInkReserve();
     if (current.rig.stack === 'replace') {
       for (let i = marks.length - 1; i >= 0; i--) {
         if (marks[i].kind !== current.kind) continue;
@@ -3070,11 +3623,10 @@ function mountSignStamp(host) {
     while (marks.length >= stampCap()) dropOldestStamp();
     const el = document.createElement('div');
     el.className = 'sign-imprint';
-    const img = document.createElement('img');
+    const img = prepared.image.cloneNode();
     img.className = 'ink';
     img.alt = '';
     img.draggable = false;
-    img.src = current.src;
     const dye = document.createElement('div');
     dye.className = 'dye';
     dye.style.webkitMaskImage = `url("${current.src}")`;
@@ -3097,141 +3649,8 @@ function mountSignStamp(host) {
       ui.last.textContent = 'Поставлен: ' + current.file;
     }
     paintMarks();
-    dryMark(marks[marks.length - 1]);
   }
 
-  // After the hit, thick ink is already there. Thin edges and pale fringes
-  // finish a moment later, and a little blur dries off. Patches around the
-  // seal complete at different times, so the print looks drawn in, not faded.
-  function dryMark(mark) {
-    if (!mark || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const photo = mark.el.querySelector('img.ink');
-    if (!photo) return;
-    photo.style.visibility = 'hidden';
-    mark.dye.style.visibility = 'hidden';
-    const reveal = () => {
-      if (!mark.el.isConnected) return;
-      const wet = mark.el.querySelector('.ink-dry');
-      if (wet) wet.remove();
-      photo.style.visibility = '';
-      mark.dye.style.visibility = '';
-    };
-    const run = () => {
-      if (!mark.el.isConnected || !photo.naturalWidth) {
-        reveal();
-        return;
-      }
-      const cssW = mark.el.offsetWidth || 220;
-      const dpr = Math.min(devicePixelRatio || 1, 2);
-      let cw = Math.max(1, Math.round(cssW * dpr));
-      let ch = Math.max(1, Math.round(cw * (photo.naturalHeight / photo.naturalWidth)));
-      const cap = 420;
-      const longest = Math.max(cw, ch);
-      if (longest > cap) {
-        const fit = cap / longest;
-        cw = Math.max(1, Math.round(cw * fit));
-        ch = Math.max(1, Math.round(ch * fit));
-      }
-      const buffer = document.createElement('canvas');
-      buffer.width = cw;
-      buffer.height = ch;
-      const bctx = buffer.getContext('2d');
-      try {
-        bctx.drawImage(photo, 0, 0, cw, ch);
-        bctx.getImageData(0, 0, 1, 1);
-      } catch (err) {
-        reveal();
-        return;
-      }
-      const rig = mark.kind === 'apple' ? appleRig : stampRig;
-      const themed = themeHex(mark.castHex);
-      const tintAlpha = themed != null ? 1 : rig.tintAmount;
-      if (tintAlpha > 0.01) {
-        bctx.save();
-        bctx.globalCompositeOperation = 'source-atop';
-        bctx.globalAlpha = tintAlpha;
-        bctx.fillStyle = themed != null
-          ? '#' + themed.toString(16).padStart(6, '0')
-          : rig.tint;
-        bctx.fillRect(0, 0, cw, ch);
-        bctx.restore();
-      }
-      const src = bctx.getImageData(0, 0, cw, ch).data;
-      const n = cw * ch;
-      const dist = new Float32Array(n);
-      const far = 1e6;
-      for (let i = 0; i < n; i++) {
-        if (src[i * 4 + 3] < 12) {
-          dist[i] = 0;
-          continue;
-        }
-        let d = far;
-        if (i % cw) d = Math.min(d, dist[i - 1] + 1);
-        if (i >= cw) d = Math.min(d, dist[i - cw] + 1);
-        dist[i] = d;
-      }
-      for (let i = n - 1; i >= 0; i--) {
-        if (!dist[i]) continue;
-        let d = dist[i];
-        if (i % cw !== cw - 1) d = Math.min(d, dist[i + 1] + 1);
-        if (i + cw < n) d = Math.min(d, dist[i + cw] + 1);
-        dist[i] = d;
-      }
-      const order = new Float32Array(n);
-      const seed = Math.random() * Math.PI * 2;
-      for (let y = 0; y < ch; y++) {
-        const ny = y / ch;
-        for (let x = 0; x < cw; x++) {
-          const i = y * cw + x;
-          if (src[i * 4 + 3] < 12) {
-            order[i] = 9;
-            continue;
-          }
-          const nx = x / cw;
-          const blot = Math.sin(nx * 9.2 + seed) * Math.sin(ny * 7.6 + seed * 1.4);
-          const patch = blot * 0.5 + 0.5;
-          const rings = dist[i];
-          // 1px rim and hairlines finish last. The middle of a thick stroke is already down.
-          const late = rings <= 1 ? 0.8 : rings === 2 ? 0.46 : 0.04;
-          order[i] = late + patch * 0.05;
-        }
-      }
-      const view = document.createElement('canvas');
-      view.className = 'ink-dry';
-      view.width = cw;
-      view.height = ch;
-      const vctx = view.getContext('2d');
-      mark.el.insertBefore(view, mark.el.firstChild);
-      const frameData = bctx.createImageData(cw, ch);
-      const out = frameData.data;
-      const dry = {
-        src, order, cw, ch, cssW, buffer, bctx, frameData, out, view, vctx,
-        t: 0,
-        done: false,
-        stopForward: false,
-      };
-      mark.inkDry = dry;
-      const started = performance.now();
-      const paint = (now) => {
-        if (!mark.el.isConnected || dry.stopForward) return;
-        const t = Math.min(1, (now - started) / INK_DRY_MS);
-        dry.t = t;
-        paintInkAt(dry, inkDryEase(t));
-        if (t < 1) requestAnimationFrame(paint);
-        else {
-          dry.t = 1;
-          dry.done = true;
-          reveal();
-        }
-      };
-      paint(started);
-    };
-    if (photo.complete && photo.naturalWidth) run();
-    else {
-      photo.addEventListener('load', run, { once: true });
-      photo.addEventListener('error', reveal, { once: true });
-    }
-  }
   const colorDeck = [];
   let lastColor = '';
   function drawColor() {
@@ -3595,9 +4014,13 @@ function mountSignStamp(host) {
     const store = window.VanokSignatures;
     if (!store || typeof store.catalog !== 'function') return null;
     const list = (store.catalog() || []).filter((item) => {
-      return item && item.src && (item.kind === 'stamp' || item.kind === 'apple');
+      return item && item.src && (item.kind === 'stamp' || item.kind === 'apple')
+        && !inkImages.get(item.src)?.failed;
     });
-    if (!list.length) return null;
+    if (!list.length) {
+      const presets = (store.catalog() || []).filter((item) => item.preset && item.src);
+      return presets.find((item) => inkImages.get(item.src)?.ready) || null;
+    }
     const key = list.map((item) => item.id).join('|');
     if (!catalogBag.length || catalogKey !== key) {
       catalogBag = list.slice();
@@ -3609,7 +4032,12 @@ function mountSignStamp(host) {
         catalogBag[j] = swap;
       }
     }
-    return catalogBag.pop();
+    // Draw without replacement from the full catalog, rather than reshuffling
+    // the same few decoded images whenever another download completes.
+    const readyIndex = catalogBag.findIndex((item) => inkImages.get(item.src)?.ready);
+    const [selected] = catalogBag.splice(readyIndex < 0 ? 0 : readyIndex, 1);
+    for (const item of catalogBag.slice(0, 6)) prepareInk(item.src);
+    return selected;
   }
   function placeAt(item, point) {
     const hr = host.getBoundingClientRect();
@@ -4031,7 +4459,7 @@ function mountSignStamp(host) {
       clearPlacedStamps();
       return;
     }
-    if (e.code !== 'KeyG' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.code !== 'KeyG' || e.shiftKey || e.metaKey || e.ctrlKey || e.altKey) return;
     if (isTyping(e.target) || isTyping(document.activeElement)) return;
     e.preventDefault();
     panel.hidden = !panel.hidden;
@@ -4162,11 +4590,12 @@ function mountSignStamp(host) {
   }
 
   let toolGeneration = 0;
+  let toolLoadPromise = Promise.resolve();
   function syncToolModels() {
     const generation = ++toolGeneration;
     const tab = currentModelTab();
     const tabId = tab.id;
-    Promise.all([loadGltf(tab.stamp), loadGltf(tab.half)]).then(([stampGltf, halfGltf]) => {
+    toolLoadPromise = Promise.all([loadGltf(tab.stamp), loadGltf(tab.half)]).then(([stampGltf, halfGltf]) => {
       if (!alive || generation !== toolGeneration || currentModelTab().id !== tabId) return;
       globalThis.__vanokToolFiles = { tab: tabId, look: tab.look, stamp: tab.stamp, half: tab.half };
       if (tab.look === 'plane') queuePlanePrints();
@@ -4218,7 +4647,7 @@ function mountSignStamp(host) {
       }
     });
   }
-  syncToolModels();
+  // Flat imprints need no hidden tool meshes at startup.
 
   // Themes 0–2: stamp and half share fill 0.72 and key 1.7 on every L tab
   // except mat and plane. Theme 3 copies the corner apple's live fill and key
@@ -4397,6 +4826,7 @@ function mountSignStamp(host) {
 
   return () => {
     alive = false;
+    document.removeEventListener('vanok-catalog', prepareCatalogInk);
     stampCapQuery.removeEventListener('change', onStampCapChange);
     removeEventListener('resize', onStampCapChange);
     while (flights.length) releaseFlight(flights.pop());
@@ -4723,9 +5153,9 @@ function mountViewportApple() {
   function mobileFrameScale() {
     return Math.max(innerWidth, 1) / MOBILE_BOARD;
   }
-  // The apple starts above the screen, turned on Y and Z, and eases into
-  // its resting pose once the page is revealed. Same flight on mobile and
-  // desktop. prefers-reduced-motion skips the slide and the spin.
+  // On every screen the apple rolls up from below the bottom edge.
+  // The rest of the page appears only after it lands.
+  // prefers-reduced-motion skips the slide and the spin on both.
   // Прилёт edits this entrance only. Defaults stay on today's start:
   // x aligned with the resting pose, top = resting top − 1.35× height,
   // spin Y + APPLE_ENTER_Y and Z + APPLE_ENTER_Z, Slow bezier, APPLE_ENTER_MS.
@@ -4734,7 +5164,9 @@ function mountViewportApple() {
   // documented easeOutExpo points: https://easings.net/#easeOutExpo
   // Solver: packages/motion-utils/src/easing/cubic-bezier.ts
   let appleEnter = null;
+  let appleIntro = null;
   const APPLE_ENTER_MS = 900;
+  const MOBILE_INTRO_MS = 2400;
   const APPLE_ENTER_Y = 300;
   const APPLE_ENTER_Z = 184;
   const APPLE_EASE_SLOW = [0.16, 1, 0.3, 1];
@@ -4788,15 +5220,26 @@ function mountViewportApple() {
   }
   function appleEnterXOffset() {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
+    if (appleIntro) {
+      const pose = appleIntroPose();
+      return pose ? pose.dx : 0;
+    }
     if (!appleEnter) return fly.xOff;
     return appleEnter.fromX * (1 - appleEnterEase());
   }
   function appleEnterOffset() {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return 0;
+    if (appleIntro) {
+      const pose = appleIntroPose();
+      return pose ? pose.dy : 0;
+    }
     if (!appleEnter) return flyTopOff();
     return appleEnter.fromY * (1 - appleEnterEase());
   }
   function appleEnterRot() {
+    if (appleIntro) {
+      return { x: VIEW_APPLE.rotX, y: VIEW_APPLE.rotY, z: VIEW_APPLE.rotZ };
+    }
     const left = 1 - appleEnterEase();
     const src = appleEnter || fly;
     return {
@@ -4814,22 +5257,30 @@ function mountViewportApple() {
   // rounded to whole turns so the euler ends on 69.7 / -172.9 / -33.2.
   // followPointer writes that roll into the quaternion every frame.
   //
-  // APPLE_ROLL_MS is the 1× duration of that whole circle under easeSlow, the
-  // curve this roll already uses. On screen — exit and return — each arc still
-  // costs that time, so the visible speed stays. Off screen the center is
-  // outside the viewport by half the fitted on-screen size (the body has
-  // cleared the edge), and that arc costs half the time: 2×. The click ends
-  // on the resting pose, sooner than APPLE_ROLL_MS by half the off-screen
-  // time. Radii are unchanged. Spin stays tied to arc length, so the faster
-  // off-screen arc also spins at 2× and no extra turn is added.
-  // easeSlow is flat at the finish, so the apple is already on the resting
-  // pose while the clock still has about two seconds left. The click lock
-  // ends on that pose. A click during the roll is ignored and is not queued.
+  // APPLE_ROLL_MS is the 1× duration of the outbound circle under easeSlow.
+  // On screen the exit keeps that timing. Off screen the center is outside
+  // the viewport by half the fitted size, and that arc costs half the time.
+  // Spin stays tied to arc length, so the faster off-screen arc spins at 2×
+  // and no extra turn is added. The return does not keep easeSlow's flat
+  // tail: once the apple is back on screen it drives home on a settle whose
+  // translation and rotation ease out together and reach the resting pose
+  // with no snap. A click while it is clearly away is ignored and not queued.
+  // A click once it is visually back in the resting spot starts the next roll
+  // immediately, including during the last of that settle.
   const APPLE_ROLL_MS = 11000;
   const APPLE_ROLL_STEPS = 480;
+  const APPLE_DIP_HOVER = 8;
+  const APPLE_DIP_PRESS = 18;
   const rollQuat = new THREE.Quaternion();
   const rollAxis = new THREE.Vector3();
+  const introOrient = new THREE.Quaternion();
+  const introIdentity = new THREE.Quaternion();
   let appleRoll = null;
+  let appleHovering = false;
+  let applePressing = false;
+  let applePressAt = 0;
+  let appleDip = 0;
+  let appleDipClock = performance.now();
   function appleRollSpec() {
     const mobile = matchMedia('(max-width: 440px)').matches;
     const h = Math.max(innerHeight, 1);
@@ -4838,22 +5289,53 @@ function mountViewportApple() {
     }
     return { radius: h * 0.21, theta0: -160 * Math.PI / 180, dir: -1 };
   }
-  // Home again: center within 1px and tumble within 2°. u <= 0.5 is the
-  // departure, so the lock stays up until the apple has come back.
-  function appleRollArrived(spec, u) {
-    if (u >= 1) return true;
-    if (!(u > 0.5)) return false;
-    const chord = 2 * spec.radius * Math.abs(Math.sin(Math.PI * u));
-    if (chord > 1) return false;
-    const turns = Math.max(1, Math.round(spec.radius / appleScreenRadius()));
-    return 360 * turns * (1 - u) <= 2;
+  function appleRollChord(spec, u) {
+    return 2 * spec.radius * Math.abs(Math.sin(Math.PI * u));
   }
+  // Visually back in the seat. Wider than a pixel, so the last settle does
+  // not leave a dead gap after the apple already looks home. u <= 0.5 is
+  // the departure and stays locked.
+  function appleInRestSpot(spec, u) {
+    if (!(u > 0.5)) return false;
+    return appleRollChord(spec, u) <= Math.max(16, appleScreenRadius() * 0.26);
+  }
+  function appleRollU(elapsed) {
+    if (!appleRoll) return 1;
+    return appleRollParam(appleRoll.clock, elapsed == null ? performance.now() - appleRoll.start : elapsed);
+  }
+  // Still playing, including the settle. This is not the click lock.
   function appleRolling() {
     if (!appleRoll) return false;
     const elapsed = performance.now() - appleRoll.start;
     if (elapsed >= appleRoll.clock.duration) return false;
-    const u = appleRollParam(appleRoll.clock, elapsed);
-    return !appleRollArrived(appleRoll.spec, u);
+    const u = appleRollU(elapsed);
+    return u > 0 && u < 1;
+  }
+  // Clearly away on the circle. Clicks here are dropped, not queued.
+  function appleRollAway() {
+    if (!appleRolling()) return false;
+    return !appleInRestSpot(appleRoll.spec, appleRollU());
+  }
+  function appleFinePointer() {
+    return matchMedia('(hover: hover) and (pointer: fine)').matches;
+  }
+  function appleNearHome() {
+    if (!appleRoll) return true;
+    return appleRollChord(appleRoll.spec, appleRollU()) <= Math.max(36, appleScreenRadius() * 0.5);
+  }
+  function appleDipTarget() {
+    const pressAge = performance.now() - applePressAt;
+    if (applePressing && (appleNearHome() || pressAge < 160)) return APPLE_DIP_PRESS;
+    if (!appleRollAway() && appleFinePointer() && appleHovering) return APPLE_DIP_HOVER;
+    return 0;
+  }
+  function stepAppleDip() {
+    const now = performance.now();
+    const dt = Math.min(0.05, Math.max(0, (now - appleDipClock) / 1000));
+    appleDipClock = now;
+    const target = appleDipTarget();
+    appleDip += (target - appleDip) * (1 - Math.exp(-dt * 26));
+    if (Math.abs(target - appleDip) < 0.04) appleDip = target;
   }
   function appleScreenRadius() {
     const w = Math.max(innerWidth, 2);
@@ -4907,9 +5389,13 @@ function mountViewportApple() {
     const m = layout.margin;
     return x < -m || y < -m || x > layout.w + m || y > layout.h + m;
   }
-  // Arc-length clock. easeAt[i] is the old easeSlow time-fraction at u=i/steps.
-  // On screen, wall time advances with that fraction (1×). Off screen it
-  // advances twice as fast (2×). u itself stays the arc parameter.
+  // Arc-length clock for the outbound roll. easeAt[i] is the easeSlow
+  // time-fraction at u=i/steps. On screen, wall time advances with that
+  // fraction (1×). Off screen it advances twice as fast (2×). Once the apple
+  // has come back on screen, the remaining arc is a settle: same circle, spin
+  // still tied to arc length, speed matched at the handoff and eased to zero
+  // at home. If the path never leaves the screen, the settle starts after the
+  // outbound half so the departure itself stays on easeSlow.
   function appleRollClock(spec) {
     const steps = APPLE_ROLL_STEPS;
     const times = new Float64Array(steps + 1);
@@ -4923,19 +5409,42 @@ function mountViewportApple() {
       c0: Math.cos(spec.theta0),
       s0: Math.sin(spec.theta0),
     };
+    let seenOff = false;
+    let arriveStep = 0;
     for (let i = 0; i < steps; i++) {
       const u1 = (i + 1) / steps;
       const ease = i + 1 === steps ? 1 : appleRollEaseInverse(u1);
-      const off = appleRollOffScreen(spec, layout, (i + 0.5) / steps);
+      const uMid = (i + 0.5) / steps;
+      const off = appleRollOffScreen(spec, layout, uMid);
+      if (uMid > 0.5 && off) seenOff = true;
+      if (!arriveStep && seenOff && !off && uMid > 0.5) arriveStep = i + 1;
       const dtOld = Math.max(0, (ease - easeAt[i]) * APPLE_ROLL_MS);
       times[i + 1] = times[i] + dtOld / (off ? 2 : 1);
       easeAt[i + 1] = ease;
     }
-    return { times, easeAt, steps, duration: times[steps] };
+    if (!arriveStep) arriveStep = Math.round(steps * 0.62);
+    const arriveTime = times[arriveStep];
+    const arriveU = easeSlow(Math.min(1, Math.max(0, easeAt[arriveStep])));
+    const partial = { times, easeAt, steps };
+    const back = Math.min(28, Math.max(8, arriveTime));
+    const uBack = arriveTime > back ? appleRollEaseU(partial, arriveTime - back) : easeSlow(Math.min(1, easeAt[Math.max(0, arriveStep - 1)]));
+    const duDt = Math.max(1e-4, (arriveU - uBack) / (Math.min(back, arriveTime) / 1000));
+    // Quadratic ease-out has p'(0) = 2, so the duration that matches the
+    // incoming speed is twice the constant-speed time. It only slows down.
+    let settleMs = 2 * (1 - arriveU) / duDt * 1000;
+    if (!Number.isFinite(settleMs)) settleMs = 1200;
+    settleMs = Math.min(3400, Math.max(480, settleMs));
+    return {
+      times,
+      easeAt,
+      steps,
+      arriveTime,
+      arriveU,
+      settleMs,
+      duration: arriveTime + settleMs,
+    };
   }
-  function appleRollParam(clock, elapsed) {
-    if (elapsed <= 0) return 0;
-    if (elapsed >= clock.duration) return 1;
+  function appleRollEaseU(clock, elapsed) {
     const times = clock.times;
     let lo = 1;
     let hi = clock.steps;
@@ -4950,10 +5459,21 @@ function mountViewportApple() {
     const ease = clock.easeAt[lo - 1] + (clock.easeAt[lo] - clock.easeAt[lo - 1]) * f;
     return easeSlow(Math.min(1, Math.max(0, ease)));
   }
+  function appleRollParam(clock, elapsed) {
+    if (elapsed <= 0) return 0;
+    if (elapsed >= clock.duration) return 1;
+    if (!(elapsed > clock.arriveTime)) return appleRollEaseU(clock, elapsed);
+    const s = Math.min(1, (elapsed - clock.arriveTime) / clock.settleMs);
+    // Ease-out: p'(0) = 2 and p'(1) = 0, and the slope only falls. Translation
+    // and spin share s, so the apple is still turning as it rolls to a stop.
+    const remain = 1 - s;
+    const p = 1 - remain * remain;
+    return clock.arriveU + (1 - clock.arriveU) * p;
+  }
   function appleRollSample() {
     if (!appleRoll) return null;
-    const u = appleRollParam(appleRoll.clock, performance.now() - appleRoll.start);
-    if (!(u > 0) || appleRollArrived(appleRoll.spec, u)) return null;
+    const u = appleRollU();
+    if (!(u > 0) || u >= 1) return null;
     const spec = appleRoll.spec;
     const theta = spec.theta0 + spec.dir * Math.PI * 2 * u;
     const c0 = Math.cos(spec.theta0);
@@ -4969,7 +5489,8 @@ function mountViewportApple() {
   }
   function startAppleRoll() {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (appleRolling()) return;
+    if (appleIntro) return;
+    if (appleRollAway()) return;
     const spec = appleRollSpec();
     appleRoll = { start: performance.now(), spec, clock: appleRollClock(spec) };
   }
@@ -4988,9 +5509,164 @@ function mountViewportApple() {
       start: performance.now(),
     };
   }
+  function mobileIntroProgress() {
+    if (!appleIntro) return 1;
+    const u = (performance.now() - appleIntro.start) / Math.max(appleIntro.ms, 1);
+    if (u <= 0) return 0;
+    if (u >= 1) return 1;
+    // Steady tumble for most of the roll, then a short ease into the corner.
+    const split = 0.74;
+    const covered = 0.86;
+    if (u <= split) return (u / split) * covered;
+    const t = (u - split) / (1 - split);
+    return covered + (1 - covered) * (1 - (1 - t) * (1 - t));
+  }
+  // Cubic from the left half of the bottom edge, out through the lower right,
+  // then up into the corner. Rotation is arc length around the ground axis,
+  // and the last stretch eases that tumble back onto the resting pose.
+  function buildMobileIntroPath() {
+    applyAppleLayout();
+    const w = Math.max(innerWidth, 1);
+    const h = Math.max(innerHeight, 1);
+    const radius = Math.max(appleScreenRadius(), 12);
+    const clearance = Math.max(radius, appleRollMargin()) + 48;
+    const hx = VIEW_APPLE.xPx;
+    const hy = VIEW_APPLE.topPx;
+    const p0 = { x: w * 0.34, y: h + clearance };
+    const p1 = { x: w * 0.94, y: h * 0.94 };
+    const p2 = { x: w * 0.7, y: hy + (h - hy) * 0.38 };
+    const p3 = { x: hx, y: hy };
+    const steps = 120;
+    const samples = new Array(steps + 1);
+    const cum = new Float64Array(steps + 1);
+    const qs = new Array(steps + 1);
+    const q = new THREE.Quaternion();
+    const dq = new THREE.Quaternion();
+    const axis = new THREE.Vector3();
+    samples[0] = { x: p0.x, y: p0.y };
+    qs[0] = new THREE.Quaternion();
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      const u = 1 - t;
+      const a = u * u * u;
+      const b = 3 * u * u * t;
+      const c = 3 * u * t * t;
+      const d = t * t * t;
+      const x = a * p0.x + b * p1.x + c * p2.x + d * p3.x;
+      const y = a * p0.y + b * p1.y + c * p2.y + d * p3.y;
+      const prev = samples[i - 1];
+      const dx = x - prev.x;
+      const dy = y - prev.y;
+      const dist = Math.hypot(dx, dy);
+      cum[i] = cum[i - 1] + dist;
+      samples[i] = { x, y };
+      if (dist > 1e-4) {
+        axis.set(dy / dist, 0, -dx / dist);
+        dq.setFromAxisAngle(axis, dist / radius);
+        q.premultiply(dq).normalize();
+      }
+      qs[i] = q.clone();
+    }
+    samples[steps].x = p3.x;
+    samples[steps].y = p3.y;
+    return { p0, p1, p2, p3, samples, cum, qs, steps, length: cum[steps], radius, clearance };
+  }
+  function appleIntroPose() {
+    if (!appleIntro) return null;
+    const s = mobileIntroProgress();
+    if (!(s < 1)) return null;
+    const path = appleIntro.path;
+    if (!(s > 0)) {
+      introOrient.identity();
+      return {
+        dx: path.p0.x - VIEW_APPLE.xPx,
+        dy: path.p0.y - VIEW_APPLE.topPx,
+        q: introOrient,
+      };
+    }
+    const target = s * path.length;
+    let lo = 1;
+    let hi = path.steps;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (path.cum[mid] < target) lo = mid + 1;
+      else hi = mid;
+    }
+    const span = path.cum[lo] - path.cum[lo - 1] || 1;
+    const f = Math.min(1, Math.max(0, (target - path.cum[lo - 1]) / span));
+    const a = path.samples[lo - 1];
+    const b = path.samples[lo];
+    introOrient.copy(path.qs[lo - 1]).slerp(path.qs[lo], f);
+    const settleAt = 0.88;
+    if (s > settleAt) {
+      const w = Math.min(1, (s - settleAt) / (0.98 - settleAt));
+      const smooth = w * w * (3 - 2 * w);
+      introOrient.slerp(introIdentity, smooth);
+    }
+    return {
+      dx: a.x + (b.x - a.x) * f - VIEW_APPLE.xPx,
+      dy: a.y + (b.y - a.y) * f - VIEW_APPLE.topPx,
+      q: introOrient,
+    };
+  }
+  function beginMobileAppleIntro() {
+    appleRoll = null;
+    const path = buildMobileIntroPath();
+    const start = performance.now();
+    appleIntro = { start, ms: MOBILE_INTRO_MS, path };
+    appleEnter = {
+      fromX: 0,
+      fromY: 0,
+      rotX: 0,
+      rotY: 0,
+      rotZ: 0,
+      ms: MOBILE_INTRO_MS,
+      ease: 'linear',
+      start,
+    };
+    document.documentElement.classList.remove('apple-home');
+    const marks = [0, 0.25, 0.5, 0.75, 1].map((t) => {
+      const i = Math.round(t * path.steps);
+      return {
+        t,
+        x: Math.round(path.samples[i].x),
+        y: Math.round(path.samples[i].y),
+      };
+    });
+    globalThis.__vanokIntroRoll = {
+      ms: MOBILE_INTRO_MS,
+      ease: 'steady, then ease-out over the last 26%',
+      length: Math.round(path.length),
+      radius: Math.round(path.radius),
+      turns: Math.round((path.length / (Math.PI * 2 * path.radius)) * 100) / 100,
+      clearance: Math.round(path.clearance),
+      start: { x: Math.round(path.p0.x), y: Math.round(path.p0.y) },
+      c1: { x: Math.round(path.p1.x), y: Math.round(path.p1.y) },
+      c2: { x: Math.round(path.p2.x), y: Math.round(path.p2.y) },
+      home: { x: Math.round(path.p3.x), y: Math.round(path.p3.y) },
+      marks,
+      t0: start,
+    };
+  }
+  function finishAppleIntro() {
+    document.documentElement.classList.add('apple-home');
+    window.__vanokStampsAt = performance.now() + INTRO_FADE_MS;
+  }
   function maybeStartAppleEnter() {
     if (appleEnter || !appleModel || !appleVisualReady) return;
     if (!document.documentElement.classList.contains('page-ready')) return;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduced) {
+      // First painted frame is already on the bottom of the path, not the corner.
+      beginMobileAppleIntro();
+      applyKeyLightAndPlace();
+      if (typeof renderer.compile === 'function') {
+        try { renderer.compile(scene, camera); } catch (err) {}
+      }
+      applyKeyLightAndPlace();
+      host.classList.add('apple-shown');
+      return;
+    }
     // Stay off-stage while the mesh uploads. Cached files still begin at t = 0.
     applyKeyLightAndPlace();
     if (typeof renderer.compile === 'function') {
@@ -4999,6 +5675,7 @@ function mountViewportApple() {
     appleEnter = captureAppleEnter();
     applyKeyLightAndPlace();
     host.classList.add('apple-shown');
+    finishAppleIntro();
   }
   function restartAppleEnter() {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -5006,7 +5683,9 @@ function mountViewportApple() {
       appleEnter = null;
       return;
     }
-    appleEnter = captureAppleEnter();
+    beginMobileAppleIntro();
+    applyKeyLightAndPlace();
+    host.classList.add('apple-shown');
   }
   function applyAppleLayout() {
     const mobile = matchMedia('(max-width: 440px)').matches;
@@ -5122,6 +5801,9 @@ function mountViewportApple() {
       rollAxis.set(roll.ty / len, 0, -roll.tx / len);
       rollQuat.setFromAxisAngle(rollAxis, roll.angle);
       gazeBase.premultiply(rollQuat);
+    } else if (appleIntro) {
+      const pose = appleIntroPose();
+      if (pose) gazeBase.premultiply(pose.q);
     }
     gazePitch.setFromAxisAngle(axisX, gaze.sy * GAZE + drag.pitch);
     gazeYaw.setFromAxisAngle(axisUp, gaze.sx * GAZE + drag.yaw);
@@ -5139,10 +5821,13 @@ function mountViewportApple() {
     const h = Math.max(innerHeight, 1);
     gaze.x = (event.clientX / w) * 2 - 1;
     gaze.y = (event.clientY / h) * 2 - 1;
+    if (event.pointerType === 'touch' || !appleFinePointer()) appleHovering = false;
+    else appleHovering = hitsViewportApple(event);
   }
   function onPointerLeave() {
     gaze.x = 0;
     gaze.y = 0;
+    appleHovering = false;
   }
 
   function hitsViewportApple(event) {
@@ -5180,7 +5865,7 @@ function mountViewportApple() {
     if (event.pointerType === 'touch' && event.isPrimary === false) return;
     if (uiOwnsPointer(event)) return;
     if (!hitsViewportApple(event)) return;
-    if (appleRolling()) {
+    if (appleIntro || appleRollAway()) {
       holdStampForAppleGesture();
       const token = dragBlockToken;
       setTimeout(() => {
@@ -5189,6 +5874,8 @@ function mountViewportApple() {
       if (event.cancelable) event.preventDefault();
       return;
     }
+    applePressing = true;
+    applePressAt = performance.now();
     startAppleRoll();
     drag.active = true;
     drag.pointerId = event.pointerId;
@@ -5214,6 +5901,7 @@ function mountViewportApple() {
   }
 
   function onApplePointerUp(event) {
+    if (event.pointerId === drag.pointerId) applePressing = false;
     if (!drag.active || event.pointerId !== drag.pointerId) return;
     drag.active = false;
     releaseStampAfterAppleGesture();
@@ -5261,7 +5949,7 @@ function mountViewportApple() {
     if (appleModel) appleModel.scale.setScalar(0.78 * poseSize);
     const roll = appleRollSample();
     const enterX = appleEnterXOffset() + (roll ? roll.dx : 0);
-    const enterY = appleEnterOffset() + (roll ? roll.dy : 0);
+    const enterY = appleEnterOffset() + (roll ? roll.dy : 0) + appleDip;
     tilt.position.set(
       ((VIEW_APPLE.xPx + enterX) / w) * viewW - viewW / 2,
       0,
@@ -5942,13 +6630,29 @@ function mountViewportApple() {
   syncViewportApple();
 
   applyKeyLightAndPlace();
+  // If the mesh never arrives, the name still comes in. A roll already
+  // running keeps the lettering hidden until the apple is home.
+  setTimeout(() => {
+    if (!document.documentElement.classList.contains('apple-home') && !appleModel && !appleIntro) {
+      finishAppleIntro();
+    }
+  }, 8000);
   renderer.setAnimationLoop(() => {
     if (!alive) return;
     maybeStartAppleEnter();
+    if (appleIntro && performance.now() - appleIntro.start >= appleIntro.ms) {
+      const report = globalThis.__vanokIntroRoll;
+      if (report && report.homeAt == null) report.homeAt = performance.now();
+      appleIntro = null;
+      finishAppleIntro();
+    }
+    stepAppleDip();
     const flying = !!(appleEnter && performance.now() - appleEnter.start < appleEnter.ms);
     const rolling = appleRolling();
-    if (!appleEnter || flying || !appleEnter.settled || rolling) {
-      if (appleEnter && !flying) appleEnter.settled = true;
+    const dipping = appleDip > 0.04 || appleDipTarget() > 0;
+    const introPlaying = !!appleIntro;
+    if (!appleEnter || flying || !appleEnter.settled || rolling || dipping || introPlaying) {
+      if (appleEnter && !flying && !introPlaying) appleEnter.settled = true;
       applyKeyLightAndPlace();
     }
     if (appleRoll && !appleRolling()) {
@@ -5965,12 +6669,21 @@ function mountViewportApple() {
       const prev = trace[trace.length - 1];
       if (!prev || age - prev.age >= 220) {
         const rot = appleEnterRot();
+        const yOff = appleEnterOffset();
+        const xOff = appleEnterXOffset();
+        const vanokEl = document.querySelector('.mob .vanok');
+        const bioEl = document.querySelector('.mob .bio');
         trace.push({
           age: Math.round(age),
-          ease: Math.round(appleEnterEase() * 1000) / 1000,
-          off: Math.round(appleEnterOffset()),
+          ease: Math.round((appleIntro ? mobileIntroProgress() : appleEnterEase()) * 1000) / 1000,
+          off: Math.round(yOff),
+          x: Math.round(xOff),
+          spin: Math.round(introOrient.angleTo(introIdentity) * 180 / Math.PI),
           y: Math.round(rot.y * 10) / 10,
           z: Math.round(rot.z * 10) / 10,
+          vanok: vanokEl ? Math.round(parseFloat(getComputedStyle(vanokEl).opacity) * 100) : null,
+          bio: bioEl ? Math.round(parseFloat(getComputedStyle(bioEl).opacity) * 100) : null,
+          home: document.documentElement.classList.contains('apple-home'),
         });
       }
       if (!globalThis.__enterFrames) globalThis.__enterFrames = [];
@@ -6069,6 +6782,10 @@ function mountViewportApple() {
       enterMs: appleEnter ? appleEnter.ms : fly.ms,
       enterEaseName: appleEnter ? appleEnter.ease : fly.ease,
       tiltZ: tilt.position.z,
+      rollU: appleRoll ? Math.round(appleRollU() * 1000) / 1000 : 0,
+      rollAway: appleRollAway(),
+      rollChord: appleRoll ? Math.round(appleRollChord(appleRoll.spec, appleRollU()) * 10) / 10 : 0,
+      dip: Math.round(appleDip * 10) / 10,
     };
   }
   readViewportApple.set = (patch) => {
@@ -6221,7 +6938,11 @@ document.documentElement.addEventListener('vanok-theme', syncIceTheme);
 window.__vanokIce = iceMaterialReport;
 queuePlanePrints();
 mountSignStamp(document.getElementById('sign-host'));
-mountViewportApple();
+if (!document.documentElement.classList.contains('stamps-embed')) mountViewportApple();
+else {
+  document.documentElement.classList.add('page-ready', 'apple-home');
+  window.__vanokStampsAt = performance.now();
+}
 </script>
 </body>
 </html>

@@ -102,6 +102,8 @@
   // the circle's outer ring is 325.35 inside 326. This scale makes those outer
   // widths match. It does not change export viewBoxes or placed-stamp ink fractions.
   var APPLE_PREVIEW_SCALE = (325.349651 / 326) / (383.541548 / 500);
+  var APPLE_EDITOR_SCALE = APPLE_PREVIEW_SCALE * 0.95 * 0.91 * 0.8;
+  var APPLE_EDITOR_TEXT_SCALE = APPLE_PREVIEW_SCALE * 0.91 * 0.8;
 
   // Ink stays inside the bold outer contour. The path is a clip only.
   var INK_CLIP = {
@@ -281,10 +283,11 @@
   modal.hidden = true;
   modal.innerHTML =
     '<div class="sig-editor" inert>' +
-      '<div class="sig-head"><div class="sig-head-side">' +
-        '<button type="button" class="sig-back" aria-label="Back"></button>' +
-        '<p class="sig-title">Draw Signature</p>' +
-      '</div><button type="button" class="sig-close" aria-label="Close"></button></div>' +
+      '<div class="sig-editor-head">' +
+        '<button type="button" class="sig-editor-back" aria-label="Back"><img src="design/stub/editor/back.svg" alt=""></button>' +
+        '<p class="sig-editor-title">Draw Signature</p>' +
+        '<button type="button" class="sig-create" aria-label="Create Signature"><img src="design/stub/editor/done.svg" alt=""></button>' +
+      '</div>' +
       '<div class="sig-stage">' +
           slideMarkup('stamp', 'design/stub/seal-circle-rings.svg', '0 0 326 326',
             'M297 163 A134 134 0 0 0 29 163 A134 134 0 0 0 296.99 163', '8') +
@@ -293,11 +296,16 @@
             '42%') +
       '</div>' +
       '<div class="sig-swatches"></div>' +
-      '<div class="sig-bar">' +
-        '<button type="button" class="sig-upload"><span class="sig-upload-mark" aria-hidden="true"></span>Upload Image</button>' +
-        '<button type="button" class="sig-create">Create Signature<span class="sig-create-mark" aria-hidden="true"></span></button>' +
-        '<input class="sig-file" type="file" accept="image/*" tabindex="-1" aria-hidden="true">' +
+      '<div class="sig-bar sig-toolbar" role="toolbar" aria-label="Signature tools">' +
+        '<button type="button" class="sig-tool sig-undo" aria-label="Undo" disabled><img src="design/stub/editor/undo.svg" alt=""></button>' +
+        '<button type="button" class="sig-tool sig-upload" aria-label="Image" aria-pressed="false"><img src="design/stub/editor/image.svg" alt=""></button>' +
+        '<button type="button" class="sig-tool sig-draw" aria-label="Draw" aria-pressed="true"><img src="design/stub/editor/draw.svg" alt=""></button>' +
+        '<button type="button" class="sig-tool sig-type" aria-label="Text" aria-pressed="false"><img src="design/stub/editor/text.svg" alt=""></button>' +
+        '<button type="button" class="sig-tool sig-redo" aria-label="Redo" disabled><img src="design/stub/editor/redo.svg" alt=""></button>' +
       '</div>' +
+      '<button type="button" class="sig-text-done">Done</button>' +
+      '<div class="sig-photo-orbit" hidden><button type="button" data-handle="top" aria-label="Resize and rotate image from top"><img src="design/stub/editor/handle.svg" alt=""></button><button type="button" data-handle="bottom" aria-label="Resize and rotate image from bottom"><img src="design/stub/editor/handle.svg" alt=""></button><button type="button" data-handle="left" aria-label="Resize and rotate image from left"><img src="design/stub/editor/handle.svg" alt=""></button><button type="button" data-handle="right" aria-label="Resize and rotate image from right"><img src="design/stub/editor/handle.svg" alt=""></button></div>' +
+      '<input class="sig-file" type="file" accept="image/*" tabindex="-1" aria-hidden="true">' +
       '<input id="sig-input" class="sig-input" type="text" maxlength="160" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Signature text">' +
     '</div>' +
     '<div class="sig-shapes" inert>' +
@@ -317,11 +325,46 @@
     '</div>';
   document.body.appendChild(modal);
   var applePreview = document.createElement('style');
-  applePreview.textContent =
-    '.sig-slide[data-kind="apple"] .sig-seal{transform:translate(-50%,-50%) scale(' + APPLE_PREVIEW_SCALE + ')}' +
-    '.sig-slide[data-kind="apple"] text{font-size:' + (13 * (VB.apple.w / 326) / APPLE_PREVIEW_SCALE) + 'px;-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
-    '.sig-shape[data-kind="apple"] .sig-shape-art{transform:scale(' + APPLE_PREVIEW_SCALE + ');transform-origin:center}';
+  var appleEditorVectorScale = 1.27;
+  var editorFontScale = 1.01;
+  var editorTextPathScale = 0.95;
+  function paintApplePreviewScale() {
+    applePreview.textContent =
+      '.sig-slide[data-kind="apple"] .sig-seal{transform:translate(-50%,-50%) scale(' + (APPLE_EDITOR_SCALE * appleEditorVectorScale) + ')}' +
+      '.sig-slide[data-kind="apple"] text{font-size:' + (13 * (VB.apple.w / 326) / APPLE_EDITOR_TEXT_SCALE * editorFontScale) + 'px;-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
+      '.sig-shape[data-kind="apple"] .sig-shape-art{transform:scale(' + APPLE_PREVIEW_SCALE + ');transform-origin:center}';
+  }
+  paintApplePreviewScale();
   document.head.appendChild(applePreview);
+  store.setEditorVectorScale = function (value) {
+    var scale = Number(value);
+    if (!isFinite(scale)) return appleEditorVectorScale;
+    appleEditorVectorScale = Math.max(0.4, Math.min(1.8, scale));
+    paintApplePreviewScale();
+    return appleEditorVectorScale;
+  };
+  store.setEditorFontScale = function (value) {
+    var scale = Number(value);
+    if (!isFinite(scale)) return editorFontScale;
+    editorFontScale = Math.max(0.5, Math.min(2.5, scale));
+    paintApplePreviewScale();
+    refitAppleText();
+    return editorFontScale;
+  };
+  store.setEditorTextPathScale = function (value) {
+    var scale = Number(value);
+    if (!isFinite(scale)) return editorTextPathScale;
+    editorTextPathScale = Math.max(0.5, Math.min(2, scale));
+    refitAppleText();
+    return editorTextPathScale;
+  };
+  store.getEditorControls = function () {
+    return {
+      vectorScale: appleEditorVectorScale,
+      fontScale: editorFontScale,
+      textPathScale: editorTextPathScale
+    };
+  };
 
   function slideMarkup(name, src, viewBox, path, offset) {
     var mask = 'url(' + src + ') center / 100% 100% no-repeat';
@@ -351,7 +394,7 @@
   COLORS.forEach(function (color, index) {
     var button = document.createElement('button');
     button.type = 'button';
-    button.style.background = color.hex;
+    button.style.setProperty('--swatch-color', color.hex);
     button.setAttribute('aria-label', color.name);
     if (index === colorIndex) button.className = 'on';
     button.addEventListener('click', function () {
@@ -369,6 +412,118 @@
   function selectedColor() { return COLORS[colorIndex]; }
 
   var editing = false;
+  var editorMode = 'draw';
+  var modeSnapshot = null;
+  var strokeSnapshot = null;
+  var history = { stamp: { undo: [], redo: [] }, apple: { undo: [], redo: [] } };
+  var orbit = editor.querySelector('.sig-photo-orbit');
+
+  function captureEditor() {
+    return {
+      text: texts[kind],
+      strokes: strokes[kind].map(function (stroke) {
+        return { color: stroke.color, points: stroke.points.map(function (point) { return { x: point.x, y: point.y }; }) };
+      }),
+      photo: photos[kind] ? Object.assign({}, photos[kind]) : null,
+      source: photoSources[kind]
+    };
+  }
+  function restoreEditor(snapshot) {
+    texts[kind] = snapshot.text;
+    strokes[kind] = snapshot.strokes;
+    photos[kind] = snapshot.photo ? Object.assign({}, snapshot.photo) : null;
+    photoSources[kind] = snapshot.source;
+    input.value = texts[kind];
+    paintText();
+    redraw(kind);
+  }
+  function rememberEditor(snapshot) {
+    if (!snapshot) return;
+    history[kind].undo.push(snapshot);
+    if (history[kind].undo.length > 40) history[kind].undo.shift();
+    history[kind].redo = [];
+    syncEditorTools();
+  }
+  function syncEditorTools() {
+    editor.dataset.mode = editorMode;
+    editor.querySelector('.sig-undo').disabled = !history[kind].undo.length;
+    editor.querySelector('.sig-redo').disabled = !history[kind].redo.length;
+    editor.querySelector('.sig-draw').setAttribute('aria-pressed', String(editorMode === 'draw'));
+    editor.querySelector('.sig-upload').setAttribute('aria-pressed', String(editorMode === 'image'));
+    editor.querySelector('.sig-type').setAttribute('aria-pressed', String(editorMode === 'text'));
+    editor.querySelector('.sig-create').setAttribute('aria-label', editorMode === 'draw' ? 'Create Signature' : 'Done');
+    syncPhotoOrbit();
+  }
+  function setEditorMode(mode) {
+    leaveDraw();
+    editorMode = mode;
+    drawing = null;
+    swipe = null;
+    pinch = null;
+    photoPointers = [];
+    syncEditorTools();
+    redraw(kind);
+    armInput();
+  }
+  function commitMode() {
+    if (modeSnapshot) rememberEditor(modeSnapshot);
+    modeSnapshot = null;
+    setEditorMode('draw');
+  }
+  function beginImageMode() {
+    if (!modeSnapshot) modeSnapshot = captureEditor();
+    setEditorMode('image');
+  }
+  function beginTextMode() {
+    if (editorMode !== 'draw') commitMode();
+    modeSnapshot = captureEditor();
+    var seal = editor.querySelector('.sig-slide.is-on .sig-seal');
+    editor.style.setProperty('--text-seal-width', seal.offsetWidth + 'px');
+    editor.style.setProperty('--text-seal-height', seal.offsetHeight + 'px');
+    editor.style.setProperty('--text-swatches-top', swatches.getBoundingClientRect().top + 'px');
+    setEditorMode('text');
+    beginEdit();
+  }
+  function syncPhotoOrbit() {
+    if (!orbit) return;
+    var photo = photos[kind];
+    orbit.hidden = editorMode !== 'image' || !photo || !editor.classList.contains('is-on');
+    if (orbit.hidden) return;
+    var seal = modal.querySelector('.sig-slide[data-kind="' + kind + '"] .sig-seal');
+    var rect = seal.getBoundingClientRect();
+    var hostRect = editor.getBoundingClientRect();
+    var unitX = rect.width / VB[kind].w;
+    var unitY = rect.height / VB[kind].h;
+    var width = photo.w * photo.fit * photo.userScale * unitX;
+    var height = photo.h * photo.fit * photo.userScale * unitY;
+    orbit.style.left = rect.left - hostRect.left + photo.cx * unitX + 'px';
+    orbit.style.top = rect.top - hostRect.top + photo.cy * unitY + 'px';
+    orbit.style.width = width + 'px';
+    orbit.style.height = height + 'px';
+    orbit.style.transform = 'translate(-50%, -50%) rotate(' + (photo.rotation || 0) + 'rad)';
+  }
+  editor.querySelector('.sig-draw').addEventListener('click', function () {
+    if (editorMode !== 'draw') commitMode();
+  });
+  editor.querySelector('.sig-type').addEventListener('click', beginTextMode);
+  editor.querySelector('.sig-text-done').addEventListener('click', commitMode);
+  editor.querySelector('.sig-editor-back').addEventListener('click', function () {
+    if (editorMode !== 'draw') commitMode();
+    openShapes();
+  });
+  ['undo', 'redo'].forEach(function (action) {
+    editor.querySelector('.sig-' + action).addEventListener('click', function () {
+      if (editorMode !== 'draw') commitMode();
+      var stack = history[kind];
+      var snapshot = stack[action].pop();
+      if (!snapshot) return;
+      stack[action === 'undo' ? 'redo' : 'undo'].push(captureEditor());
+      restoreEditor(snapshot);
+      syncEditorTools();
+    });
+  });
+
+
 
   function paintText() {
     ['stamp', 'apple'].forEach(function (name) {
@@ -377,8 +532,8 @@
       var text = path.parentNode.querySelector('text');
       var node = path.parentNode.querySelector('textPath');
       var value = texts[name];
-      var placeholder = !value && !(editing && name === kind);
-      node.textContent = placeholder ? 'Type Here...' : (value || '');
+      var placeholder = false;
+      node.textContent = placeholder ? 'Type Here...' : (value || '').replace(/ /g, '\u00a0');
       text.setAttribute('fill', selectedColor().hex);
       text.setAttribute('fill-opacity', placeholder ? '0.45' : '1');
     });
@@ -468,7 +623,7 @@
     return 'path("' + dAttr + ' Z")';
   }
   function armInput() {
-    if (modal.hidden || !editor.classList.contains('is-on')) {
+    if (modal.hidden || !editor.classList.contains('is-on') || editorMode !== 'text') {
       input.style.pointerEvents = 'none';
       input.style.clipPath = '';
       return;
@@ -503,6 +658,7 @@
   }
   function pinInput() { armInput(); }
   function trackInput() {
+    if (!modal.hidden && editor.classList.contains('is-on')) redraw(kind);
     if (!modal.hidden && editor.classList.contains('is-on')) armInput();
   }
   if (window.visualViewport) {
@@ -546,31 +702,33 @@
       void appleSlide.offsetWidth;
       var stampH = paintedLetterHeight(stampSlide);
       var appleH = paintedLetterHeight(appleSlide);
+      var targetH = stampH * editorFontScale;
       var guard = 0;
-      while (stampH > 0.5 && appleH > 0.5 && Math.abs(stampH - appleH) / stampH > 0.02 && guard < 4) {
+      while (targetH > 0.5 && appleH > 0.5 && Math.abs(targetH - appleH) / targetH > 0.02 && guard < 4) {
         guard += 1;
         var probe = appleSlide.querySelector('.sig-probe');
         var current = parseFloat(window.getComputedStyle(probe).fontSize) || 0;
         if (!(current > 0)) break;
-        var next = current * (stampH / appleH);
+        var next = current * (targetH / appleH);
         for (var n = 0; n < nodes.length; n++) nodes[n].style.fontSize = next + 'px';
         void appleSlide.offsetWidth;
         var again = paintedLetterHeight(appleSlide);
         if (!(again > 0.5) || Math.abs(again - appleH) < 0.25) break;
         appleH = again;
       }
-      result = { stampH: stampH, appleH: appleH };
+      result = { stampH: stampH, appleH: appleH, targetH: targetH };
     } finally {
       hidden.forEach(function (slide) { slide.style.display = ''; });
     }
     return result;
   }
   function enterEdit() {
+    if (editorMode !== 'text') return;
     var entering = !editing;
     editing = true;
     dismissEdit = false;
     if (entering) {
-      editingLock = true;
+      editingLock = !window.matchMedia('(max-width: 440px)').matches;
       var next = texts[kind] || '';
       if (input.value !== next) input.value = next;
       clearTimeout(beginEdit.timer);
@@ -582,7 +740,9 @@
     placeCaret();
   }
   function beginEdit() {
+    if (editorMode !== 'text') return;
     enterEdit();
+    armInput();
     if (document.activeElement === input) return;
     try { input.focus({ preventScroll: true }); }
     catch (err) { input.focus(); }
@@ -645,9 +805,10 @@
       w: dithered.w,
       h: dithered.h,
       userScale: 1,
+      rotation: 0,
       cx: vb.w / 2,
       cy: vb.h / 2,
-      fit: Math.max(vb.w / dithered.w, vb.h / dithered.h)
+      fit: (name === 'apple' ? 360 : 318) / dithered.w
     };
     tintPhoto(photo, selectedColor().hex);
     photos[name] = photo;
@@ -662,7 +823,7 @@
     photo.mask = dithered.mask;
     photo.w = dithered.w;
     photo.h = dithered.h;
-    photo.fit = Math.max(vb.w / dithered.w, vb.h / dithered.h);
+    photo.fit = (name === 'apple' ? 360 : 318) / dithered.w;
     tintPhoto(photo, selectedColor().hex);
     redraw(name);
   }
@@ -693,7 +854,11 @@
     if (!photo || !photo.tinted) return;
     var dw = photo.w * photo.fit * photo.userScale;
     var dh = photo.h * photo.fit * photo.userScale;
-    ctx.drawImage(photo.tinted, photo.cx - dw / 2, photo.cy - dh / 2, dw, dh);
+    ctx.save();
+    ctx.translate(photo.cx, photo.cy);
+    ctx.rotate(photo.rotation || 0);
+    ctx.drawImage(photo.tinted, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
   }
   function applyInk() {
     var hex = selectedColor().hex;
@@ -736,6 +901,12 @@
       ctx.setTransform(2, 0, 0, 2, 0, 0);
       ctx.clearRect(0, 0, vb.w, vb.h);
     }
+    if (name === kind && editorMode === 'image') {
+      ctx.save();
+      ctx.globalAlpha = 0.1;
+      drawPhoto(ctx, name);
+      ctx.restore();
+    }
     ctx.save();
     clipDrawing(ctx, name);
     drawPhoto(ctx, name);
@@ -757,6 +928,7 @@
       ctx.stroke();
     });
     ctx.restore();
+    if (name === kind) syncPhotoOrbit();
   }
   applyInk();
 
@@ -808,7 +980,7 @@
     if (!svg || !svg.clientWidth) return 0;
     // One line at the 326-wide seal, in viewBox units. A live pixel inset
     // would stay put while the shape grows with the screen.
-    return 13 * VB.apple.w / 326;
+    return 13 * editorFontScale * VB.apple.w / 326;
   }
   function refitAppleText() {
     var path = document.getElementById('sig-path-apple');
@@ -850,6 +1022,16 @@
       });
     }
     out = dropOffsetLoops(out);
+    if (editorTextPathScale !== 1) {
+      var pathCx = VB.apple.w / 2;
+      var pathCy = VB.apple.h / 2;
+      out = out.map(function (point) {
+        return {
+          x: pathCx + (point.x - pathCx) * editorTextPathScale,
+          y: pathCy + (point.y - pathCy) * editorTextPathScale
+        };
+      });
+    }
     // Text starts on the upper-left of the top arc. The contour used to end
     // back at the bottom, so a long string piled up there and never climbed
     // the left side. Spin the loop so that start is index 0, then trace it
@@ -911,6 +1093,7 @@
     var nextKind = next === 'apple' ? 'apple' : 'stamp';
     if (nextKind !== kind) editing = false;
     kind = nextKind;
+    syncEditorTools();
     modal.querySelectorAll('.sig-slide').forEach(function (slide) {
       slide.classList.toggle('is-on', slide.dataset.kind === kind);
     });
@@ -923,6 +1106,7 @@
   }
   window.addEventListener('resize', function () {
     if (modal.hidden) return;
+    redraw(kind);
     if (kind === 'apple') refitAppleText();
     else matchAppleLetterHeight();
     placeCaret();
@@ -930,7 +1114,7 @@
   });
 
   var swipe = null;
-  function rememberPointer(event) {
+  function rememberPointer(event, add) {
     for (var i = 0; i < photoPointers.length; i++) {
       if (photoPointers[i].id === event.pointerId) {
         photoPointers[i].x = event.clientX;
@@ -938,7 +1122,7 @@
         return;
       }
     }
-    photoPointers.push({ id: event.pointerId, x: event.clientX, y: event.clientY });
+    if (add) photoPointers.push({ id: event.pointerId, x: event.clientX, y: event.clientY });
   }
   function forgetPointer(id) {
     photoPointers = photoPointers.filter(function (pointer) { return pointer.id !== id; });
@@ -950,20 +1134,32 @@
       var name = canvas.parentNode.dataset.kind;
       if (name !== kind) return;
       var point = pointOf(event, canvas, name);
-      var hit = zone(name, point);
-      if (hit === 'text') {
-        if (event.pointerType !== 'mouse') {
-          swipe = { id: event.pointerId, x: event.clientX, y: event.clientY, name: name, point: point, hit: 'text', moved: false };
-          beginEdit();
+      if (editorMode === 'text') {
+        if (window.matchMedia('(max-width: 440px)').matches) return;
+        commitMode();
+      }
+      if (editorMode === 'image' && photos[name] && !photoPointers.length) {
+        var photo = photos[name];
+        var angle = photo.rotation || 0;
+        var dx = point.x - photo.cx;
+        var dy = point.y - photo.cy;
+        var localX = dx * Math.cos(angle) + dy * Math.sin(angle);
+        var localY = -dx * Math.sin(angle) + dy * Math.cos(angle);
+        var radiusX = photo.w * photo.fit * photo.userScale / 2;
+        var radiusY = photo.h * photo.fit * photo.userScale / 2;
+        if ((localX / radiusX) ** 2 + (localY / radiusY) ** 2 > 1) {
+          event.preventDefault();
+          commitMode();
           return;
         }
-        event.preventDefault();
-        event.stopPropagation();
-        beginEdit();
-        return;
       }
-      rememberPointer(event);
-      if (photos[name] && photoPointers.length >= 2) {
+      var hit = editorMode === 'image' ? 'photo' : 'draw';
+      if (event.pointerType === 'touch') {
+        if (photoPointers.length >= 2) return;
+        rememberPointer(event, true);
+      }
+      canvas.setPointerCapture(event.pointerId);
+      if (editorMode === 'image' && photos[name] && photoPointers.length >= 2) {
         if (drawing) {
           strokes[name].pop();
           drawing = null;
@@ -977,18 +1173,18 @@
           scale: photos[name].userScale,
           cx: photos[name].cx,
           cy: photos[name].cy,
-          mx: (a.x + b.x) / 2,
-          my: (a.y + b.y) / 2
+          anchor: pointOf({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }, canvas, name)
         };
         swipe = { id: event.pointerId, name: name, hit: 'pinch', moved: true };
         event.preventDefault();
         return;
       }
+      if (photoPointers.length > 1) return;
       swipe = { id: event.pointerId, x: event.clientX, y: event.clientY, name: name, point: point, hit: hit, moved: false };
       if (hit === 'draw') {
+        strokeSnapshot = captureEditor();
         drawing = { color: selectedColor().hex, points: [point] };
         strokes[name].push(drawing);
-        canvas.setPointerCapture(event.pointerId);
       }
       event.preventDefault();
     });
@@ -1000,14 +1196,11 @@
         var photo = photos[pinch.name];
         var dist = Math.hypot(a.x - b.x, a.y - b.y) || 1;
         var next = Math.max(0.35, Math.min(6, pinch.scale * dist / pinch.dist));
-        var seal = canvas.parentNode.querySelector('.sig-seal');
-        var rect = seal.getBoundingClientRect();
-        var vb = VB[pinch.name];
-        var mx = (a.x + b.x) / 2;
-        var my = (a.y + b.y) / 2;
+        var center = pointOf({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }, canvas, pinch.name);
+        var ratio = next / pinch.scale;
         photo.userScale = next;
-        photo.cx = pinch.cx + (mx - pinch.mx) / Math.max(rect.width, 1) * vb.w;
-        photo.cy = pinch.cy + (my - pinch.my) / Math.max(rect.height, 1) * vb.h;
+        photo.cx = center.x + (pinch.cx - pinch.anchor.x) * ratio;
+        photo.cy = center.y + (pinch.cy - pinch.anchor.y) * ratio;
         redraw(pinch.name);
         event.preventDefault();
         return;
@@ -1016,7 +1209,13 @@
       var dx = event.clientX - swipe.x;
       var dy = event.clientY - swipe.y;
       if (Math.abs(dx) > 8 || Math.abs(dy) > 8) swipe.moved = true;
-      if (swipe.hit === 'text') return;
+      if (swipe.hit === 'photo' && photos[swipe.name]) {
+        var moved = pointOf(event, canvas, swipe.name);
+        photos[swipe.name].cx += moved.x - swipe.point.x;
+        photos[swipe.name].cy += moved.y - swipe.point.y;
+        swipe.point = moved;
+        redraw(swipe.name);
+      }
       if (drawing && swipe.hit === 'draw') {
         drawing.points.push(pointOf(event, canvas, swipe.name));
         redraw(swipe.name);
@@ -1024,28 +1223,63 @@
       event.preventDefault();
     });
     function finish(event) {
+      var wasPinching = !!pinch;
       forgetPointer(event.pointerId);
+      if (wasPinching && !pinch) swipe = null;
       if (!swipe || event.pointerId !== swipe.id) return;
       var was = swipe;
       if (was.hit === 'draw' && drawing && drawing.points.length < 2 && !was.moved) {
         strokes[was.name].pop();
         redraw(was.name);
       }
+      if (was.hit === 'draw' && drawing && drawing.points.length >= 2) rememberEditor(strokeSnapshot);
+      strokeSnapshot = null;
       drawing = null;
       swipe = null;
-      if (was.hit === 'text' && !was.moved) beginEdit();
     }
     canvas.addEventListener('pointerup', finish);
     canvas.addEventListener('pointercancel', finish);
+    canvas.addEventListener('lostpointercapture', finish);
     canvas.addEventListener('wheel', function (event) {
       var name = canvas.parentNode.dataset.kind;
       var photo = photos[name];
-      if (!photo || !editor.classList.contains('is-on') || name !== kind) return;
+      if (!photo || editorMode !== 'image' || !editor.classList.contains('is-on') || name !== kind) return;
       event.preventDefault();
       var point = pointOf(event, canvas, name);
       var next = photo.userScale * Math.exp(-event.deltaY * 0.0012);
       scalePhoto(name, photo, next, point);
     }, { passive: false });
+  });
+
+  var resizingPhoto = null;
+  orbit.querySelectorAll('button').forEach(function (handle) {
+    handle.addEventListener('pointerdown', function (event) {
+      if (editorMode !== 'image' || !photos[kind]) return;
+      event.preventDefault();
+      var rect = orbit.getBoundingClientRect();
+      resizingPhoto = {
+        id: event.pointerId, scale: photos[kind].userScale,
+        rotation: photos[kind].rotation || 0,
+        angle: Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2),
+        x: rect.left + rect.width / 2, y: rect.top + rect.height / 2,
+        distance: Math.max(1, Math.hypot(event.clientX - rect.left - rect.width / 2, event.clientY - rect.top - rect.height / 2))
+      };
+      handle.setPointerCapture(event.pointerId);
+    });
+    handle.addEventListener('pointermove', function (event) {
+      if (!resizingPhoto || resizingPhoto.id !== event.pointerId) return;
+      event.preventDefault();
+      var distance = Math.hypot(event.clientX - resizingPhoto.x, event.clientY - resizingPhoto.y);
+      var angle = Math.atan2(event.clientY - resizingPhoto.y, event.clientX - resizingPhoto.x);
+      photos[kind].rotation = resizingPhoto.rotation + angle - resizingPhoto.angle;
+      scalePhoto(kind, photos[kind], resizingPhoto.scale * distance / resizingPhoto.distance);
+    });
+    function finishResize(event) {
+      if (resizingPhoto && resizingPhoto.id === event.pointerId) resizingPhoto = null;
+    }
+    handle.addEventListener('pointerup', finishResize);
+    handle.addEventListener('pointercancel', finishResize);
+    handle.addEventListener('lostpointercapture', finishResize);
   });
 
   function syncFromInput() {
@@ -1054,10 +1288,13 @@
     placeCaret();
   }
   input.addEventListener('input', syncFromInput);
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') { event.preventDefault(); commitMode(); }
+  });
   input.addEventListener('keyup', placeCaret);
   input.addEventListener('click', placeCaret);
   input.addEventListener('focus', function () {
-    if (!editor.classList.contains('is-on')) return;
+    if (!editor.classList.contains('is-on') || editorMode !== 'text') return;
     enterEdit();
   });
   input.addEventListener('touchend', function () {
@@ -1065,6 +1302,10 @@
     if (document.activeElement !== input) beginEdit();
   });
   input.addEventListener('blur', function () {
+    if (editorMode === 'text' && !dismissEdit && window.matchMedia('(max-width: 440px)').matches) {
+      commitMode();
+      return;
+    }
     if (editingLock && !dismissEdit) {
       armInput();
       try { input.focus({ preventScroll: true }); }
@@ -1135,6 +1376,8 @@
     setScreen('editor');
     revealModal();
     showKind(nextKind || kind);
+    modeSnapshot = null;
+    setEditorMode('draw');
     armInput();
     requestAnimationFrame(function () {
       redraw('stamp');
@@ -1162,6 +1405,7 @@
     setScreen('library');
     revealModal();
     grid.scrollTop = 0;
+    library.scrollTop = 0;
     renderGrid(freshId, from);
   }
   function closeModal(done) {
@@ -1385,7 +1629,8 @@
       closeModal();
       return;
     }
-    if (editor.classList.contains('is-on')) openShapes();
+    if (editor.classList.contains('is-on') && editorMode !== 'draw') editor.querySelector('.sig-editor-back').click();
+    else if (editor.classList.contains('is-on')) openShapes();
     else if (shapes.classList.contains('is-on')) openLibrary();
     else closeModal();
   });
@@ -1393,19 +1638,54 @@
     if (event.code !== 'Escape' || modal.hidden || !modal.classList.contains('is-open')) return;
     event.preventDefault();
     event.stopPropagation();
-    if (editor.classList.contains('is-on')) openShapes();
+    if (editor.classList.contains('is-on') && editorMode !== 'draw') editor.querySelector('.sig-editor-back').click();
+    else if (editor.classList.contains('is-on')) openShapes();
     else if (shapes.classList.contains('is-on')) openLibrary();
     else closeModal();
   }, true);
 
+  var cardImageQueue = [];
+  var cardImageLoads = 0;
+  function loadCardImages() {
+    while (cardImageLoads < 3 && cardImageQueue.length) {
+      var img = cardImageQueue.shift();
+      if (!img.isConnected) continue;
+      img.parentNode.style.setProperty('--loader-width', img.parentNode.clientWidth + 'px');
+      cardImageLoads += 1;
+      img.onload = img.onerror = function () {
+        if (this.parentNode) {
+          this.parentNode.classList.remove('is-loading');
+          this.parentNode.removeAttribute('aria-busy');
+        }
+        cardImageLoads -= 1;
+        loadCardImages();
+      };
+      img.src = img.dataset.src;
+    }
+  }
+  var cardImageObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      cardImageObserver.unobserve(entry.target);
+      cardImageQueue.push(entry.target);
+    });
+    loadCardImages();
+  }, { root: grid, rootMargin: '200px 0px' });
+
   function cardNode(item) {
     var card = document.createElement('div');
-    card.className = 'sig-card';
+    card.className = 'sig-card is-loading';
+    card.setAttribute('aria-busy', 'true');
     card.dataset.id = item.id;
+    if (item.kind === 'apple' && !item.preset && Number(item.createdAt) >= 1794955554000) {
+      card.setAttribute('data-expanded-export', '');
+    }
     var img = document.createElement('img');
     img.alt = '';
     img.draggable = false;
-    img.src = item.src;
+    img.decoding = 'async';
+    img.crossOrigin = 'anonymous';
+    img.dataset.src = item.src;
     card.appendChild(img);
     if (pending && pending.id === item.id) card.classList.add('is-armed');
     return card;
@@ -1429,8 +1709,13 @@
   }
   function renderGrid(freshId, from) {
     var list = catalog();
+    library.querySelector('.sig-title').textContent = 'Signature Library';
+    document.dispatchEvent(new Event('vanok-catalog'));
     var nodes = [addCard()].concat(list.map(cardNode));
+    cardImageObserver.disconnect();
+    cardImageQueue = [];
     grid.replaceChildren.apply(grid, nodes);
+    grid.querySelectorAll('img[data-src]').forEach(function (img) { cardImageObserver.observe(img); });
     if (!freshId || !from || from.width < 1) return;
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) return;
@@ -1554,8 +1839,8 @@
       var path = document.getElementById('sig-path-' + name);
       var offset = path.parentNode.querySelector('textPath').getAttribute('startOffset') || '0';
       letters = '<path id="sig-export-path" d="' + xmlEscape(path.getAttribute('d')) + '" fill="none"/>' +
-        '<text fill="' + hex + '" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="' + (name === 'apple' ? 13 / APPLE_PREVIEW_SCALE * (VB.apple.w / 326) : 13) + '">' +
-        '<textPath href="#sig-export-path" startOffset="' + xmlEscape(offset) + '">' + xmlEscape(value) + '</textPath></text>';
+        '<text xml:space="preserve" style="white-space:pre" fill="' + hex + '" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="' + (name === 'apple' ? 13 / APPLE_PREVIEW_SCALE * (VB.apple.w / 326) * editorFontScale : 13) + '">' +
+        '<textPath href="#sig-export-path" startOffset="' + xmlEscape(offset) + '">' + xmlEscape(value.replace(/ /g, '\u00a0')) + '</textPath></text>';
     }
     var picture = '';
     if (photos[name] && photos[name].tinted) {
@@ -1570,9 +1855,17 @@
       shotCtx.restore();
       picture = '<image href="' + shot.toDataURL('image/webp', 0.9) + '" x="0" y="0" width="' + vb.w + '" height="' + vb.h + '"/>';
     }
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + vb.w + ' ' + vb.h + '" width="539" height="539" preserveAspectRatio="none">' +
+    var vectorScale = name === 'apple' ? appleEditorVectorScale : 1;
+    var transform = vectorScale === 1 ? '' : ' transform="translate(' + (vb.w / 2) + ' ' + (vb.h / 2) + ') scale(' + vectorScale + ') translate(' + (-vb.w / 2) + ' ' + (-vb.h / 2) + ')"';
+    // Leave room for the scaled vector, including the apple stem and stroke.
+    var exportScale = Math.max(1, vectorScale);
+    var exportWidth = vb.w * exportScale;
+    var exportHeight = vb.h * exportScale;
+    var exportX = (vb.w - exportWidth) / 2;
+    var exportY = (vb.h - exportHeight) / 2;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + exportX + ' ' + exportY + ' ' + exportWidth + ' ' + exportHeight + '" width="539" height="539" preserveAspectRatio="none">' +
       '<defs>' + clipMarkup(name) + '</defs>' +
-      rings + '<g clip-path="url(#sig-ink-clip)">' + picture + strokeMarkup(name, hex) + '</g>' + letters + '</svg>';
+      '<g' + transform + '>' + rings + '<g clip-path="url(#sig-ink-clip)">' + picture + strokeMarkup(name, hex) + '</g>' + letters + '</g></svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
@@ -1616,20 +1909,32 @@
   }
 
   var fileInput = modal.querySelector('.sig-file');
+  fileInput.addEventListener('cancel', function () {
+    if (editorMode === 'draw') modeSnapshot = null;
+  });
   modal.querySelector('.sig-upload').addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
+    if (editorMode === 'text') commitMode();
+    if (photos[kind] && editorMode !== 'image') {
+      beginImageMode();
+      return;
+    }
+    if (!modeSnapshot) modeSnapshot = captureEditor();
+    leaveDraw();
     fileInput.value = '';
     fileInput.click();
   });
   fileInput.addEventListener('change', function () {
     var file = fileInput.files && fileInput.files[0];
     if (!file) return;
+    var photoKind = kind;
     var url = URL.createObjectURL(file);
     var img = new Image();
     img.onload = function () {
       URL.revokeObjectURL(url);
-      placePhoto(kind, img);
+      if (kind === photoKind && editor.classList.contains('is-on')) setEditorMode('image');
+      placePhoto(photoKind, img);
     };
     img.onerror = function () { URL.revokeObjectURL(url); };
     img.src = url;
@@ -1639,6 +1944,10 @@
   modal.querySelector('.sig-create').addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
+    if (editorMode !== 'draw') {
+      commitMode();
+      if (window.matchMedia('(max-width: 440px)').matches) return;
+    }
     if (creatingSeal) return;
     var color = selectedColor();
     var madeKind = kind;
@@ -1657,6 +1966,7 @@
         localOnly: true
       };
       items.unshift(item);
+      history[madeKind] = { undo: [], redo: [] };
       texts[madeKind] = '';
       strokes[madeKind] = [];
       photos[madeKind] = null;

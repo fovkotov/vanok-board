@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vanök — case previews</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #d7d7d7; font-family: Arial, sans-serif; }
+.case { position: relative; aspect-ratio: 1440 / 800; container-type: inline-size; overflow: hidden; margin-bottom: 12px; }
+.case-cover-plane { width: 1440px !important; height: 800px !important; transform: scale(calc(100cqw / 1440px)); transform-origin: top left; }
+.case-cover-caption { margin: 0; }
+[data-preview], [data-preview-group] { pointer-events: auto !important; cursor: zoom-in; }
+.preview { position: absolute; z-index: 30; inset: 0; pointer-events: none; }
+.preview[hidden] { display: none; }
+.preview * { pointer-events: none !important; }
+.preview > :is(img, video) { position: absolute; inset: 20% 20%; width: 60%; height: 60%; object-fit: contain; }
+.case:has(.preview:not([hidden])) .case-cover-caption { visibility: hidden; }
+.preview-group { position: absolute; left: 50%; top: 50%; width: 1440px; height: 800px; transform-origin: top left; transform: scale(5.45) translate(-483.43px, -727px); }
+</style>
+<main></main>
+<script type="module">
+import { CASE_COVERS } from './design/case-covers/cases.js?v=wild-east-tint';
+const main = document.querySelector('main');
+
+for (const entry of CASE_COVERS) {
+  const section = document.createElement('section');
+  section.className = 'case';
+  section.setAttribute('aria-label', entry.title);
+  section.innerHTML = entry.html;
+  const plane = section.querySelector('.case-cover-plane');
+  const overlay = document.createElement('div');
+  overlay.className = 'preview';
+  overlay.hidden = true;
+  overlay.setAttribute('aria-hidden', 'true');
+  plane.append(overlay);
+  const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
+  let active = null;
+  const hide = () => {
+    active = null;
+    overlay.hidden = true;
+    overlay.replaceChildren();
+  };
+  const show = thumb => {
+    active = thumb;
+    if (thumb.hasAttribute('data-preview-group')) {
+      const composite = document.createElement('div');
+      composite.className = 'preview-group';
+      if (thumb.dataset.previewGroup === 'self') {
+        const clone = thumb.cloneNode(true);
+        const width = thumb.offsetWidth;
+        const height = thumb.offsetHeight;
+        const scale = Math.min(1440 * .56 / width, 800 * .59 / height);
+        Object.assign(clone.style, {inset: '0 auto auto 0', width: width + 'px', height: height + 'px'});
+        composite.style.transform = `scale(${scale}) translate(${-width / 2}px, ${-height / 2}px)`;
+        composite.append(clone);
+      } else {
+        composite.append(thumb.parentElement.cloneNode(true));
+      }
+      overlay.replaceChildren(composite);
+    } else if (thumb.dataset.previewVideo) {
+      const video = document.createElement('video');
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.poster = thumb.currentSrc || thumb.dataset.preview;
+      video.src = thumb.dataset.previewVideo;
+      overlay.replaceChildren(video);
+      video.play().catch(() => {});
+    } else {
+      const art = new Image();
+      art.alt = '';
+      art.src = thumb.currentSrc || thumb.dataset.preview;
+      overlay.replaceChildren(art);
+      const highRes = new Image();
+      highRes.src = thumb.dataset.preview;
+      highRes.decode().then(() => {
+        if (active === thumb) art.src = highRes.src;
+      }).catch(() => {});
+    }
+    overlay.hidden = false;
+  };
+  for (const thumb of thumbs) {
+    thumb.addEventListener('pointerenter', event => {
+      if (event.pointerType !== 'touch') show(thumb);
+    });
+    thumb.addEventListener('pointerleave', () => {
+      if (active === thumb) hide();
+    });
+    thumb.addEventListener('click', () => {
+      if (active !== thumb) show(thumb);
+    });
+  }
+  section.addEventListener('pointerleave', hide);
+  section.addEventListener('click', event => {
+    if (!event.target.closest('[data-preview], [data-preview-group]')) hide();
+  });
+  for (const img of plane.querySelectorAll('img[data-src]')) {
+    img.loading = 'lazy';
+    img.src = img.dataset.src;
+  }
+  const videos = plane.querySelectorAll('video[data-src]');
+  if (videos.length) {
+    const observer = new IntersectionObserver(entries => {
+      for (const { target, isIntersecting } of entries) {
+        if (isIntersecting) {
+          if (!target.src) target.src = target.dataset.src;
+          target.play().catch(() => {});
+        } else target.pause();
+      }
+    });
+    videos.forEach(video => observer.observe(video));
+  }
+  main.append(section);
+}
+</script>
+</html>
