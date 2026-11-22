@@ -1623,8 +1623,9 @@
 </script>
 
 <script type="module">
-import { CASE_COVERS } from './design/case-covers/cases.js?v=corrected-previews';
-import { revealPoster } from './design/case-covers/poster-reveal.js?v=2';
+import { CASE_COVERS } from './design/case-covers/cases.js?v=glossy-hd';
+import { revealPoster } from './design/case-covers/poster-reveal.js?v=3';
+import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=2';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -1702,6 +1703,7 @@ function mountCaseCovers(root) {
     overlay.setAttribute('aria-hidden', 'true');
     plane.append(overlay);
     const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
+    const showVideo = preparePreviewVideos(plane);
     let active = null;
     let stopReveal = () => {};
     const hide = () => {
@@ -1740,28 +1742,23 @@ function mountCaseCovers(root) {
         }
         overlay.replaceChildren(composite);
       } else if (thumb.dataset.previewVideo) {
-        const video = document.createElement('video');
-        video.className = 'case-hover-art';
-        video.muted = true;
-        video.loop = true;
-        video.playsInline = true;
-        video.poster = thumb.currentSrc || thumb.dataset.preview;
-        video.src = thumb.dataset.previewVideo;
-        overlay.replaceChildren(video);
-        video.play().catch(() => {});
+        stopReveal = showVideo(thumb, overlay, 'case-hover-art');
       } else {
         const art = new Image();
         art.alt = '';
         art.className = 'case-hover-art';
-        art.src = thumb.currentSrc || thumb.dataset.preview;
+        const fullSize = new URL(thumb.dataset.preview, document.baseURI).href;
+        const isPoster = thumb.hasAttribute('data-poster-reveal');
+        const thumbnail = thumb instanceof HTMLImageElement ? thumb : thumb.querySelector('img');
+        art.src = isPoster ? fullSize : thumbnail?.currentSrc || thumbnail?.src || thumbnail?.dataset.src || fullSize;
         overlay.replaceChildren(art);
-        if (thumb.hasAttribute('data-poster-reveal')) {
-          stopReveal = revealPoster(art, thumb.dataset.preview);
-        } else if (art.src !== new URL(thumb.dataset.preview, document.baseURI).href) {
+        if (isPoster) {
+          stopReveal = revealPoster(art, fullSize);
+        } else if (art.src !== fullSize) {
           const highRes = new Image();
-          highRes.src = thumb.dataset.preview;
+          highRes.src = fullSize;
           highRes.decode().then(() => {
-            if (active === thumb) art.src = highRes.src;
+            if (active === thumb && art.parentElement === overlay) art.src = fullSize;
           }).catch(() => {});
         }
       }

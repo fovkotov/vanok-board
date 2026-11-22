@@ -143,7 +143,7 @@ export const CASE_COVERS = [
         <img data-preview="design/case-covers/current/wild-east/a6075.svg" alt="" decoding="async" draggable="false" data-src="design/case-covers/current/wild-east/a6075.svg" style="position:absolute;display:block;inset:0;max-width:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9688" data-name="cofef 1" style="position:absolute;inset:2.5% 83.68% 87% 7.08%">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/wild-east/428f2.webp" data-preview-video="design/board/jacket.webm" data-src="design/case-covers/current/wild-east/428f2.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/wild-east/428f2.webp" data-preview-video-preload data-preview-video="design/board/jacket.webm" data-src="design/case-covers/current/wild-east/428f2.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9689" style="position:absolute;display:contents;left:calc(22.22% + 117px);top:7px">
         <div data-node-id="850:9690" style="position:absolute;display:flex;height:104.093px;align-items:center;justify-content:center;left:calc(22.22% + 117px);top:7px;width:60.911px">
@@ -160,8 +160,8 @@ export const CASE_COVERS = [
       <div data-node-id="850:9692" data-name="Layer 18" style="position:absolute;height:72px;left:calc(77.78% + 115px);top:29px;width:70px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/wild-east/d7d39.webp" data-src="design/case-covers/current/wild-east/d7d39.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
       </div>
-      <div data-node-id="850:9693" data-name="ventonyl 19" style="position:absolute;height:90px;left:calc(33.33% + 109px);top:16px;width:104.469px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/wild-east/119cf.webp" data-preview-video="design/board/ventonyl.webm" data-src="design/case-covers/current/wild-east/119cf.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
+      <div data-node-id="896:11393" data-name="Слой 19" style="position:absolute;height:90px;left:calc(33.33% + 131.735px);top:16px;width:59px">
+        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/current/wild-east/ventonyl-jar.png" data-preview-video="design/board/ventonyl.webm" data-src="design/case-covers/current/wild-east/ventonyl-jar.png" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9694" data-name="Group" data-preview-group="self" style="position:absolute;inset:90% 62.84% 5.85% 30.56%">
         <div data-node-id="850:9695" data-name="Group" style="position:absolute;inset:72.29% 13.18% 0 10.61%">
