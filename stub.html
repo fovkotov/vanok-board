@@ -1732,6 +1732,7 @@ const embedParams = new URLSearchParams(location.search);
 if (embedParams.get('embed') === 'stamps') {
   document.documentElement.classList.add('stamps-embed');
   if (embedParams.get('surface') === 'dialog') document.documentElement.classList.add('dialog-stamps');
+  if (embedParams.get('surface') === 'signoff') document.documentElement.classList.add('signoff-stamps');
   addEventListener('wheel', e => {
     e.preventDefault();
     parent.postMessage({type:'vanok-scroll', delta:e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1)}, location.origin);
@@ -1751,6 +1752,8 @@ html.stamps-embed .stamp-panel { display: none !important; }
 html.stamps-embed .frame .sign { left: 50%; top: 50%; width: min(304px, 65vw); transform: translate(-50%, -50%); }
 html.stamps-embed .frame .sign p { top: 10px; font-size: 16px; }
 html.dialog-stamps .frame .sign { display: none; }
+html.signoff-stamps,
+html.signoff-stamps :is(body, .frame) { background: transparent; }
 </style>
 </head>
 <body>

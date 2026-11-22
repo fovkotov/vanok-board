@@ -90,7 +90,7 @@ export const CASE_COVERS = [
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/euphoria/f49dd.webp" data-src="design/case-covers/current/euphoria/f49dd.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9589" data-name="euphoria_tour_wip_2_2 1" style="position:absolute;height:80px;left:calc(44.44% + 129px);top:24px;width:59px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/euphoria/8a513.webp" data-src="design/case-covers/current/euphoria/8a513.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/euphoria/8a513.webp" data-src="design/case-covers/current/euphoria/8a513.webp" style="position:absolute;inset:0;max-width:none;object-fit:cover;pointer-events:none;width:100%;height:100%;display:block">
       </div>
     </div>`
 },
@@ -277,28 +277,28 @@ export const CASE_COVERS = [
       </div>
       <p data-node-id="850:9898" class="case-cover-caption" style="overflow-wrap:break-word;position:absolute;font-family:Arial,Arial,sans-serif;height:16px;line-height:normal;left:720px;font-style:normal;font-size:14px;text-align:center;color:#fff;top:calc(25% + 192px);width:1200px;transform:translateX(-50%);margin:0;text-shadow:none">Creative Direction, Art Direction, Design, Education for Kaik </p>
       <div data-node-id="850:9899" data-name="Thumb 1" style="position:absolute;height:90px;left:112.22px;top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/0e5ce.webp" data-src="design/case-covers/current/kaik/0e5ce.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/0e5ce.webp" data-src="design/case-covers/current/kaik/0e5ce.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9901" data-name="Thumb 3" style="position:absolute;height:90px;left:calc(22.22% + 106.88px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/d9c8e.webp" data-src="design/case-covers/current/kaik/d9c8e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/d9c8e.webp" data-src="design/case-covers/current/kaik/d9c8e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9904" data-name="Thumb 6" style="position:absolute;height:90px;left:calc(55.56% + 98.88px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/739a3.webp" data-src="design/case-covers/current/kaik/739a3.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/739a3.webp" data-src="design/case-covers/current/kaik/739a3.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9906" data-name="Thumb 8" style="position:absolute;height:90px;left:calc(77.78% + 93.55px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/f01da.webp" data-src="design/case-covers/current/kaik/f01da.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/f01da.webp" data-src="design/case-covers/current/kaik/f01da.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9907" data-name="Thumb 9" style="position:absolute;height:90px;left:112.22px;top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/46eea.webp" data-src="design/case-covers/current/kaik/46eea.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/46eea.webp" data-src="design/case-covers/current/kaik/46eea.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9909" data-name="Thumb 11" style="position:absolute;height:90px;left:calc(22.22% + 106.88px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/d290b.webp" data-src="design/case-covers/current/kaik/d290b.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/d290b.webp" data-src="design/case-covers/current/kaik/d290b.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9912" data-name="Thumb 14" style="position:absolute;height:90px;left:calc(55.56% + 98.88px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/5403e.webp" data-src="design/case-covers/current/kaik/5403e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/5403e.webp" data-src="design/case-covers/current/kaik/5403e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9914" data-name="Thumb 16" style="position:absolute;height:90px;left:calc(77.78% + 93.55px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/kaik/dfb25.webp" data-src="design/case-covers/current/kaik/dfb25.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/kaik/dfb25.webp" data-src="design/case-covers/current/kaik/dfb25.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
     </div>`
 },
@@ -451,10 +451,10 @@ export const CASE_COVERS = [
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/glukoza/b9eab.webp" data-src="design/case-covers/current/glukoza/b9eab.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9862" data-name="Thumb 2" style="position:absolute;height:90px;left:calc(11.11% + 109.55px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/glukoza/976c1.webp" data-src="design/case-covers/current/glukoza/976c1.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/glukoza/976c1.webp" data-src="design/case-covers/current/glukoza/976c1.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9864" data-name="Thumb 4" style="position:absolute;height:90px;left:calc(33.33% + 104.22px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/glukoza/d70eb.webp" data-src="design/case-covers/current/glukoza/d70eb.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/glukoza/d70eb.webp" data-src="design/case-covers/current/glukoza/d70eb.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9865" data-name="Thumb 5" style="position:absolute;height:90px;left:calc(44.44% + 101.55px);top:19px;width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/glukoza/a52a2.webp" data-src="design/case-covers/current/glukoza/a52a2.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
@@ -615,19 +615,19 @@ export const CASE_COVERS = [
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/002d7.webp" data-src="design/case-covers/current/feduk/002d7.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9889" data-name="Thumb 10" style="position:absolute;height:90px;left:calc(11.11% + 109.55px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/c76fa.webp" data-src="design/case-covers/current/feduk/c76fa.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/feduk/c76fa.webp" data-src="design/case-covers/current/feduk/c76fa.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9890" data-name="Thumb 11" style="position:absolute;height:90px;left:calc(22.22% + 106.88px);top:calc(75% + 91px);width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/289b3.webp" data-src="design/case-covers/current/feduk/289b3.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9891" data-name="Thumb 12" style="position:absolute;height:90px;left:calc(33.33% + 104.22px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/3d062.webp" data-src="design/case-covers/current/feduk/3d062.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/feduk/3d062.webp" data-src="design/case-covers/current/feduk/3d062.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9892" data-name="Thumb 13" style="position:absolute;height:90px;left:calc(44.44% + 101.55px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/7de0e.webp" data-src="design/case-covers/current/feduk/7de0e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/feduk/7de0e.webp" data-src="design/case-covers/current/feduk/7de0e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9893" data-name="Thumb 14" style="position:absolute;height:90px;left:calc(55.56% + 98.88px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/69478.webp" data-src="design/case-covers/current/feduk/69478.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/feduk/69478.webp" data-src="design/case-covers/current/feduk/69478.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9894" data-name="Thumb 15" style="position:absolute;height:90px;left:calc(66.67% + 96.22px);top:calc(75% + 91px);width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/feduk/f2cdf.webp" data-src="design/case-covers/current/feduk/f2cdf.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
@@ -670,7 +670,7 @@ export const CASE_COVERS = [
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/ooes/40df7.webp" data-src="design/case-covers/current/ooes/40df7.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9924" data-name="Thumb 7" style="position:absolute;height:90px;left:calc(66.67% + 96.22px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/ooes/a2d07.webp" data-src="design/case-covers/current/ooes/a2d07.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/ooes/a2d07.webp" data-src="design/case-covers/current/ooes/a2d07.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9925" data-name="Thumb 8" style="position:absolute;height:90px;left:calc(77.78% + 93.55px);top:19px;width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/ooes/06af3.webp" data-src="design/case-covers/current/ooes/06af3.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
@@ -711,25 +711,25 @@ export const CASE_COVERS = [
       <div data-node-id="850:9935" data-name="Cover" style="position:absolute;height:800px;left:0;top:0;width:1440px"><video muted loop playsinline preload="none" poster="design/case-covers/current/sub-urban/sub-background.webp" data-src="design/case-covers/current/sub-urban/background.mp4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none"></video></div>
       <p data-node-id="850:9936" class="case-cover-caption" style="overflow-wrap:break-word;position:absolute;font-family:Arial,Arial,sans-serif;height:16px;line-height:normal;left:720px;font-style:normal;font-size:14px;text-align:center;color:#fff;top:calc(25% + 192px);width:1200px;transform:translateX(-50%);margin:0;text-shadow:none">Titles, lettering &amp; posters for Sub Urban</p>
       <div data-node-id="850:9937" data-name="Thumb 1" style="position:absolute;height:90px;left:112.22px;top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/58846.webp" data-src="design/case-covers/current/sub-urban/58846.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/sub-urban/58846.webp" data-src="design/case-covers/current/sub-urban/58846.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9939" data-name="Thumb 3" style="position:absolute;height:90px;left:calc(22.22% + 106.88px);top:19px;width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/e6629.webp" data-src="design/case-covers/current/sub-urban/e6629.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9942" data-name="Thumb 6" style="position:absolute;height:90px;left:calc(55.56% + 98.88px);top:19px;width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/eceb0.webp" data-src="design/case-covers/current/sub-urban/eceb0.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/sub-urban/eceb0.webp" data-src="design/case-covers/current/sub-urban/eceb0.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9944" data-name="Thumb 8" style="position:absolute;height:90px;left:calc(77.78% + 93.55px);top:19px;width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/c023b.webp" data-src="design/case-covers/current/sub-urban/c023b.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9945" data-name="Thumb 9" style="position:absolute;height:90px;left:112.22px;top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/6ab65.webp" data-src="design/case-covers/current/sub-urban/6ab65.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/sub-urban/6ab65.webp" data-src="design/case-covers/current/sub-urban/6ab65.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9949" data-name="Thumb 13" style="position:absolute;height:90px;left:calc(44.44% + 101.55px);top:calc(75% + 91px);width:114.231px">
         <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/0b34e.webp" data-src="design/case-covers/current/sub-urban/0b34e.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
       <div data-node-id="850:9952" data-name="Thumb 16" style="position:absolute;height:90px;left:calc(77.78% + 93.55px);top:calc(75% + 91px);width:114.231px">
-        <img alt="" decoding="async" draggable="false" data-preview="design/case-covers/preview-assets/sub-urban/6a8b2.webp" data-src="design/case-covers/current/sub-urban/6a8b2.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
+        <img alt="" decoding="async" draggable="false" data-poster-reveal data-preview="design/case-covers/preview-assets/sub-urban/6a8b2.webp" data-src="design/case-covers/current/sub-urban/6a8b2.webp" style="position:absolute;inset:0;max-width:none;object-fit:contain;pointer-events:none;width:100%;height:100%;display:block">
       </div>
     </div>`
 },

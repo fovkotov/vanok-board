@@ -13,6 +13,7 @@
      Хедер и палитра — классический тизер (vanok-teaser/index.html): один синий вордмарк в 12px от верха. */
   :root {
     --bg: #E9E9E9;
+    --board-bg: #d7d7d7;
     --blue: #0A1AE9;
     --blue-fill: #0A1AE9;
     --blue-on: #e1e1e1;
@@ -730,6 +731,7 @@
     inset: 0;
     z-index: 4;
     height: 100%;
+    background: var(--board-bg);
     overflow: hidden;
     transform: translateY(100%);
     font-size: clamp(14px, 1.2vw, 18px);
@@ -1467,7 +1469,7 @@
     }
   }
 
-  body[data-route="board"], html:has(body[data-route="board"]), body[data-route="board"] .escalator { background: #d7d7d7; }
+  body[data-route="board"], html:has(body[data-route="board"]), body[data-route="board"] .escalator { background: var(--board-bg); }
   body[data-route="board"] .chrome { transform: translateY(var(--intro-header-top, calc(50dvh - 55px))); height: 40px; }
   body[data-route="board"] .header-apple { transform: none; }
   body[data-route="board"] .chrome .ig-link { left: 74.375%; }
@@ -1562,9 +1564,24 @@
   }
   .route-dialog-copy img { width: 100%; height: auto; }
   .route-dialog-copy p { margin: 0; text-align: center; font-size: calc(14 * var(--k)); }
+  .desktop-notice { display: none; }
+  @media (hover: none) and (pointer: coarse) {
+    body > :not(.desktop-notice) { display: none !important; }
+    .desktop-notice {
+      display: grid;
+      place-items: center;
+      min-height: 100dvh;
+      margin: 0;
+      padding: 24px;
+      text-align: center;
+      color: var(--blue);
+      font: 14px var(--grotesk);
+    }
+  }
 </style>
 </head>
 <body>
+<p class="desktop-notice">For now, this site is only available on desktop.</p>
 <div id="stage" aria-hidden="true"></div>
 <script>
 (function () {
@@ -1606,7 +1623,8 @@
 </script>
 
 <script type="module">
-import { CASE_COVERS } from './design/case-covers/cases.js?v=wild-east-tint';
+import { CASE_COVERS } from './design/case-covers/cases.js?v=poster-reveal';
+import { revealPoster } from './design/case-covers/poster-reveal.js?v=2';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -1620,6 +1638,7 @@ const APPLE_D = 304;
 const G = 2.35;
 
 const app = document.getElementById('app');
+const mobileNotice = matchMedia('(hover: none) and (pointer: coarse)');
 const emailLink = document.querySelector('.email-copy');
 const emailAction = emailLink.querySelector('.email-copy-action');
 let emailReset;
@@ -1684,7 +1703,10 @@ function mountCaseCovers(root) {
     plane.append(overlay);
     const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
     let active = null;
+    let stopReveal = () => {};
     const hide = () => {
+      stopReveal();
+      stopReveal = () => {};
       active = null;
       delete root.dataset.previewHover;
       delete cover.dataset.previewOpen;
@@ -1692,6 +1714,8 @@ function mountCaseCovers(root) {
       overlay.replaceChildren();
     };
     const show = thumb => {
+      stopReveal();
+      stopReveal = () => {};
       active = thumb;
       root.dataset.previewHover = '';
       cover.dataset.previewOpen = '';
@@ -1731,7 +1755,9 @@ function mountCaseCovers(root) {
         art.className = 'case-hover-art';
         art.src = thumb.currentSrc || thumb.dataset.preview;
         overlay.replaceChildren(art);
-        if (art.src !== new URL(thumb.dataset.preview, document.baseURI).href) {
+        if (thumb.hasAttribute('data-poster-reveal')) {
+          stopReveal = revealPoster(art, thumb.dataset.preview);
+        } else if (art.src !== new URL(thumb.dataset.preview, document.baseURI).href) {
           const highRes = new Image();
           highRes.src = thumb.dataset.preview;
           highRes.decode().then(() => {
@@ -1828,6 +1854,7 @@ function mountCaseCovers(root) {
   }, { rootMargin: '150% 0px' });
   covers.forEach((cover, index) => index < 2 ? load(cover) : observer.observe(cover));
   return () => {
+    for (const entry of hoverTargets) entry.hide();
     observer.disconnect();
     videos.disconnect();
     window.removeEventListener('pointermove', onHover, true);
@@ -1896,7 +1923,7 @@ const TEMPLATES = {
           </div>
         </div>
         <section class="signoff" aria-label="Leave a stamp">
-          <iframe class="stamp-teaser" data-src="stub.html?embed=stamps" title="Sign Here — печати из тизера" loading="lazy"></iframe>
+          <iframe class="stamp-teaser" data-src="stub.html?embed=stamps&amp;surface=signoff" title="Sign Here — печати из тизера" loading="lazy"></iframe>
         </section>
       </div>
     </div>
@@ -5094,6 +5121,11 @@ function mountScroller(scroller) {
 }
 
 function paint(name) {
+  if (mobileNotice.matches) {
+    document.body.dataset.route = 'board';
+    if (routeDialog.open) routeDialog.close();
+    return;
+  }
   if (!unmountStrip) {
     document.body.dataset.route = 'board';
     app.innerHTML = TEMPLATES.board();
@@ -5142,7 +5174,17 @@ paint(route);
   fy = destFy = a.fy;
   phase = 'rest';
 }
-mountHeaderApple();
+let headerAppleMounted = false;
+function ensureHeaderApple() {
+  if (mobileNotice.matches || headerAppleMounted) return;
+  mountHeaderApple();
+  headerAppleMounted = true;
+}
+ensureHeaderApple();
+mobileNotice.addEventListener('change', () => {
+  paint(route);
+  ensureHeaderApple();
+});
 
 addEventListener('click', (e) => {
   const link = e.target.closest('a.mark');
