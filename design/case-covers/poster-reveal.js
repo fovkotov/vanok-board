@@ -1,3 +1,5 @@
+const PAPER_TEXTURE = new URL('./recycled-paper.webp', import.meta.url).href;
+
 // Project the changing cross-section of a rolled sheet, then paint its bands back to front.
 const clamp = value => Math.max(0, Math.min(1, value));
 const smooth = value => {
@@ -5,64 +7,32 @@ const smooth = value => {
   return t * t * (3 - 2 * t);
 };
 
-// The constructor's Glossy stock has a smooth tooth and a broad, soft clearcoat.
-function coatPrint(image, width, height) {
-  const sheet = document.createElement('canvas');
-  sheet.width = width;
-  sheet.height = height;
-  const context = sheet.getContext('2d');
+// Use the constructor's unprinted Recycled swatch over both sides of the sheet.
+function printOnPaper(image, paper, width, height) {
+  const back = document.createElement('canvas');
+  const front = document.createElement('canvas');
+  for (const side of [front, back]) {
+    side.width = width;
+    side.height = height;
+  }
+  back.getContext('2d').drawImage(paper, 0, 0, width, height);
+
+  const context = front.getContext('2d');
   context.imageSmoothingQuality = 'high';
   context.drawImage(image, 0, 0, width, height);
-
-  const tooth = document.createElement('canvas');
-  tooth.width = tooth.height = 144;
-  const grain = tooth.getContext('2d');
-  const pixels = grain.createImageData(tooth.width, tooth.height);
-  for (let i = 0; i < pixels.data.length; i += 4) {
-    const variation = Math.random() - .5;
-    pixels.data.fill(variation < 0 ? 0 : 255, i, i + 3);
-    pixels.data[i + 3] = Math.round(Math.abs(variation) * 18);
-  }
-  grain.putImageData(pixels, 0, 0);
-  context.globalCompositeOperation = 'source-atop';
-  context.fillStyle = context.createPattern(tooth, 'repeat');
-  context.fillRect(0, 0, width, height);
-  return sheet;
+  context.globalCompositeOperation = 'multiply';
+  context.globalAlpha = .58;
+  context.drawImage(back, 0, 0);
+  context.globalCompositeOperation = 'destination-in';
+  context.globalAlpha = 1;
+  context.drawImage(image, 0, 0, width, height);
+  return {front, back};
 }
 
-function glossHighlight(context, x, y, width, height, strength) {
-  if (strength < .008) return;
-  context.filter = 'none';
-  context.globalCompositeOperation = 'source-atop';
-  context.fillStyle = `rgba(255, 255, 255, ${strength})`;
-  context.fillRect(x, y, width, height);
-}
-
-function paintFlat(context, sheet) {
-  const {width, height} = sheet;
-  context.drawImage(sheet, 0, 0);
-  context.save();
-  context.globalCompositeOperation = 'source-atop';
-  const reflection = context.createLinearGradient(0, 0, width, height);
-  reflection.addColorStop(0, 'transparent');
-  reflection.addColorStop(.24, 'rgba(255,255,255,.10)');
-  reflection.addColorStop(.42, 'rgba(255,255,255,.025)');
-  reflection.addColorStop(.7, 'transparent');
-  context.fillStyle = reflection;
-  context.fillRect(0, 0, width, height);
-  context.restore();
-}
-
-function paperBack(context, x, y, width, height, shade) {
-  const tone = Math.round(255 - 24 * shade);
-  context.fillStyle = `rgb(${tone}, ${tone}, ${tone})`;
-  context.fillRect(x, y, width, height);
-}
-
-function paintRoll(context, image, width, height, progress, {horizontal, mirror, double}) {
+function paintRoll(context, sheet, width, height, progress, {horizontal, mirror, double}) {
   const length = horizontal ? width : height;
   const breadth = horizontal ? height : width;
-  const textureLength = horizontal ? image.width : image.height;
+  const textureLength = horizontal ? sheet.front.width : sheet.front.height;
   const bands = 128;
   const opening = smooth(progress);
   const front = double ? .07 + .43 * opening : .13 + .87 * opening;
@@ -99,41 +69,32 @@ function paintRoll(context, image, width, height, progress, {horizontal, mirror,
     const source = (mirror ? bands - 1 - strip.i : strip.i) * sourceSpan;
     const cross = breadth * (1 + strip.depth * .38);
     const shade = .32 * (1 - strip.light) * (1 - release);
-    const reflection = .25 * Math.exp(-((strip.light - .72) ** 2) / .033) * (1 - release);
-    const back = strip.end < strip.start;
+    const image = strip.end < strip.start ? sheet.back : sheet.front;
     context.save();
-    if (!back && shade > .02) context.filter = `brightness(${1 - shade})`;
+    if (shade > .02) context.filter = `brightness(${1 - shade})`;
     if (horizontal) {
       context.translate(start, (breadth - cross) / 2);
       context.scale(end >= start ? 1 : -1, 1);
       if (mirror) { context.translate(span, 0); context.scale(-1, 1); }
-      if (back) paperBack(context, 0, 0, span, cross, shade);
-      else {
-        context.drawImage(image, source, 0, sourceSpan, image.height, 0, 0, span, cross);
-        glossHighlight(context, 0, 0, span, cross, reflection);
-      }
+      context.drawImage(image, source, 0, sourceSpan, image.height, 0, 0, span, cross);
     } else {
       context.translate((breadth - cross) / 2, start);
       context.scale(1, end >= start ? 1 : -1);
       if (mirror) { context.translate(0, span); context.scale(1, -1); }
-      if (back) paperBack(context, 0, 0, cross, span, shade);
-      else {
-        context.drawImage(image, 0, source, image.width, sourceSpan, 0, 0, cross, span);
-        glossHighlight(context, 0, 0, cross, span, reflection);
-      }
+      context.drawImage(image, 0, source, image.width, sourceSpan, 0, 0, cross, span);
     }
     context.restore();
   }
 }
 
-function paintQuarters(context, image, width, height, progress, {mirror, flip}) {
+function paintQuarters(context, sheet, width, height, progress, {mirror, flip}) {
   // The side hinge opens first, then the other half folds down.
   const side = Math.PI * (1 - smooth(progress / .58));
   const bottom = Math.PI * (1 - smooth((progress - .42) / .58));
   const halfW = width / 2;
   const halfH = height / 2;
-  const sourceW = image.width / 2;
-  const sourceH = image.height / 2;
+  const sourceW = sheet.front.width / 2;
+  const sourceH = sheet.front.height / 2;
   context.save();
   context.translate(mirror ? width : 0, flip ? height : 0);
   context.scale(mirror ? -1 : 1, flip ? -1 : 1);
@@ -148,15 +109,10 @@ function paintQuarters(context, image, width, height, progress, {mirror, flip}) 
       const x = mirror ? -halfW : 0;
       const y = flip ? -halfH : 0;
       const shade = .22 * (2 - sx - sy);
-      if (sx * sy < 0) {
-        paperBack(context, x, y, halfW + .35, halfH + .35, shade);
-      } else {
-        context.filter = `brightness(${1 - shade})`;
-        context.drawImage(image, (mirror ? 1 - column : column) * sourceW,
-          (flip ? 1 - row : row) * sourceH, sourceW, sourceH, x, y, halfW + .35, halfH + .35);
-        const reflection = .23 * Math.exp(-((Math.abs(sx * sy) - .67) ** 2) / .048);
-        glossHighlight(context, x, y, halfW + .35, halfH + .35, reflection);
-      }
+      const image = sx * sy < 0 ? sheet.back : sheet.front;
+      context.filter = `brightness(${1 - shade})`;
+      context.drawImage(image, (mirror ? 1 - column : column) * sourceW,
+        (flip ? 1 - row : row) * sourceH, sourceW, sourceH, x, y, halfW + .35, halfH + .35);
       context.restore();
     }
   }
@@ -193,11 +149,12 @@ export function revealPoster(art, source) {
 
   canvas.className = art.className;
   if (!reducedMotion) canvas.dataset.posterReveal = mode;
-  canvas.dataset.paper = 'glossy';
+  canvas.dataset.paper = 'recycled';
   canvas.setAttribute('aria-hidden', 'true');
-  art.style.visibility = 'hidden';
   texture.src = source;
-  texture.decode().then(() => {
+  const paper = new Image();
+  paper.src = PAPER_TEXTURE;
+  Promise.all([texture.decode(), paper.decode()]).then(() => {
     if (stopped || !art.isConnected) return;
     const bounds = art.getBoundingClientRect();
     const ratio = Math.min(devicePixelRatio, 3);
@@ -207,11 +164,12 @@ export function revealPoster(art, source) {
     ));
     canvas.width = Math.max(1, Math.round(texture.naturalWidth * scale));
     canvas.height = Math.max(1, Math.round(texture.naturalHeight * scale));
-    const sheet = coatPrint(texture, canvas.width, canvas.height);
+    const sheet = printOnPaper(texture, paper, canvas.width, canvas.height);
     art.src = texture.src;
+    art.style.visibility = 'hidden';
     art.after(canvas);
     if (reducedMotion) {
-      paintFlat(context, sheet);
+      context.drawImage(sheet.front, 0, 0);
       return;
     }
     const started = performance.now();
@@ -225,7 +183,7 @@ export function revealPoster(art, source) {
       if (progress === 1) {
         delete canvas.dataset.posterReveal;
         canvas.style.removeProperty('transform');
-        paintFlat(context, sheet);
+        context.drawImage(sheet.front, 0, 0);
         return;
       }
       canvas.style.transform = `rotate(${tilt * (1 - progress) ** 2}deg)`;

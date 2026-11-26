@@ -1584,7 +1584,7 @@
     background: #e9e9e9;
     transform: translateY(var(--mobile-intro-y, 0px));
   }
-  body[data-layout="mobile"] :is(.header-apple, .intro-script, .chrome .crosshair svg) { display: none; }
+  body[data-layout="mobile"] :is(.intro-script, .chrome .crosshair svg) { display: none; }
   body[data-layout="mobile"] .mobile-intro-art { display: block; }
   body[data-route="board"][data-layout="mobile"] .chrome .crosshair {
     left: calc(23.08 * var(--intro-unit));
@@ -1603,7 +1603,7 @@
   body[data-route="board"][data-layout="mobile"] .chrome :is(.ig-link, .index-link, .soon) {
     position: absolute;
     top: auto;
-    bottom: max(calc(12 * var(--intro-unit)), env(safe-area-inset-bottom));
+    bottom: max(calc(24 * var(--intro-unit)), env(safe-area-inset-bottom));
     font: calc(12 * var(--intro-unit)) Arial, sans-serif;
     width: auto;
     height: auto;
@@ -1624,18 +1624,6 @@
     top: calc(50% + .27 * var(--intro-unit));
     transform: translate(-50%, -50%);
   }
-  .mobile-intro-apple {
-    width: calc(248 * var(--intro-unit));
-    left: calc(50% + 53.505 * var(--intro-unit));
-    top: calc(50% - 211 * var(--intro-unit));
-    transform: translateX(-50%) translate(var(--apple-x, 0px), var(--apple-y, 0px));
-    border: 0;
-    background: transparent;
-    padding: 0;
-    pointer-events: auto;
-    cursor: pointer;
-  }
-  .mobile-intro-apple img { display: block; width: 100%; height: auto; pointer-events: none; }
   body[data-layout="mobile"] #app { width: 100%; overflow-x: clip; }
   .mobile-escalator { --scene-unit: var(--mobile-unit); touch-action: pan-x; }
   body[data-layout="mobile"] .reel .mobile-escalator .mobile-case {
@@ -1643,7 +1631,6 @@
     --step-h: calc(666 * var(--scene-unit));
   }
   .mobile-escalator .escalator-stage { pointer-events: none; }
-  .mobile-case .step-rig { transform-origin: center top; }
   .mobile-case .step-riser { aspect-ratio: 375 / 666; pointer-events: auto; }
   .mobile-case .step-tread {
     background: #c8c8c8 url('design/steps/rib-escalator-10.png') repeat;
@@ -1658,7 +1645,7 @@
   }
   .mobile-case-background { overflow: hidden; }
   .mobile-cover-video { display: block; width: 100%; height: 100%; object-fit: cover; }
-  .mobile-case-caption {
+  .mobile-case .mobile-case-caption {
     position: absolute;
     left: 24px;
     width: 327px;
@@ -1705,9 +1692,11 @@
   .portfolio-loader::before {
     content: "";
     position: absolute;
-    inset: -4px;
-    background: url("design/stub/stamp-loading.svg?v=seamless") 0 0 / 50% 100% repeat-x;
-    animation: portfolio-loader-drift 6s linear infinite, portfolio-loader-shiver .91s linear infinite;
+    --stripe-tile: 25vw;
+    inset: -4px calc(-4px - var(--stripe-tile)) -4px -4px;
+    background: url("design/stub/stamp-loading.svg?v=seamless") 0 0 / var(--stripe-tile) 100% repeat-x;
+    animation: portfolio-loader-drift 1.5s linear infinite, portfolio-loader-shiver .91s steps(1, end) infinite;
+    will-change: transform, translate;
     pointer-events: none;
   }
   .portfolio-loader[hidden] { display: none; }
@@ -1716,7 +1705,7 @@
     width: calc(460 * var(--loader-unit));
     height: auto;
     display: block;
-    animation: portfolio-loader-shiver .91s linear infinite;
+    animation: portfolio-loader-shiver .91s steps(1, end) infinite;
   }
   .portfolio-loader-progress { font: bold 28px Arial, sans-serif; fill: #fff; }
   .portfolio-loader-error {
@@ -1734,15 +1723,15 @@
     .portfolio-loader-art { width: calc(254 * var(--loader-unit)); }
     .portfolio-loader-error { top: calc(50% + 118 * var(--loader-unit)); }
   }
-  @keyframes portfolio-loader-drift { to { background-position-x: -100%; } }
+  @keyframes portfolio-loader-drift { to { transform: translateX(calc(-1 * var(--stripe-tile))); } }
   @keyframes portfolio-loader-shiver {
-    0%, 100% { transform: translate(0, 0); }
-    13% { transform: translate(-.8px, .4px); }
-    25% { transform: translate(.7px, -.3px); }
-    42% { transform: translate(-.3px, -.5px); }
-    57% { transform: translate(.6px, .6px); }
-    72% { transform: translate(-.9px, 0); }
-    86% { transform: translate(.3px, -.4px); }
+    0%, 100% { translate: 0 0; }
+    13% { translate: -2.4px 1.2px; }
+    25% { translate: 2.1px -.9px; }
+    42% { translate: -.9px -1.5px; }
+    57% { translate: 1.8px 1.8px; }
+    72% { translate: -2.7px 0; }
+    86% { translate: .9px -1.2px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .portfolio-loader::before, .portfolio-loader-art { animation: none; }
@@ -1797,9 +1786,6 @@
 <header class="chrome">
   <img class="mobile-intro-art mobile-intro-regular" src="design/assets/mobile-regular.svg" alt="Regular">
   <img class="mobile-intro-art mobile-intro-vanok" src="design/assets/mobile-vanok.svg" alt="Vanök">
-  <button class="mobile-intro-art mobile-intro-apple" type="button" aria-label="Roll the apple">
-    <img src="design/assets/mobile-apple.png" alt="">
-  </button>
   <img class="intro-script intro-script-vanok" src="design/assets/intro-vanok.svg" alt="Vanök">
   <img class="intro-script intro-script-regular" src="design/assets/intro-regular.svg" alt="Regular">
   <a class="index-link" href="#/index">Index</a>
@@ -1822,17 +1808,17 @@
 
 <script type="importmap">
 { "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    "three": "./design/vendor/three/build/three.module.js",
+    "three/addons/": "./design/vendor/three/examples/jsm/"
 } }
 </script>
 
 <script type="module">
 import { CASE_COVERS } from './design/case-covers/cases.js?v=background-parallax';
 import { MOBILE_CASES } from './design/case-covers/mobile-cases.js?v=20261127-stair-risers';
-import { revealPoster } from './design/case-covers/poster-reveal.js?v=3';
-import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=3';
-import { loadPortfolioMedia, portfolioMediaSource } from './design/case-covers/preload.js';
+import { revealPoster } from './design/case-covers/poster-reveal.js?v=recycled';
+import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=cold-start';
+import { loadPortfolioMedia } from './design/case-covers/preload.js?v=cold-start';
 
 const app = document.getElementById('app');
 const portfolioLoader = document.getElementById('portfolio-loader');
@@ -1857,6 +1843,13 @@ emailLink.addEventListener('click', async event => {
 });
 
 // Load the next covers before they reach the viewport. Every image remains a separate DOM layer.
+function loadCoverImages(cover) {
+  for (const img of cover.querySelectorAll('img[data-src]')) {
+    img.src = img.dataset.src;
+    img.removeAttribute('data-src');
+  }
+}
+
 function mountCaseCovers(root, tapOnly = false) {
   const covers = [...root.querySelectorAll('.case-cover')];
   const hoverTargets = [];
@@ -1869,7 +1862,7 @@ function mountCaseCovers(root, tapOnly = false) {
     overlay.setAttribute('aria-hidden', 'true');
     plane.append(overlay);
     const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
-    const showVideo = preparePreviewVideos(plane, portfolioMediaSource);
+    const showVideo = preparePreviewVideos(plane, false);
     let active = null;
     let stopReveal = () => {};
     const hide = () => {
@@ -1915,11 +1908,20 @@ function mountCaseCovers(root, tapOnly = false) {
         const art = new Image();
         art.alt = '';
         art.className = 'case-hover-art';
-        const fullSize = portfolioMediaSource(thumb.dataset.preview);
+        const fullSize = new URL(thumb.dataset.preview, document.baseURI).href;
         const isPoster = thumb.hasAttribute('data-poster-reveal');
-        art.src = fullSize;
+        const thumbnail = thumb instanceof HTMLImageElement ? thumb : thumb.querySelector('img');
+        art.src = thumbnail?.currentSrc || thumbnail?.src || fullSize;
         overlay.replaceChildren(art);
-        if (isPoster) stopReveal = revealPoster(art, fullSize);
+        if (isPoster) {
+          stopReveal = revealPoster(art, fullSize);
+        } else if (art.src !== fullSize) {
+          const highRes = new Image();
+          highRes.src = fullSize;
+          highRes.decode().then(() => {
+            if (active === thumb && art.parentElement === overlay) art.src = fullSize;
+          }).catch(() => {});
+        }
       }
       overlay.hidden = false;
     };
@@ -2003,7 +2005,7 @@ function mountCaseCovers(root, tapOnly = false) {
   const videos = new IntersectionObserver(entries => {
     for (const {target, isIntersecting} of entries) {
       if (isIntersecting && portfolioLoader.hidden) {
-        if (!target.src) target.src = portfolioMediaSource(target.dataset.src);
+        if (!target.src) target.src = target.dataset.src;
         target.play().catch(() => {});
       } else target.pause();
     }
@@ -2014,22 +2016,22 @@ function mountCaseCovers(root, tapOnly = false) {
   if (portfolioLoader.hidden) watchVideos();
   else addEventListener('portfolio-revealed', watchVideos, { once: true });
 
-  const load = cover => {
-    cover.querySelectorAll('img[data-src]').forEach(img => {
-      img.src = portfolioMediaSource(img.dataset.src);
-      img.removeAttribute('data-src');
-    });
-  };
+
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting && portfolioLoader.hidden) {
-      load(entry.target);
+      loadCoverImages(entry.target);
       observer.unobserve(entry.target);
     }
   }, { rootMargin: '150% 0px' });
-  covers.forEach((cover, index) => index < 2 && portfolioLoader.hidden ? load(cover) : observer.observe(cover));
+  const watchImages = () => {
+    covers.forEach((cover, index) => index < 2 ? loadCoverImages(cover) : observer.observe(cover));
+  };
+  if (portfolioLoader.hidden) watchImages();
+  else addEventListener('portfolio-revealed', watchImages, { once: true });
   return () => {
     for (const entry of hoverTargets) entry.hide();
     observer.disconnect();
+    removeEventListener('portfolio-revealed', watchImages);
     videos.disconnect();
     removeEventListener('portfolio-revealed', watchVideos);
     window.removeEventListener('pointermove', onHover, true);
@@ -2161,6 +2163,22 @@ function mountEscalator(root, settings, mobile = false) {
   let firstCaseY = Infinity;
   let snapPoints = [];
   let escalatorStarted = false;
+
+  let measuredSteps = null;
+  function measureSteps() {
+    const key = `${unit}|${settings.stepH}|${track.style.paddingTop}`;
+    if (measuredSteps?.key !== key) {
+      measuredSteps = {
+        key,
+        geometry: originals.map(step => ({
+          rig: step.querySelector('.step-rig'),
+          rise: parseFloat(getComputedStyle(step).height),
+          offset: step.offsetTop,
+        })),
+      };
+    }
+    return measuredSteps.geometry;
+  }
 
   function syncLettering() {
     const zoom = Number(settings.scale) || 1;
@@ -2331,11 +2349,10 @@ function mountEscalator(root, settings, mobile = false) {
   function onTouchStart(event) {
     if (!portfolioLoader.hidden || event.touches.length !== 1) return;
     const onThumbnail = mobile && event.target instanceof Element && event.target.closest('.mobile-thumb-scroll');
-    const fromApple = mobile && event.target instanceof Element && event.target.closest('.mobile-intro-apple');
-    if (!onThumbnail && !fromApple && escalatorTouchBlocked(event.target)) return;
-    if (!(event.target instanceof Element) || (!fromApple && !viewport.contains(event.target))) return;
+    if (!onThumbnail && escalatorTouchBlocked(event.target)) return;
+    if (!(event.target instanceof Element) || !viewport.contains(event.target)) return;
     const t = event.touches[0];
-    held = { id: t.identifier, x: t.clientX, y: t.clientY, axis: null, lockAxis: onThumbnail || fromApple };
+    held = { id: t.identifier, x: t.clientX, y: t.clientY, axis: null, lockAxis: onThumbnail };
     dragSamples.length = 0;
     coasting = false;
     wheelLive = false;
@@ -2442,14 +2459,9 @@ function mountEscalator(root, settings, mobile = false) {
     const stageY = viewH / 2 - .04 * sceneH;
     const noseY = viewH / 2 + .22 * sceneH;
     const maxDepth = Math.max(recess, unit) * 8;
-    // Layout dimensions exclude the 3D transforms.
-    const geometry = originals.map(step => ({
-      step,
-      rise: parseFloat(getComputedStyle(step).height),
-      offset: step.offsetTop,
-    }));
+    const geometry = measureSteps();
     snapPoints = geometry.map(({rise, offset}) => {
-      const projectionOrigin = perspectiveY - center + (mobile ? rise / 2 : 0);
+      const projectionOrigin = perspectiveY - center;
       const scaleOffset = (1 - zoom) * stageY + zoom * rise / 2;
       const depthSlope = recess / Math.max(rise, .01 * sceneH);
       // Solve for the track position where the projected case face is centered.
@@ -2471,20 +2483,13 @@ function mountEscalator(root, settings, mobile = false) {
         background.style.setProperty('--case-bg-scale', scale);
       }
     }
-    for (const {step, rise, offset} of geometry) {
+    for (const {rig, rise, offset} of geometry) {
       const depth = Math.max(-maxDepth, Math.min(0, recess * (offset - y - noseY) / Math.max(rise, .01 * sceneH)));
-      const rig = step.querySelector('.step-rig');
       if (rig) {
-        // Restore the projected width on mobile with the same factor on both axes.
-        const projectionScale = mobile ? ` scale(${1 - depth / perspective})` : '';
-        rig.style.transform = `translateZ(${depth}px)${projectionScale}`;
+        rig.style.transform = `translateZ(${depth}px)`;
         const shade = Math.min(1, Math.max(0, -depth / Math.max(recess, unit)));
         rig.style.setProperty('--step-shade', shade.toFixed(3));
       }
-      const tread = step.querySelector('.step-tread');
-      if (!tread) continue;
-      // Keep the tread perpendicular: folding it flat creates overlapping planes.
-      tread.style.transform = 'rotateX(-90deg)';
     }
   }
 
@@ -2545,56 +2550,7 @@ function mountEscalator(root, settings, mobile = false) {
 }
 
 let unmountStrip = null;
-const APPLE_ORBIT_MS = 8800;
-
-function restartAppleOrbit(current, now) {
-  const phase = appleOrbitPhase(current, now);
-  return { start: now, phase, laps: phase > 0 ? 2 - phase : 1 };
-}
-
-function appleOrbitPhase(orbit, now) {
-  if (!orbit) return 0;
-  const t = (now - orbit.start) / (APPLE_ORBIT_MS * orbit.laps);
-  if (t >= 1) return 0;
-  // Keep the same position on a repeated click and ease out on returning home.
-  const eased = orbit.phase ? 1 - (1 - t) ** 1.5 : t * t * (3 - 2 * t);
-  return (orbit.phase + orbit.laps * eased) % 1;
-}
-
-function appleOrbitOffset(phase, radius, angle, direction) {
-  const theta = angle + direction * 2 * Math.PI * phase;
-  return {
-    dx: radius * (Math.cos(theta) - Math.cos(angle)),
-    dy: radius * (Math.sin(theta) - Math.sin(angle)),
-  };
-}
-
-const mobileApple = document.querySelector('.mobile-intro-apple');
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-let mobileAppleOrbit = null;
-let mobileAppleFrame = 0;
-function drawMobileApple(now) {
-  const phase = appleOrbitPhase(mobileAppleOrbit, now);
-  if (!mobileLayout.matches || now >= mobileAppleOrbit.start + APPLE_ORBIT_MS * mobileAppleOrbit.laps) {
-    mobileAppleOrbit = null;
-    mobileAppleFrame = 0;
-    mobileApple.style.removeProperty('--apple-x');
-    mobileApple.style.removeProperty('--apple-y');
-    return;
-  }
-  const offset = appleOrbitOffset(phase, Math.min(innerWidth * .15, innerHeight * .12), Math.PI / 5, 1);
-  mobileApple.style.setProperty('--apple-x', `${offset.dx}px`);
-  mobileApple.style.setProperty('--apple-y', `${offset.dy}px`);
-  mobileAppleFrame = requestAnimationFrame(drawMobileApple);
-}
-mobileApple.addEventListener('click', () => {
-  if (reduceMotion.matches) return;
-  mobileAppleOrbit = restartAppleOrbit(mobileAppleOrbit, performance.now());
-  if (!mobileAppleFrame) mobileAppleFrame = requestAnimationFrame(drawMobileApple);
-});
-
 let mountDesktop = null;
-let showDesktopApple = null;
 let onDesktopRoute = null;
 let desktopStartup = null;
 
@@ -2614,31 +2570,21 @@ function mountMobile(root) {
   };
 }
 
-let resolveHeaderApple;
-const headerAppleLoaded = new Promise(resolve => { resolveHeaderApple = resolve; });
 let portfolioLoadId = 0;
 
 async function preloadMountedPortfolio(mobile) {
   const loadId = ++portfolioLoadId;
   const intro = document.querySelectorAll(mobile
-    ? 'img.mobile-intro-art, .mobile-intro-apple img'
+    ? 'img.mobile-intro-art'
     : '.intro-script');
   const images = ['design/assets/loader-lion.svg?v=brand', 'design/stub/stamp-loading.svg?v=seamless'];
   if (!mobile) images.push('design/steps/boot-prints.webp', 'design/steps/tread-1-0.png');
-  const tasks = mobile ? [] : [async () => {
-    const result = await headerAppleLoaded;
-    if (result) throw result;
-  }];
   try {
-    await loadPortfolioMedia(app, intro, {images, tasks}, (done, total) => {
+    await loadPortfolioMedia(app, intro, images, (done, total) => {
       if (loadId !== portfolioLoadId || portfolioLoader.hidden) return;
       dispatchEvent(new CustomEvent('portfolio-progress', { detail: Math.floor(done * 100 / total) }));
     });
     if (loadId !== portfolioLoadId) return;
-    for (const img of app.querySelectorAll('.case img[data-src]')) {
-      img.src = portfolioMediaSource(img.dataset.src);
-      img.removeAttribute('data-src');
-    }
     if (!portfolioLoader.hidden) dispatchEvent(new Event('portfolio-ready'));
   } catch (error) {
     if (loadId !== portfolioLoadId) return;
@@ -2681,11 +2627,15 @@ function updateLayout() {
       console.error('The desktop scene could not start.', error);
       if (!mobileLayout.matches && !portfolioLoader.hidden && !unmountStrip) dispatchEvent(new Event('portfolio-load-error'));
     });
-    showDesktopApple?.();
   }
 }
 mobileLayout.addEventListener('change', updateLayout);
-addEventListener('portfolio-revealed', () => paint(parseRoute()), { once: true });
+addEventListener('portfolio-revealed', () => {
+  paint(parseRoute());
+  import('./design/assets/header-apple.js').then(({ mountHeaderApple }) => {
+    mountHeaderApple(() => introScrollProgress);
+  }).catch(error => console.warn('The header apple could not start.', error));
+}, { once: true });
 addEventListener('hashchange', () => {
   paint(parseRoute());
   onDesktopRoute?.();
@@ -2693,11 +2643,12 @@ addEventListener('hashchange', () => {
 updateLayout();
 
 async function startDesktop() {
-const [THREE, {GLTFLoader}, {RoomEnvironment}, BufferGeometryUtils] = await Promise.all([
+const [THREE, {GLTFLoader}, {RoomEnvironment}, BufferGeometryUtils, {cloneMaterials, fitTopDown, applyShadeSmooth}] = await Promise.all([
   import('three'),
   import('three/addons/loaders/GLTFLoader.js'),
   import('three/addons/environments/RoomEnvironment.js'),
   import('three/addons/utils/BufferGeometryUtils.js'),
+  import('./design/assets/header-apple.js'),
 ]);
 const DESIGN_MID = 400;
 const APPLE_CX = 609;
@@ -2917,26 +2868,6 @@ const STAMP_FILE = 'models/stamp_round.glb';
 const APPLE_GREEN = 0x67c514;
 const APPLE_RED = 0xe23b32;
 const STAMP_GREEN = 0x67c514;
-
-function cloneMaterials(root) {
-  root.traverse((o) => {
-    if (!o.isMesh || !o.material) return;
-    o.material = Array.isArray(o.material) ? o.material.map((m) => m.clone()) : o.material.clone();
-  });
-}
-
-function fitTopDown(model) {
-  const pivot = new THREE.Group();
-  pivot.add(model);
-  pivot.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(pivot);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
-  const diam = Math.max(size.x, size.z, 1e-6);
-  pivot.scale.setScalar(1 / diam);
-  pivot.position.copy(center).multiplyScalar(-1 / diam);
-  return pivot;
-}
 
 function prepareApple(gltf, skinHex) {
   const model = gltf.scene.clone(true);
@@ -4087,418 +4018,6 @@ const VIEW_APPLE = {
   panelOpen: false,
 };
 
-function weldSmoothGeometry(geometry) {
-  const source = geometry.clone();
-  for (const name of ['normal', 'uv', 'uv1', 'uv2', 'uv3', 'tangent', 'color']) source.deleteAttribute(name);
-  const merged = BufferGeometryUtils.mergeVertices(source, 1e-4);
-  source.dispose();
-  merged.computeVertexNormals();
-  return merged;
-}
-
-function applyShadeSmooth(root, smooth) {
-  if (!root) return;
-  root.traverse((node) => {
-    if (!node.isMesh || !node.geometry) return;
-    if (!node.userData.flatGeometry) {
-      node.userData.flatGeometry = node.geometry;
-      node.userData.smoothGeometry = weldSmoothGeometry(node.geometry);
-    }
-    node.geometry = smooth ? node.userData.smoothGeometry : node.userData.flatGeometry;
-    const mats = Array.isArray(node.material) ? node.material : [node.material];
-    for (const material of mats) {
-      if (!material) continue;
-      material.flatShading = !smooth;
-      material.needsUpdate = true;
-    }
-  });
-}
-
-const HEADER_APPLE_FILE = 'design/stub/models/apple-corner.glb';
-const HEADER_APPLE_GREEN = 0x56ae08;
-const HEADER_STEM = 0x8b5a2b;
-
-function prepareHeaderApple(gltf) {
-  const model = gltf.scene.clone(true);
-  cloneMaterials(model);
-  model.traverse((node) => {
-    if (!node.isMesh || !node.material) return;
-    const mats = Array.isArray(node.material) ? node.material : [node.material];
-    if (mats.some((material) => material && /green_apple_2_texture/i.test(material.name || ''))) {
-      node.userData.appleStem = true;
-    }
-  });
-  model.traverse((node) => {
-    if (!node.isMesh || !node.material) return;
-    const prev = Array.isArray(node.material) ? node.material : [node.material];
-    if (node.userData.appleStem) {
-      const next = prev.map((material) => {
-        if (!material) return material;
-        const stem = material.clone();
-        stem.name = 'stem';
-        stem.color.setHex(HEADER_STEM);
-        if (stem.emissive) {
-          stem.emissive.setHex(0x000000);
-          stem.emissiveIntensity = 0;
-        }
-        stem.map = stem.envMap = stem.normalMap = stem.roughnessMap = stem.metalnessMap = stem.aoMap = stem.emissiveMap = null;
-        return stem;
-      });
-      node.material = Array.isArray(node.material) ? next : next[0];
-      for (const old of prev) {
-        if (old && !next.includes(old)) old.dispose();
-      }
-      return;
-    }
-    let side = THREE.FrontSide;
-    for (const material of prev) {
-      if (material && material.side === THREE.DoubleSide) side = THREE.DoubleSide;
-    }
-    const material = new THREE.MeshStandardMaterial({
-      name: 'plane',
-      color: HEADER_APPLE_GREEN,
-      metalness: 0,
-      roughness: 0.55,
-      emissive: 0x000000,
-      emissiveIntensity: 0,
-      envMapIntensity: 0,
-      side,
-      flatShading: false,
-    });
-    node.material = material;
-    for (const old of prev) {
-      if (old && old !== material) old.dispose();
-    }
-  });
-  applyShadeSmooth(model, true);
-  return fitTopDown(model);
-}
-
-function mountHeaderApple() {
-  const pose = {
-    xPx: 1513,
-    topPx: 5,
-    rotX: 69.7,
-    rotY: -172.9,
-    rotZ: -33.2,
-    size: 1.54,
-    azimuth: -90,
-    elevation: 52,
-    distance: 6.5422,
-    intensity: 4.45,
-    ambient: 0.72,
-    shadowDark: 0.09,
-    shadowRadius: 11,
-  };
-  const TURN_Y = -11;
-  const TURN_SCALE = 1.248;
-  const GROUND = -0.7;
-  const MOBILE_BOARD = 375;
-  const DESK_GRID_MARGIN = 12;
-  const DESK_GRID_GUTTER = 12;
-  const DESK_GRID_COLS = 12;
-  const DESK_APPLE_COL = 11;
-  const DESK_COL_AT_1440 = (1440 - 2 * DESK_GRID_MARGIN - 11 * DESK_GRID_GUTTER) / DESK_GRID_COLS;
-  const DESK_APPLE_REF_W = 1728;
-  function desktopColumnWidth(width) {
-    return (width - 2 * DESK_GRID_MARGIN - (DESK_GRID_COLS - 1) * DESK_GRID_GUTTER) / DESK_GRID_COLS;
-  }
-  const DESK_APPLE_INTO_COL = (1513
-    - DESK_GRID_MARGIN
-    - DESK_APPLE_COL * (desktopColumnWidth(DESK_APPLE_REF_W) + DESK_GRID_GUTTER))
-    * DESK_COL_AT_1440 / desktopColumnWidth(DESK_APPLE_REF_W);
-  function desktopAppleX(width) {
-    const col = desktopColumnWidth(width);
-    const into = DESK_APPLE_INTO_COL * (col / DESK_COL_AT_1440);
-    return DESK_GRID_MARGIN + DESK_APPLE_COL * (col + DESK_GRID_GUTTER) + into;
-  }
-  function mobileFrameScale() {
-    return Math.max(innerWidth, 1) / MOBILE_BOARD;
-  }
-  function applyAppleLayout() {
-    const k = innerWidth / 1440;
-    pose.xPx = innerWidth * (794 / 1440);
-    const startY = innerHeight * .5 - 43 * k;
-    const endY = -50 * k;
-    pose.topPx = startY + (endY - startY) * introScrollProgress;
-    pose.size = 2.35;
-  }
-
-  const host = document.createElement('div');
-  host.className = 'apple-view header-apple';
-  host.setAttribute('aria-hidden', 'true');
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.domElement.style.pointerEvents = 'none';
-  host.appendChild(renderer.domElement);
-  document.body.appendChild(host);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.05, 40);
-  camera.position.set(0, 8, 0);
-  camera.up.set(0, 0, -1);
-  camera.lookAt(0, 0, 0);
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0;
-  const fill = new THREE.AmbientLight(0xffffff, pose.ambient);
-  scene.add(fill);
-  const key = new THREE.DirectionalLight(0xfff7f2, pose.intensity);
-  key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
-  key.shadow.bias = -0.00015;
-  key.shadow.normalBias = 0.004;
-  key.shadow.radius = pose.shadowRadius;
-  scene.add(key, key.target);
-  const groundMat = new THREE.ShadowMaterial({ color: 0x000000, opacity: pose.shadowDark });
-  groundMat.depthWrite = false;
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), groundMat);
-  ground.rotation.x = -Math.PI / 2;
-  ground.receiveShadow = true;
-  ground.renderOrder = 1;
-  scene.add(ground);
-
-  const tilt = new THREE.Group();
-  tilt.rotation.order = 'XYZ';
-  scene.add(tilt);
-  const turn = new THREE.Group();
-  turn.name = 'apple-turn';
-  turn.rotation.order = 'XYZ';
-  turn.rotation.y = TURN_Y * Math.PI / 180;
-  turn.scale.setScalar(TURN_SCALE);
-  tilt.add(turn);
-
-  let alive = true;
-  let appleModel = null;
-  const shadowBox = new THREE.Box3();
-  const shadowSize = new THREE.Vector3();
-  const shadowCenter = new THREE.Vector3();
-  const lightDir = new THREE.Vector3();
-  const gaze = { x: 0, y: 0, sx: 0, sy: 0 };
-  const gazeBase = new THREE.Quaternion();
-  const gazeEuler = new THREE.Euler(0, 0, 0, 'XYZ');
-  const gazePitch = new THREE.Quaternion();
-  const gazeYaw = new THREE.Quaternion();
-  const axisX = new THREE.Vector3(1, 0, 0);
-  const axisUp = new THREE.Vector3(0, 0, -1);
-  const GAZE = 8 * Math.PI / 180;
-  const raycaster = new THREE.Raycaster();
-  const pointerNdc = new THREE.Vector2();
-  let gazeClock = performance.now();
-  const reduced = reduceMotion.matches;
-  const APPLE_ENTER_MS = 2900;
-  const easeAppleEntry = cubicBezierEase(.22, .18, .32, 1);
-  let appleEnter = null;
-  let appleRoll = null;
-
-  function cubicBezierEase(x1, y1, x2, y2) {
-    const calc = (t, a1, a2) => t * (3 * (1 - t) * ((1 - t) * a1 + t * a2) + t * t);
-    return (x) => {
-      let lower = 0;
-      let upper = 1;
-      let t = x;
-      for (let i = 0; ; i++) {
-        if (!(t >= lower && t <= upper)) t = (lower + upper) / 2;
-        const currentX = calc(t, x1, x2) - x;
-        if (currentX * currentX < 1e-28 || i === 40) break;
-        if (currentX > 0) upper = t;
-        else lower = t;
-        t -= (currentX * 1e-7) / (calc(t + 1e-7, x1, x2) - x - currentX);
-      }
-      return calc(t, y1, y2);
-    };
-  }
-  function appleEnterEase() {
-    if (reduced || !appleEnter) return appleEnter ? 1 : 0;
-    return easeAppleEntry(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
-  }
-  function appleEntryPosition(progress = appleEnterEase()) {
-    const remaining = reduced ? 0 : 1 - progress;
-    const arcWidth = Math.min(innerWidth * .08, innerHeight * .13);
-    return {
-      x: -arcWidth * remaining * (.38 + .62 * (1 - remaining)),
-      y: -innerHeight * .18 * remaining,
-    };
-  }
-  function appleRolling() {
-    return appleRoll && performance.now() - appleRoll.start < APPLE_ORBIT_MS * appleRoll.laps;
-  }
-  function followPointer(phase) {
-    const now = performance.now();
-    const dt = Math.min(0.05, Math.max(0, (now - gazeClock) / 1000));
-    gazeClock = now;
-    const gazeBlend = 1 - Math.exp(-dt * 2.5);
-    gaze.sx += (gaze.x - gaze.sx) * gazeBlend;
-    gaze.sy += (gaze.y - gaze.sy) * gazeBlend;
-    gazeEuler.set(pose.rotX * Math.PI / 180, pose.rotY * Math.PI / 180, pose.rotZ * Math.PI / 180);
-    gazeBase.setFromEuler(gazeEuler);
-    const rocking = Math.sin(phase * Math.PI * 2) * .06;
-    gazePitch.setFromAxisAngle(axisX, gaze.sy * GAZE + rocking);
-    gazeYaw.setFromAxisAngle(axisUp, gaze.sx * GAZE);
-    gazeYaw.multiply(gazePitch);
-    tilt.quaternion.copy(gazeYaw).multiply(gazeBase);
-    tilt.updateMatrixWorld(true);
-    shadowBox.setFromObject(tilt);
-    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.min.y)) {
-      tilt.position.y += GROUND - shadowBox.min.y;
-    }
-  }
-  let appleFrameDirty = true;
-  function placeApple() {
-    if (!alive) return;
-    appleFrameDirty = true;
-    applyAppleLayout();
-    const w = Math.max(innerWidth, 2);
-    const h = Math.max(innerHeight, 2);
-    const headerH = 306 * (w / 1440);
-    const viewH = 2.4 * (h / headerH);
-    const viewW = viewH * (w / h);
-    camera.top = viewH / 2;
-    camera.bottom = -viewH / 2;
-    camera.left = -viewW / 2;
-    camera.right = viewW / 2;
-    camera.updateProjectionMatrix();
-    if (renderer.domElement.width !== Math.floor(w * renderer.getPixelRatio()) ||
-        renderer.domElement.height !== Math.floor(h * renderer.getPixelRatio())) {
-      renderer.setSize(w, h, false);
-    }
-    const poseSize = matchMedia('(max-width: 440px)').matches
-      ? pose.size / mobileFrameScale()
-      : pose.size;
-    if (appleModel) appleModel.scale.setScalar(0.78 * poseSize);
-    const phase = appleOrbitPhase(appleRoll, performance.now());
-    const orbit = appleOrbitOffset(phase, Math.min(h * .21, w * .15), -160 * Math.PI / 180, -1);
-    const entry = appleEntryPosition();
-    const enterY = entry.y + orbit.dy;
-    const enterX = entry.x + orbit.dx;
-    tilt.position.set(
-      ((pose.xPx + enterX) / w) * viewW - viewW / 2,
-      0,
-      ((pose.topPx + enterY) / h) * viewH - viewH / 2,
-    );
-    followPointer(phase);
-    tilt.updateMatrixWorld(true);
-    shadowBox.setFromObject(tilt);
-    const az = pose.azimuth * Math.PI / 180;
-    const el = Math.max(pose.elevation * Math.PI / 180, 0.087);
-    let reach = 1.4;
-    let focusX = tilt.position.x;
-    let focusZ = tilt.position.z;
-    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.min.y)) {
-      tilt.position.y = -shadowBox.min.y + GROUND;
-      tilt.updateMatrixWorld(true);
-      shadowBox.setFromObject(tilt);
-      shadowBox.getSize(shadowSize);
-      shadowBox.getCenter(shadowCenter);
-      reach = Math.min(8, (shadowSize.y + 0.04) / Math.tan(el));
-      focusX = shadowCenter.x - Math.sin(az) * reach * 0.5;
-      focusZ = shadowCenter.z - Math.cos(az) * reach * 0.5;
-      const extent = Math.max(shadowSize.x, shadowSize.z) * 0.9 + reach * 0.7 + 0.45;
-      const cam = key.shadow.camera;
-      cam.left = -extent;
-      cam.right = extent;
-      cam.top = extent;
-      cam.bottom = -extent;
-      cam.near = 0.15;
-      cam.far = pose.distance + reach + shadowSize.y + 6;
-      cam.updateProjectionMatrix();
-    }
-    lightDir.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
-    key.target.position.set(focusX, 0.02, focusZ);
-    key.position.copy(key.target.position).addScaledVector(lightDir, pose.distance);
-    key.intensity = pose.intensity;
-    fill.intensity = pose.ambient;
-    key.shadow.radius = pose.shadowRadius;
-    groundMat.opacity = Math.min(1, pose.shadowDark * (pose.intensity / 2.5));
-    key.target.updateMatrixWorld();
-    ground.position.set(0, 0, 0);
-    ground.scale.set(viewW * 1.4, viewH * 1.4, 1);
-  }
-
-  function hitsApple(event) {
-    if (!appleModel) return false;
-    const w = Math.max(innerWidth, 1);
-    const h = Math.max(innerHeight, 1);
-    pointerNdc.x = (event.clientX / w) * 2 - 1;
-    pointerNdc.y = -((event.clientY / h) * 2 - 1);
-    raycaster.setFromCamera(pointerNdc, camera);
-    tilt.updateMatrixWorld(true);
-    return raycaster.intersectObject(appleModel, true).length > 0;
-  }
-  function uiOwnsPointer(event) {
-    const el = event.target;
-    return !!(el && el.closest && el.closest('.crosshair, .stamp-panel, .sig-modal, .catalog-entry, .ig-link, .site-credits, .soon, .case-cover-caption, [data-preview], [data-preview-group], a, button, input, select, textarea, label'));
-  }
-  function onPointerMove(event) {
-    const w = Math.max(innerWidth, 1);
-    const h = Math.max(innerHeight, 1);
-    gaze.x = (event.clientX / w) * 2 - 1;
-    gaze.y = (event.clientY / h) * 2 - 1;
-    document.body.classList.toggle('apple-hover', !uiOwnsPointer(event) && hitsApple(event));
-  }
-  function onPointerLeave() {
-    document.body.classList.remove('apple-hover');
-    gaze.x = 0;
-    gaze.y = 0;
-  }
-  function onApplePointerDown(event) {
-    if (!alive || event.button !== 0 || reduced || mobileLayout.matches) return;
-    if (uiOwnsPointer(event) || !hitsApple(event)) return;
-    appleRoll = restartAppleOrbit(appleRoll, performance.now());
-    if (event.cancelable) event.preventDefault();
-  }
-  addEventListener('pointermove', onPointerMove);
-  addEventListener('pointerleave', onPointerLeave);
-  addEventListener('pointerdown', onApplePointerDown, { capture: true });
-  addEventListener('resize', placeApple);
-
-  new GLTFLoader().load(HEADER_APPLE_FILE, (gltf) => {
-    if (!alive) return;
-    const fitted = prepareHeaderApple(gltf);
-    fitted.traverse((node) => {
-      if (!node.isMesh) return;
-      node.castShadow = true;
-      node.receiveShadow = false;
-      const mats = Array.isArray(node.material) ? node.material : [node.material];
-      for (const material of mats) if (material) material.shadowSide = THREE.DoubleSide;
-    });
-    appleModel = new THREE.Group();
-    appleModel.add(fitted);
-    turn.add(appleModel);
-    appleEnter = reduced ? { start: performance.now() - APPLE_ENTER_MS } : { start: performance.now() };
-    host.classList.add('apple-shown');
-    placeApple();
-    resolveHeaderApple();
-  }, undefined, resolveHeaderApple);
-
-  applyAppleLayout();
-  placeApple();
-  let lastIntroProgress = -1;
-  let wasFlying = false;
-  renderer.setAnimationLoop(() => {
-    if (!alive || document.hidden) return;
-    const flying = appleEnter && performance.now() - appleEnter.start < APPLE_ENTER_MS;
-    const introChanged = introScrollProgress !== lastIntroProgress;
-    lastIntroProgress = introScrollProgress;
-    const landed = wasFlying && !flying;
-    wasFlying = flying;
-    if (introChanged || !appleModel || flying || landed || appleRolling() || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {
-      placeApple();
-    } else if (appleRoll && !appleRolling()) {
-      appleRoll = null;
-      placeApple();
-    }
-    if (appleFrameDirty) {
-      renderer.render(scene, camera);
-      appleFrameDirty = false;
-    }
-  });
-}
-
 function mountViewportApple() {
   if (VIEW_APPLE.xPx == null) VIEW_APPLE.xPx = Math.round(innerWidth * 0.5);
   if (VIEW_APPLE.topPx == null) VIEW_APPLE.topPx = 0;
@@ -5489,12 +5008,6 @@ function launch(tx, ty) {
   fy = destFy = a.fy;
   phase = 'rest';
 }
-let headerAppleMounted = false;
-function ensureHeaderApple() {
-  if (mobileLayout.matches || headerAppleMounted) return;
-  mountHeaderApple();
-  headerAppleMounted = true;
-}
 addEventListener('click', (e) => {
   const link = e.target.closest('a.mark');
   if (!link || parseRoute() !== 'board') return;
@@ -5517,14 +5030,7 @@ onDesktopRoute = () => {
     phase = 'rest';
   }
 };
-showDesktopApple = ensureHeaderApple;
 paint(parseRoute());
-try {
-  ensureHeaderApple();
-} catch (error) {
-  console.warn('The header apple could not start.', error);
-  resolveHeaderApple(error);
-}
 
 // --- сцена: камера всегда строго над яблоком --------------------------------
 

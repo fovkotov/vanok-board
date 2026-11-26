@@ -1,70 +1,29 @@
-// Preload only the assets used by the mounted layout. Identical URLs count once.
-const loads = new Map();
-const sources = new Map();
+// Only the intro and first case are needed before the loader opens the page.
+export async function loadPortfolioMedia(root, introImages, extraImages, report) {
+  const cover = root.querySelector('.case-cover');
+  const images = new Map();
+  for (const image of [...introImages, ...cover.querySelectorAll('img')]) {
+    const src = image.dataset.src || image.getAttribute('src');
+    if (src) images.set(src, image);
+  }
+  for (const video of cover.querySelectorAll('video[poster]')) {
+    images.set(video.getAttribute('poster'), null);
+  }
+  for (const url of extraImages) images.set(url, null);
 
-export function portfolioMediaSource(src) {
-  return sources.get(new URL(src, document.baseURI).href) || src;
-}
-
-async function fetchMedia(url, isVideo) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const media = await response.blob();
-  if (!media.size) throw new Error('Empty media file');
-  const localUrl = URL.createObjectURL(media);
-  try {
-    if (!isVideo) {
-      const image = new Image();
-      image.src = localUrl;
-      await image.decode();
+  const jobs = [...images].map(([src, target]) => async () => {
+    const image = target || new Image();
+    if (!target || image.dataset.src) {
+      image.src = src;
+      delete image.dataset.src;
     }
-    sources.set(url, localUrl);
-  } catch (error) {
-    URL.revokeObjectURL(localUrl);
-    throw error;
-  }
-}
-
-function preload(url, isVideo) {
-  if (!loads.has(url)) {
-    loads.set(url, fetchMedia(url, isVideo).catch(error => {
-      loads.delete(url);
-      throw new Error(`Could not load ${url}`, { cause: error });
-    }));
-  }
-  return loads.get(url);
-}
-
-export async function loadPortfolioMedia(root, introImages, extras, report) {
-  const jobs = new Map();
-  const add = (src, isVideo = false) => {
-    if (!src) return;
-    const url = new URL(src, document.baseURI).href;
-    if (!jobs.has(url)) jobs.set(url, () => preload(url, isVideo));
-  };
-  for (const img of [...introImages, ...root.querySelectorAll('.case img')]) {
-    add(img.dataset.src || img.getAttribute('src'));
-  }
-  for (const item of root.querySelectorAll('.case [data-preview]:not([data-preview-video])')) {
-    add(item.dataset.preview);
-  }
-  for (const item of root.querySelectorAll('.case [data-preview-video]')) {
-    add(item.dataset.previewVideo, true);
-  }
-  for (const video of root.querySelectorAll('.case video')) {
-    add(video.getAttribute('poster'));
-    add(video.dataset.src || video.getAttribute('src'), true);
-  }
-  for (const url of extras.images) add(url);
-  const queue = [...jobs.values(), ...extras.tasks];
-  const total = queue.length;
+    await image.decode();
+  });
+  const total = jobs.length;
   let done = 0;
   report(0, total);
-  const worker = async () => {
-    while (queue.length) {
-      await queue.shift()();
-      report(++done, total);
-    }
-  };
-  await Promise.all(Array.from({length: Math.min(6, total)}, worker));
+  await Promise.all(jobs.map(async load => {
+    await load();
+    report(++done, total);
+  }));
 }
