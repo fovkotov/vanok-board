@@ -8,18 +8,19 @@
 body { margin: 0; background: #d7d7d7; font-family: Arial, sans-serif; }
 .case { position: relative; aspect-ratio: 1440 / 800; container-type: inline-size; overflow: hidden; margin-bottom: 12px; }
 .case-cover-plane { width: 1440px !important; height: 800px !important; transform: scale(calc(100cqw / 1440px)); transform-origin: top left; }
+.case-cover-background { position: absolute; inset: 0; pointer-events: none; }
 .case-cover-caption { margin: 0; }
 [data-preview], [data-preview-group] { pointer-events: auto !important; cursor: zoom-in; }
-.preview { position: absolute; z-index: 30; inset: 0; pointer-events: none; }
+.preview { position: absolute; z-index: 30; inset: 0; pointer-events: none; clip-path: inset(0 0 24%); }
 .preview[hidden] { display: none; }
 .preview * { pointer-events: none !important; }
-.preview > :is(img, video, canvas) { position: absolute; inset: 20% 20%; width: 60%; height: 60%; object-fit: contain; }
+.preview > :is(img, video, canvas) { position: absolute; inset: 15% 20% auto; width: 60%; height: 60%; object-fit: contain; }
 .case:has(.preview:not([hidden])) .case-cover-caption { visibility: hidden; }
-.preview-group { position: absolute; left: 50%; top: 50%; width: 1440px; height: 800px; transform-origin: top left; transform: scale(5.45) translate(-483.43px, -727px); }
+.preview-group { position: absolute; left: 50%; top: 45%; width: 1440px; height: 800px; transform-origin: top left; transform: scale(5.45) translate(-483.43px, -727px); }
 </style>
 <main></main>
 <script type="module">
-import { CASE_COVERS } from './design/case-covers/cases.js?v=glossy-hd';
+import { CASE_COVERS } from './design/case-covers/cases.js?v=background-parallax';
 import { revealPoster } from './design/case-covers/poster-reveal.js?v=3';
 import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=2';
 const main = document.querySelector('main');

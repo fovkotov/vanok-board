@@ -15,32 +15,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   gtag('js', new Date());
   gtag('config', 'G-464M92WLLN');
 </script>
-<title>Vanök Regular・Website soon</title>
+<title>Vanök Regular — Graphic designer and art director</title>
+<link rel="canonical" href="https://vanokregular.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Vanök Regular", "url": "https://vanokregular.com/", "description": "Graphic designer and art director based in Belgrade, Serbia", "sameAs": ["https://www.instagram.com/vanok.regular/"]}</script>
 <meta name="description" content="Graphic designer and art director based in Belgrade, Serbia">
 <meta property="og:type" content="video.other">
 <meta property="og:site_name" content="Vanök Regular">
 <meta property="og:title" content="Vanök Regular・Website soon">
 <meta property="og:description" content="Graphic designer and art director based in Belgrade, Serbia">
-<meta property="og:url" content="https://fovkotov.github.io/vanok-teaser/">
-<meta property="og:image" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.jpg">
-<meta property="og:image:secure_url" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.jpg">
+<meta property="og:url" content="https://vanokregular.com/">
+<meta property="og:image" content="https://vanokregular.com/design/stub/og-cover-7.jpg">
+<meta property="og:image:secure_url" content="https://vanokregular.com/design/stub/og-cover-7.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:video" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.mp4">
-<meta property="og:video:url" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.mp4">
-<meta property="og:video:secure_url" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.mp4">
+<meta property="og:video" content="https://vanokregular.com/design/stub/og-cover-7.mp4">
+<meta property="og:video:url" content="https://vanokregular.com/design/stub/og-cover-7.mp4">
+<meta property="og:video:secure_url" content="https://vanokregular.com/design/stub/og-cover-7.mp4">
 <meta property="og:video:type" content="video/mp4">
 <meta property="og:video:width" content="1200">
 <meta property="og:video:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Vanök Regular・Website soon">
 <meta name="twitter:description" content="Graphic designer and art director based in Belgrade, Serbia">
-<meta name="twitter:image" content="https://fovkotov.github.io/vanok-teaser/design/stub/og-cover-7.jpg">
+<meta name="twitter:image" content="https://vanokregular.com/design/stub/og-cover-7.jpg">
 <link rel="icon" href="design/stub/favicon.png" type="image/png">
 <link rel="icon" href="design/stub/favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20261121">
-<link rel="icon" href="/favicon.ico?v=20261121" sizes="any">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20261121">
+<link rel="icon" href="favicon.ico?v=20261121" sizes="any">
 <meta name="apple-mobile-web-app-title" content="Vanök Regular">
 <link rel="preload" href="design/stub/wordmark.svg" as="image">
 <style>
@@ -1745,7 +1748,8 @@ if (embedParams.get('embed') === 'stamps') {
 }
 </script>
 <style>
-html.stamps-embed .frame > :not(.sign),
+html.stamps-embed .frame > :not(.sign, .site-credits),
+html.stamps-embed:not(.signoff-stamps) .frame > .site-credits,
 html.stamps-embed .apple-view,
 html.stamps-embed .apple-light,
 html.stamps-embed .stamp-panel { display: none !important; }
@@ -1893,8 +1897,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="design/stub/signatures.js?v=20261122-transparent-catalog"></script>
 <script type="importmap">
 { "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    "three": "./design/vendor/three/build/three.module.js",
+    "three/addons/": "./design/vendor/three/examples/jsm/"
 } }
 </script>
 <script type="module">
@@ -2826,26 +2830,11 @@ function revealTeaser() {
   window.__vanokStampsAt = Infinity;
 }
 
-const introImages = [
-  ...STAMP_IMPRINTS.map((item) => item.src),
-  ...APPLE_IMPRINTS.map((item) => item.src),
-  'design/stub/wordmark.svg',
-  'design/stub/wordmark-vanok-ui.svg',
-  'design/stub/wordmark-regular-ui.svg',
-  'design/stub/wordmark-8a7e59.svg',
-  'design/stub/wordmark-green.svg',
-  'design/stub/wordmark-star.svg',
-  'design/stub/crosshair.svg',
-  'design/stub/line.svg',
-];
+// The intro needs only its active visuals; other themes decode when shown.
 const introT0 = window.__vanokIntroT0 || performance.now();
-Promise.race([
-  Promise.all(introImages.map(decodeIntroImage)),
-  new Promise((resolve) => setTimeout(resolve, INTRO_LIMIT_MS)),
-]).then(() => {
-  const wait = Math.max(0, INTRO_BEAT_MS - (performance.now() - introT0));
-  setTimeout(revealTeaser, wait);
-});
+const activeWordmark = document.querySelector('.desk .wordmark');
+if (activeWordmark) activeWordmark.fetchPriority = 'high';
+setTimeout(revealTeaser, Math.max(0, INTRO_BEAT_MS - (performance.now() - introT0)));
 
 const STAMP_CASTS = [
   { file: 'blue.png', hex: 0x0a1ae9, color: 'blue' },
