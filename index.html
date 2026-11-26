@@ -23,7 +23,7 @@
     --vv-lift: 0px;
     --step-pct: 100;
     --tread-depth: 288;
-    --shaft-perspective: 1100px;
+    --shaft-perspective: 1100;
     --step-shade: 0;
   }
   html[data-theme="1"] {
@@ -429,21 +429,23 @@
 
   .escalator {
     position: relative;
-    width: 100vw;
+    --scene-unit: var(--k);
+    --scene-height: calc(800 * var(--scene-unit));
+    width: 100%;
     margin: 0;
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
     background: #E9E9E9;
     touch-action: none;
-    perspective: var(--shaft-perspective);
-    perspective-origin: 50% 24%;
+    perspective: calc(var(--shaft-perspective) * var(--scene-unit));
+    perspective-origin: 50% calc(50% - .26 * var(--scene-height));
   }
   .escalator-stage {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transform-origin: 50% 46%;
+    transform-origin: 50% calc(50% - .04 * var(--scene-height));
     transform: translateZ(0px) scale(1.2);
   }
   .escalator-track {
@@ -454,11 +456,9 @@
     transform-style: preserve-3d;
     will-change: transform;
   }
-  /* Лицо ступени. Десктоп — крупнейший 16:9. Coarse/mobile (data-riser) — крупнейший 9:16.
-     --step-pct масштабирует обе стороны, пропорция не меняется. */
+  /* Shared design coordinates. See docs/responsive-layout.md. */
   .reel .escalator .case {
-    --step-h: min(calc(var(--step-pct) * 1vh), calc(100vw * 800 / 1440 * var(--step-pct) / 100));
-    --step-h: min(calc(var(--step-pct) * 1dvh), calc(100vw * 800 / 1440 * var(--step-pct) / 100));
+    --step-h: calc(var(--scene-height) * var(--step-pct) / 100);
     --riser-w: calc(var(--step-h) * 1440 / 800);
     position: relative;
     height: var(--step-h);
@@ -482,14 +482,6 @@
     aspect-ratio: 16 / 9;
     overflow: hidden;
     background: #c4c4c4;
-  }
-  html[data-riser="portrait"] .reel .escalator .case {
-    --riser-w: min(calc(var(--step-pct) * 1vw), calc(100vh * 9 / 16 * var(--step-pct) / 100));
-    --riser-w: min(calc(var(--step-pct) * 1vw), calc(100dvh * 9 / 16 * var(--step-pct) / 100));
-    --step-h: calc(var(--riser-w) * 16 / 9);
-  }
-  html[data-riser="portrait"] .step-riser {
-    aspect-ratio: 9 / 16;
   }
   .step-slide {
     position: absolute;
@@ -516,7 +508,7 @@
   }
   html[data-separate-tread="true"][data-baked="true"] .step-tread {
     background-image: url('design/steps/rib-escalator-10.png') !important;
-    background-size: 8px 32px;
+    background-size: calc(8 * var(--scene-unit)) calc(32 * var(--scene-unit));
   }
   .screen-palette { display: flex; gap: 6px; margin-top: 10px; }
   .screen-palette i { height: 20px; flex: 1; border: 1px solid #888; }
@@ -528,17 +520,17 @@
   html[data-baked="true"] .step-tread {
     background-image: var(--baked-tread);
     background-repeat: repeat;
-    background-size: 8px 32px;
+    background-size: calc(8 * var(--scene-unit)) calc(32 * var(--scene-unit));
   }
   .step-tread::before { opacity: var(--rib-strength, 1); }
   .step-riser::before, .step-tread::before {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: var(--rib-texture); background-size: var(--rib-size); opacity: var(--rib-strength, 1);
+    background: var(--rib-texture); background-size: calc(var(--rib-width, 8) * var(--scene-unit)) calc(32 * var(--scene-unit)); opacity: var(--rib-strength, 1);
   }
   .step-slide { z-index: 1; }
   .step-riser::after {
     content: ''; position: absolute; inset: 0; z-index: 1;
-    pointer-events: none; background: var(--rib-texture); background-size: var(--rib-size);
+    pointer-events: none; background: var(--rib-texture); background-size: calc(var(--rib-width, 8) * var(--scene-unit)) calc(32 * var(--scene-unit));
     opacity: var(--rib-over-art, 0);
   }
   .stamp-panel { overscroll-behavior: contain; touch-action: pan-y; }
@@ -558,7 +550,7 @@
     left: calc(50% - var(--riser-w) / 2);
     top: 0;
     width: var(--riser-w);
-    height: calc(var(--tread-depth) * 1px);
+    height: calc(var(--tread-depth) * var(--scene-unit));
     transform-origin: center top;
     transform: rotateX(-90deg);
     background: #adadad;
@@ -567,7 +559,7 @@
     position: absolute;
     top: var(--boot-prints-depth, 50%);
     left: var(--boot-prints-x, 50%);
-    width: min(150px, 22%);
+    width: min(calc(150 * var(--scene-unit)), 22%);
     height: 84%;
     object-fit: contain;
     transform: translate(-50%, -50%) scale(var(--boot-prints-scale, 1));
@@ -1482,14 +1474,17 @@
   }
 
   body[data-route="board"], html:has(body[data-route="board"]), body[data-route="board"] .escalator { background: var(--board-bg); }
-  body[data-route="board"] .chrome { transform: translateY(var(--intro-header-top, calc(50dvh - 55px))); height: 40px; }
+  body[data-route="board"] {
+    --intro-rest-top: max(calc(120 * var(--k)), calc(50dvh - 55 * var(--k)));
+  }
+  body[data-route="board"] .chrome { transform: translateY(var(--intro-header-top, var(--intro-rest-top))); height: calc(40 * var(--k)); }
   body[data-route="board"] .header-apple { transform: none; }
   body[data-route="board"] .chrome .ig-link { left: 74.375%; }
   body[data-route="board"] .chrome .catalog-entry { display: none; }
   body[data-route="board"] .chrome .index-link { position: absolute; left: 91.74%; top: calc(12 * var(--hk)); font-size: calc(14 * var(--hk)); line-height: normal; white-space: nowrap; text-decoration: none; color: inherit; pointer-events: auto; }
   body[data-route="board"] .chrome .bio { left: 9.1%; }
   body[data-route="board"] .chrome .site-credits { display: none; }
-  body[data-route="board"] .lettering-ride { top: max(120px, calc(50dvh - 55px)); }
+  body[data-route="board"] .lettering-ride { top: var(--intro-rest-top); }
   .intro-script { position:absolute; transform: scale(calc(100vw / 1440px)); transform-origin: top left; pointer-events:none; }
   .intro-script-vanok { left: 41.94%; top: 0; }
   .intro-script-regular { left: 62.54%; top: calc(41 * var(--k)); }
@@ -1637,16 +1632,17 @@
     transform: translateX(-50%);
   }
   body[data-layout="mobile"] #app { width: 100%; overflow-x: clip; }
-  .mobile-escalator { width: 100%; touch-action: pan-x; }
+  .mobile-escalator { --scene-unit: var(--mobile-unit); touch-action: pan-x; }
   body[data-layout="mobile"] .reel .mobile-escalator .mobile-case {
     --riser-w: 100%;
-    --step-h: calc(666 * var(--mobile-unit));
+    --step-h: calc(666 * var(--scene-unit));
   }
   .mobile-escalator .escalator-stage { pointer-events: none; }
-  .mobile-case .step-riser { pointer-events: auto; }
+  .mobile-case .step-rig { transform-origin: center top; }
+  .mobile-case .step-riser { aspect-ratio: 375 / 666; pointer-events: auto; }
   .mobile-case .step-tread {
     background: #c8c8c8 url('design/steps/rib-escalator-10.png') repeat;
-    background-size: 8px 32px;
+    background-size: calc(8 * var(--scene-unit)) calc(32 * var(--scene-unit));
   }
   .mobile-case .case-cover { background: #111; container-type: inline-size; }
   .mobile-case .case-cover-plane {
@@ -1857,8 +1853,8 @@ function mountCaseCovers(root, tapOnly = false) {
   }
 
   // The perspective track can win native hit testing in front of its recessed faces.
-  // Use screen coordinates so the 30px padding stays constant in perspective.
-  function thumbnailAt(thumbs, coverBounds, x, y) {
+  // Use screen coordinates so scaled hit padding stays consistent across step depths.
+  function thumbnailAt(thumbs, coverBounds, x, y, padding) {
     const rows = [[], []];
     const middle = coverBounds.top + coverBounds.height / 2;
     for (const thumb of thumbs) {
@@ -1876,7 +1872,7 @@ function mountCaseCovers(root, tapOnly = false) {
         // Adjacent zones meet halfway across the gap between thumbnails.
         const start = previous ? (previous.right + left) / 2 : left;
         const end = next ? (right + next.left) / 2 : right;
-        if (x >= start && x < end && y >= top - 30 && y < bottom + 30) return thumb;
+        if (x >= start && x < end && y >= top - padding && y < bottom + padding) return thumb;
       }
     }
     return null;
@@ -1893,7 +1889,7 @@ function mountCaseCovers(root, tapOnly = false) {
       for (const entry of hoverTargets) {
         const bounds = entry.cover.getBoundingClientRect();
         if (x < bounds.left || x >= bounds.right || y < bounds.top || y >= bounds.bottom) continue;
-        const thumb = thumbnailAt(entry.thumbs, bounds, x, y);
+        const thumb = thumbnailAt(entry.thumbs, bounds, x, y, 30 * root.clientWidth / DESIGN_W);
         if (!thumb) continue;
         if (hoveredCover !== entry) clearHover();
         hoveredCover = entry;
@@ -2013,6 +2009,8 @@ const mobileTemplate = () => `
 `;
 
 const DESIGN_W = 1440;
+const MOBILE_DESIGN_W = 375;
+const DESIGN_H = 800;
 let introScrollProgress = 0;
 const STRIP_SPEED = 60;
 const scrollSnap = { scope: 'all', strength: 40, distance: 50, offset: 0 };
@@ -2049,6 +2047,8 @@ function mountEscalator(root, settings, mobile = false) {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   let alive = true;
   let y = 0;
+  const designWidth = mobile ? MOBILE_DESIGN_W : DESIGN_W;
+  let unit = 1;
   let last = performance.now();
   let held = null;
   const dragSamples = [];
@@ -2070,7 +2070,7 @@ function mountEscalator(root, settings, mobile = false) {
     const headerShift = -y * zoom * project;
     if (mobile) chrome.style.setProperty('--mobile-intro-y', `${headerShift}px`);
     else ride.style.transform = `translate3d(0, ${headerShift}px, 0)`;
-    const introDistance = Math.max(120, viewport.clientHeight * .5 - 55);
+    const introDistance = Math.max(120 * unit, viewport.clientHeight * .5 - 55 * unit);
     introScrollProgress = Math.max(0, Math.min(2, -headerShift / introDistance));
     document.documentElement.style.setProperty('--intro-header-top', `${Math.max(0, introDistance + headerShift)}px`);
     if (signoff) {
@@ -2108,7 +2108,7 @@ function mountEscalator(root, settings, mobile = false) {
 
   function resistManualScroll(delta) {
     if (!delta || scrollSnap.scope === 'off' || !scrollSnap.strength || motion.matches) return delta;
-    const radius = viewport.clientHeight * scrollSnap.distance / 100;
+    const radius = DESIGN_H * unit * scrollSnap.distance / 100;
     if (radius <= 0) return delta;
 
     // Integrate a triangular slowdown along the gesture, even when one wheel
@@ -2129,14 +2129,13 @@ function mountEscalator(root, settings, mobile = false) {
   }
 
   function placeLead() {
-    const chrome = document.querySelector('.chrome');
     const zoom = Number(settings.scale) || 1;
     const target = viewport.clientHeight * settings.introStairsY / 100;
     const savedY = y;
     y = 0;
     track.style.transform = 'translate3d(0, 0, 0)';
     let pad = target;
-    track.style.paddingTop = Math.round(pad) + 'px';
+    track.style.paddingTop = pad + 'px';
     const riser = originals[0] && originals[0].querySelector('.step-riser');
     if (riser) {
       placeStage();
@@ -2144,9 +2143,9 @@ function mountEscalator(root, settings, mobile = false) {
         articulate();
         const visual = riser.getBoundingClientRect().top - viewport.getBoundingClientRect().top;
         const error = target - visual;
-        if (Math.abs(error) < 1.5) break;
+        if (Math.abs(error) < 1.5 * unit) break;
         pad = Math.max(0, pad + error / zoom);
-        track.style.paddingTop = Math.round(pad) + 'px';
+        track.style.paddingTop = pad + 'px';
       }
     }
     y = savedY;
@@ -2182,7 +2181,7 @@ function mountEscalator(root, settings, mobile = false) {
     const sum = list.reduce((acc, sample) => acc + sample.dy, 0);
     const span = Math.max(0.016, (list[list.length - 1].t - list[0].t) / 1000);
     const speed = sum / span;
-    return Math.max(-INERTIA_V_CAP, Math.min(INERTIA_V_CAP, speed));
+    return Math.max(-INERTIA_V_CAP * unit, Math.min(INERTIA_V_CAP * unit, speed));
   }
 
   function armCoast(speed) {
@@ -2190,7 +2189,7 @@ function mountEscalator(root, settings, mobile = false) {
     let next = speed;
     if ((y <= min + 0.5 && next < 0) || (y >= max - 0.5 && next > 0)) next = 0;
     velocity = next;
-    coasting = Math.abs(velocity) > INERTIA_STOP;
+    coasting = Math.abs(velocity) > INERTIA_STOP * unit;
     if (!coasting) velocity = 0;
   }
 
@@ -2203,6 +2202,7 @@ function mountEscalator(root, settings, mobile = false) {
     let dy = event.deltaY;
     if (event.deltaMode === 1) dy *= 16;
     else if (event.deltaMode === 2) dy *= viewport.clientHeight || innerHeight;
+    if (event.deltaMode !== 2) dy *= unit;
     dy *= WHEEL_GAIN;
     const applied = applyDelta(resistManualScroll(dy));
     const now = performance.now();
@@ -2218,7 +2218,7 @@ function mountEscalator(root, settings, mobile = false) {
     pushSample(wheelSamples, applied, now);
     lastWheelAt = now;
     const avg = wheelSamples.reduce((acc, sample) => acc + Math.abs(sample.dy), 0) / wheelSamples.length;
-    if (wheelSamples.length >= 2 && avg < 70) {
+    if (wheelSamples.length >= 2 && avg < 70 * unit) {
       velocity = velocityFrom(wheelSamples);
       wheelLive = true;
     } else {
@@ -2293,11 +2293,25 @@ function mountEscalator(root, settings, mobile = false) {
   }
   addEventListener('message', onTeaserMessage);
   function onResize() {
+    const nextUnit = viewport.getBoundingClientRect().width / designWidth;
+    if (!nextUnit) return;
+    const ratio = nextUnit / unit;
+    y *= ratio;
+    velocity *= ratio;
+    if (ratio !== 1) {
+      dragSamples.length = 0;
+      wheelSamples.length = 0;
+    }
+    unit = nextUnit;
+    viewport.style.setProperty('--scene-unit', `${unit}px`);
+    if (mobile) {
+      root.style.setProperty('--mobile-cover-scale', unit);
+      document.body.style.setProperty('--mobile-unit', `${unit}px`);
+    }
     placeLead();
-    applyDelta(0);
   }
 
-  placeLead();
+  onResize();
   addEventListener('vanok-intro-layout', onResize);
   addEventListener('resize', onResize);
   addEventListener('wheel', onWheel, { passive: false });
@@ -2308,7 +2322,7 @@ function mountEscalator(root, settings, mobile = false) {
 
   function placeStage() {
     if (!stage) return;
-    const near = Number(settings.near) || 0;
+    const near = (Number(settings.near) || 0) * unit;
     const zoom = Number(settings.scale) || 1;
     stage.style.transform = `translateZ(${near}px) scale(${zoom})`;
   }
@@ -2316,25 +2330,32 @@ function mountEscalator(root, settings, mobile = false) {
   function articulate() {
     const viewH = viewport.clientHeight;
     if (viewH <= 0) return;
-    const recess = settings.recess;
-    const nose = 0.72;
-    // Read geometry in one batch before changing any transforms.
-    const geometry = originals.map(step => ({step, rise: step.offsetHeight, offset: step.offsetTop}));
+    const sceneH = DESIGN_H * unit;
+    const recess = settings.recess * unit;
+    const zoom = Number(settings.scale) || 1;
+    const perspective = settings.perspective * unit;
+    const near = settings.near * unit;
+    const center = viewH / 2 + scrollSnap.offset * unit;
+    const perspectiveY = viewH / 2 - .26 * sceneH;
+    const stageY = viewH / 2 - .04 * sceneH;
+    const noseY = viewH / 2 + .22 * sceneH;
+    const maxDepth = Math.max(recess, unit) * 8;
+    // Layout dimensions exclude the 3D transforms.
+    const geometry = originals.map(step => ({
+      step,
+      rise: parseFloat(getComputedStyle(step).height),
+      offset: step.offsetTop,
+    }));
     snapPoints = geometry.map(({rise, offset}) => {
-      const zoom = Number(settings.scale) || 1;
-      const perspective = Number(settings.perspective) || 1100;
-      const near = Number(settings.near) || 0;
-      const center = viewH / 2 + scrollSnap.offset;
-      const projectionOrigin = .24 * viewH - center;
-      const scaleOffset = (1 - zoom) * .46 * viewH + zoom * rise / 2;
-      const depthSlope = recess / Math.max(rise, .01 * viewH);
+      const projectionOrigin = perspectiveY - center + (mobile ? rise / 2 : 0);
+      const scaleOffset = (1 - zoom) * stageY + zoom * rise / 2;
+      const depthSlope = recess / Math.max(rise, .01 * sceneH);
       // Solve for the track position where the projected case face is centered.
       const flatOffset = (center + projectionOrigin * near / perspective - scaleOffset) / zoom;
-      const recessedOffset = (zoom * flatOffset - projectionOrigin * depthSlope * nose * viewH / perspective)
+      const recessedOffset = (zoom * flatOffset - projectionOrigin * depthSlope * noseY / perspective)
         / (zoom - projectionOrigin * depthSlope / perspective);
-      const maxDepth = Math.max(recess, 1) * 8;
-      const limit = nose * viewH - maxDepth / (depthSlope || 1);
-      const faceOffset = flatOffset >= nose * viewH ? flatOffset : recessedOffset < limit
+      const limit = noseY - maxDepth / (depthSlope || 1);
+      const faceOffset = flatOffset >= noseY ? flatOffset : recessedOffset < limit
         ? flatOffset - projectionOrigin * maxDepth / (perspective * zoom) : recessedOffset;
       return Math.max(0, offset - faceOffset);
     });
@@ -2342,25 +2363,20 @@ function mountEscalator(root, settings, mobile = false) {
     const maxBackgroundZoom = Math.min(.055, 60 / Math.max(viewport.clientWidth, 1));
     for (const [index, background] of caseBackgrounds.entries()) {
       if (!background || motion.matches) continue;
-      const approach = Math.max(0, Math.min(1, (snapPoints[index] - y) / (viewH * .65)));
+      const approach = Math.max(0, Math.min(1, (snapPoints[index] - y) / (sceneH * .65)));
       const scale = (1 + maxBackgroundZoom * approach ** 2).toFixed(4);
       if (background.style.getPropertyValue('--case-bg-scale') !== scale) {
         background.style.setProperty('--case-bg-scale', scale);
       }
     }
     for (const {step, rise, offset} of geometry) {
-      const stepFrac = Math.max(rise / viewH, 0.01);
-      const top = (offset - y) / viewH;
-      let depth = -recess * (nose - top) / stepFrac;
-      if (depth > 0) depth = 0;
-      const cap = Math.max(recess, 1) * 8;
-      if (depth < -cap) depth = -cap;
+      const depth = Math.max(-maxDepth, Math.min(0, recess * (offset - y - noseY) / Math.max(rise, .01 * sceneH)));
       const rig = step.querySelector('.step-rig');
       if (rig) {
-        // Cancel the perspective's horizontal narrowing on phone-sized faces.
-        const fillWidth = mobile ? 1 - depth / settings.perspective : 1;
-        rig.style.transform = `translateZ(${depth}px) scaleX(${fillWidth})`;
-        const shade = Math.min(1, Math.max(0, -depth / Math.max(recess, 1)));
+        // Restore the projected width on mobile with the same factor on both axes.
+        const projectionScale = mobile ? ` scale(${1 - depth / perspective})` : '';
+        rig.style.transform = `translateZ(${depth}px)${projectionScale}`;
+        const shade = Math.min(1, Math.max(0, -depth / Math.max(recess, unit)));
         rig.style.setProperty('--step-shade', shade.toFixed(3));
       }
       const tread = step.querySelector('.step-tread');
@@ -2388,14 +2404,14 @@ function mountEscalator(root, settings, mobile = false) {
       velocity *= Math.exp(-dt / INERTIA_TAU);
       const step = velocity * dt;
       const applied = applyDelta(step);
-      if (Math.abs(applied - step) > 0.5 || Math.abs(velocity) < INERTIA_STOP) {
+      if (Math.abs(applied - step) > 0.5 * unit || Math.abs(velocity) < INERTIA_STOP * unit) {
         velocity = 0;
         coasting = false;
       }
     } else if (escalatorStarted && y >= firstCaseY - 1 && !routeDialog.open && settings.autoPlay && !root.hasAttribute('data-preview-hover') && !document.querySelector('.case-cover-caption:active') && !motion.matches && !document.querySelector('.escalator-controls:not([hidden])')) {
       const { max } = range();
       if (y < max) {
-        const scale = innerWidth / DESIGN_W;
+        const scale = unit * designWidth / DESIGN_W;
         applyDelta(STRIP_SPEED * settings.speed * scale * dt);
       }
     }
@@ -2433,26 +2449,18 @@ let onDesktopRoute = null;
 let desktopStartup = null;
 
 function mountMobile(root) {
-  const updateScale = () => {
-    root.style.setProperty('--mobile-cover-scale', root.clientWidth / 375);
-    document.body.style.setProperty('--mobile-unit', `${root.clientWidth / 375}px`);
-  };
-  updateScale();
-  const resize = new ResizeObserver(updateScale);
-  resize.observe(root);
   const stopCovers = mountCaseCovers(root, true);
   const viewport = root.querySelector('.mobile-escalator');
   const settings = {
     scale: 1, near: 0, perspective: 850, introStairsY: 100, stepH: 100,
     tread: 145, recess: 130, speed: .2, autoPlay: true,
   };
-  viewport.style.setProperty('--shaft-perspective', settings.perspective + 'px');
+  viewport.style.setProperty('--shaft-perspective', settings.perspective);
   viewport.style.setProperty('--tread-depth', String(settings.tread));
   const stopEscalator = mountEscalator(root, settings, true);
   return () => {
     stopCovers();
     stopEscalator();
-    resize.disconnect();
   };
 }
 
@@ -2570,7 +2578,7 @@ let dragYaw = 0, dragPitch = 0;
 let grab = null;
 
 const SCREEN_COLORS = CASE_COVERS.map(() => '#C4C4C4');
-const escalator = { introStairsY: matchMedia('(max-width: 700px)').matches ? 91.375 : 120.375, separateTreadColor: false, treadColor: '#D0D0D0', stepColor: '#F0F0F0', autoPlay: true, pageTheme: 1, ribs: 2, ribStrength: .1, stepH: 100, speed: .2, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
+const escalator = { introStairsY: 120.375, separateTreadColor: false, treadColor: '#D0D0D0', stepColor: '#F0F0F0', autoPlay: true, pageTheme: 1, ribs: 2, ribStrength: .1, stepH: 100, speed: .2, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
 const bootPrints = { x: 50, depth: 50, scale: 100 };
 
 const RIB_PRESETS = [
@@ -2674,37 +2682,12 @@ function applyEscalatorVars() {
   const rib = RIB_PRESETS[escalator.ribs] || RIB_PRESETS[1];
   const pitch = Math.max(8, rib.pitch);
   root.style.setProperty('--rib-texture', rib.dark === 0 ? 'none' : escalator.ribs === 2 ? 'url("design/steps/rib-escalator-10.png")' : 'url("design/steps/rib-soft.png")');
-  root.style.setProperty('--rib-size', `${escalator.ribs === 2 ? 8 : Math.max(18, pitch * 2)}px 32px`);
+  root.style.setProperty('--rib-width', escalator.ribs === 2 ? 8 : Math.max(18, pitch * 2));
   root.style.setProperty('--rib-strength', escalator.ribs === 2 ? escalator.ribStrength / .1 : escalator.ribStrength);
   root.style.setProperty('--rib-over-art', (rib.over || 0) * escalator.ribStrength);
   root.style.setProperty('--step-pct', String(escalator.stepH));
   root.style.setProperty('--tread-depth', String(escalator.tread));
-  root.style.setProperty('--shaft-perspective', escalator.perspective + 'px');
-}
-
-// Phones and tablets. Coarse pointer covers a finger; a narrow touch viewport
-// covers the same breakpoint the page already uses when the pointer query misses.
-function coarseScrollDevice() {
-  if (matchMedia('(pointer: coarse)').matches) return true;
-  const narrow = matchMedia('(max-width: 440px)').matches;
-  const touch = navigator.maxTouchPoints > 0 || matchMedia('(hover: none)').matches;
-  return narrow && touch;
-}
-
-// Тот же признак, что у скролла (coarse или узкий тач), плюс брейкпоинт страницы 440px.
-// Размер остаётся в CSS (vw/dvh и --step-pct), флаг обновляется на ресайз и поворот.
-function riserIsPortrait() {
-  if (coarseScrollDevice()) return true;
-  return matchMedia('(max-width: 440px)').matches;
-}
-function applyRiserFrame() {
-  document.documentElement.dataset.riser = riserIsPortrait() ? 'portrait' : 'landscape';
-}
-applyRiserFrame();
-addEventListener('resize', applyRiserFrame);
-addEventListener('orientationchange', applyRiserFrame);
-for (const query of ['(pointer: coarse)', '(max-width: 440px)', '(hover: none)']) {
-  matchMedia(query).addEventListener('change', applyRiserFrame);
+  root.style.setProperty('--shaft-perspective', escalator.perspective);
 }
 
 const STRIP_W = 4087;
@@ -5070,7 +5053,7 @@ function mountEscalatorControls() {
   addControl(snapOptions, scrollSnap, 'Где срабатывать', 'scope', snapScope);
   for (const [name, key, min, max, step, unit] of [
     ['Сила сопротивления', 'strength', 0, 100, 1, '%'],
-    ['Чувствительность · зона замедления', 'distance', 1, 50, 1, '% экрана'],
+    ['Чувствительность · зона замедления', 'distance', 1, 50, 1, '% макета'],
     ['Смещение от центра', 'offset', -200, 200, 1, ' px'],
   ]) {
     const input = document.createElement('input');
