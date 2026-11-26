@@ -1518,7 +1518,6 @@
   .email-copy-action { position: absolute; inset: 0; text-align: left; visibility: hidden; }
   .email-copy:is(:hover, :focus-visible, [data-copied]) .email-copy-address { visibility: hidden; }
   .email-copy:is(:hover, :focus-visible, [data-copied]) .email-copy-action { visibility: visible; }
-  .case-cover { cursor: url("design/case-covers/case-soon.svg") 3 4, auto; }
   .case-cover .case-cover-caption { pointer-events: auto; user-select: text; -webkit-user-select: text; cursor: text; }
   .case-cover[data-preview-open] .case-cover-caption { visibility: hidden; }
   .route-dialog {
@@ -1629,8 +1628,14 @@
     width: calc(248 * var(--intro-unit));
     left: calc(50% + 53.505 * var(--intro-unit));
     top: calc(50% - 211 * var(--intro-unit));
-    transform: translateX(-50%);
+    transform: translateX(-50%) translate(var(--apple-x, 0px), var(--apple-y, 0px));
+    border: 0;
+    background: transparent;
+    padding: 0;
+    pointer-events: auto;
+    cursor: pointer;
   }
+  .mobile-intro-apple img { display: block; width: 100%; height: auto; pointer-events: none; }
   body[data-layout="mobile"] #app { width: 100%; overflow-x: clip; }
   .mobile-escalator { --scene-unit: var(--mobile-unit); touch-action: pan-x; }
   body[data-layout="mobile"] .reel .mobile-escalator .mobile-case {
@@ -1686,9 +1691,80 @@
     .route-dialog-close img { width: 13px; }
     .route-dialog-copy { gap: 8px; }
   }
+  .portfolio-loader {
+    --loader-unit: min(var(--k), calc(100dvh / 800));
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    background: #e9e9e9 url("design/stub/stamp-loading.svg?v=blue") 0 0 / 50% 100% repeat-x;
+    animation: portfolio-loader-drift 6s steps(44, end) infinite;
+    touch-action: none;
+  }
+  .portfolio-loader[hidden] { display: none; }
+  .portfolio-loader-art { width: calc(460 * var(--loader-unit)); height: auto; display: block; }
+  .portfolio-loader-progress { font: bold 28px Arial, sans-serif; fill: #fff; }
+  .portfolio-loader-error {
+    position: absolute;
+    top: calc(50% + 210 * var(--loader-unit));
+    color: #0a1ae9;
+    background: #e9e9e9;
+    padding: .75em;
+    text-align: center;
+    font-size: max(14px, calc(14 * var(--loader-unit)));
+  }
+  .portfolio-loader-error button { font: inherit; color: inherit; cursor: pointer; }
+  @media (max-width: 700px), (max-width: 1024px) and (orientation: portrait) and (pointer: coarse) {
+    .portfolio-loader { --loader-unit: min(calc(100vw / 375), calc(100dvh / 600)); }
+    .portfolio-loader-art { width: calc(254 * var(--loader-unit)); }
+    .portfolio-loader-error { top: calc(50% + 118 * var(--loader-unit)); }
+  }
+  @keyframes portfolio-loader-drift { to { background-position-x: -100%; } }
+  @media (prefers-reduced-motion: reduce) { .portfolio-loader { animation: none; } }
 </style>
 </head>
 <body data-route="board">
+<div class="portfolio-loader" id="portfolio-loader" hidden>
+  <div role="progressbar" aria-label="Loading portfolio" aria-valuenow="0">
+    <svg class="portfolio-loader-art" width="538" height="399" viewBox="0 0 538 399" aria-hidden="true">
+      <image href="design/assets/loader-lion.svg" width="538" height="399"/>
+      <text class="portfolio-loader-progress" transform="matrix(.95 .44 .23 1 64 313)" text-anchor="middle" dominant-baseline="central">0%</text>
+    </svg>
+  </div>
+  <div class="portfolio-loader-error" hidden>
+    <p role="alert">Some portfolio files could not load.</p>
+    <button type="button">Retry</button>
+  </div>
+</div>
+<script>
+(() => {
+  const loader = document.getElementById('portfolio-loader');
+  const meter = loader.querySelector('[role="progressbar"]');
+  const number = loader.querySelector('.portfolio-loader-progress');
+  const error = loader.querySelector('.portfolio-loader-error');
+  loader.hidden = false;
+  const showError = () => { error.hidden = false; };
+  const startupTimeout = setTimeout(showError, 30000);
+  error.querySelector('button').addEventListener('click', () => location.reload());
+  addEventListener('portfolio-progress', event => {
+    clearTimeout(startupTimeout);
+    const value = event.detail;
+    if (value === 0) error.hidden = true;
+    meter.setAttribute('aria-valuenow', value);
+    number.textContent = value + '%';
+  });
+  addEventListener('portfolio-load-error', showError);
+  addEventListener('portfolio-ready', () => {
+    // Paint the completed state on the lid before revealing the site.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (loader.hidden || meter.getAttribute('aria-valuenow') !== '100') return;
+      loader.hidden = true;
+      dispatchEvent(new Event('portfolio-revealed'));
+    }));
+  });
+})();
+</script>
 <script>
   if (matchMedia('(max-width: 700px)').matches) document.body.dataset.layout = 'mobile';
 </script>
@@ -1696,7 +1772,9 @@
 <header class="chrome">
   <img class="mobile-intro-art mobile-intro-regular" src="design/assets/mobile-regular.svg" alt="Regular">
   <img class="mobile-intro-art mobile-intro-vanok" src="design/assets/mobile-vanok.svg" alt="Vanök">
-  <img class="mobile-intro-art mobile-intro-apple" src="design/assets/mobile-apple.png" alt="">
+  <button class="mobile-intro-art mobile-intro-apple" type="button" aria-label="Roll the apple">
+    <img src="design/assets/mobile-apple.png" alt="">
+  </button>
   <img class="intro-script intro-script-vanok" src="design/assets/intro-vanok.svg" alt="Vanök">
   <img class="intro-script intro-script-regular" src="design/assets/intro-regular.svg" alt="Regular">
   <a class="index-link" href="#/index">Index</a>
@@ -1728,9 +1806,11 @@
 import { CASE_COVERS } from './design/case-covers/cases.js?v=background-parallax';
 import { MOBILE_CASES } from './design/case-covers/mobile-cases.js?v=20261127-stair-risers';
 import { revealPoster } from './design/case-covers/poster-reveal.js?v=3';
-import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=2';
+import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=3';
+import { loadPortfolioMedia, portfolioMediaSource } from './design/case-covers/preload.js';
 
 const app = document.getElementById('app');
+const portfolioLoader = document.getElementById('portfolio-loader');
 const mobileLayout = matchMedia('(max-width: 700px), (max-width: 1024px) and (orientation: portrait) and (pointer: coarse)');
 const emailLink = document.querySelector('.email-copy');
 const emailAction = emailLink.querySelector('.email-copy-action');
@@ -1764,7 +1844,7 @@ function mountCaseCovers(root, tapOnly = false) {
     overlay.setAttribute('aria-hidden', 'true');
     plane.append(overlay);
     const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
-    const showVideo = preparePreviewVideos(plane);
+    const showVideo = preparePreviewVideos(plane, portfolioMediaSource);
     let active = null;
     let stopReveal = () => {};
     const hide = () => {
@@ -1810,20 +1890,11 @@ function mountCaseCovers(root, tapOnly = false) {
         const art = new Image();
         art.alt = '';
         art.className = 'case-hover-art';
-        const fullSize = new URL(thumb.dataset.preview, document.baseURI).href;
+        const fullSize = portfolioMediaSource(thumb.dataset.preview);
         const isPoster = thumb.hasAttribute('data-poster-reveal');
-        const thumbnail = thumb instanceof HTMLImageElement ? thumb : thumb.querySelector('img');
-        art.src = isPoster ? fullSize : thumbnail?.currentSrc || thumbnail?.src || thumbnail?.dataset.src || fullSize;
+        art.src = fullSize;
         overlay.replaceChildren(art);
-        if (isPoster) {
-          stopReveal = revealPoster(art, fullSize);
-        } else if (art.src !== fullSize) {
-          const highRes = new Image();
-          highRes.src = fullSize;
-          highRes.decode().then(() => {
-            if (active === thumb && art.parentElement === overlay) art.src = fullSize;
-          }).catch(() => {});
-        }
+        if (isPoster) stopReveal = revealPoster(art, fullSize);
       }
       overlay.hidden = false;
     };
@@ -1906,31 +1977,36 @@ function mountCaseCovers(root, tapOnly = false) {
 
   const videos = new IntersectionObserver(entries => {
     for (const {target, isIntersecting} of entries) {
-      if (isIntersecting) {
-        if (!target.src) target.src = target.dataset.src;
+      if (isIntersecting && portfolioLoader.hidden) {
+        if (!target.src) target.src = portfolioMediaSource(target.dataset.src);
         target.play().catch(() => {});
       } else target.pause();
     }
   }, { threshold: 0.05 });
-  covers.forEach(cover => cover.querySelectorAll('video[data-src]').forEach(video => videos.observe(video)));
+  const watchVideos = () => {
+    covers.forEach(cover => cover.querySelectorAll('video[data-src]').forEach(video => videos.observe(video)));
+  };
+  if (portfolioLoader.hidden) watchVideos();
+  else addEventListener('portfolio-revealed', watchVideos, { once: true });
 
   const load = cover => {
     cover.querySelectorAll('img[data-src]').forEach(img => {
-      img.src = img.dataset.src;
+      img.src = portfolioMediaSource(img.dataset.src);
       img.removeAttribute('data-src');
     });
   };
   const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) if (entry.isIntersecting) {
+    for (const entry of entries) if (entry.isIntersecting && portfolioLoader.hidden) {
       load(entry.target);
       observer.unobserve(entry.target);
     }
   }, { rootMargin: '150% 0px' });
-  covers.forEach((cover, index) => index < 2 ? load(cover) : observer.observe(cover));
+  covers.forEach((cover, index) => index < 2 && portfolioLoader.hidden ? load(cover) : observer.observe(cover));
   return () => {
     for (const entry of hoverTargets) entry.hide();
     observer.disconnect();
     videos.disconnect();
+    removeEventListener('portfolio-revealed', watchVideos);
     window.removeEventListener('pointermove', onHover, true);
     document.documentElement.removeEventListener('pointerleave', clearHover);
     delete root.dataset.previewHover;
@@ -2002,7 +2078,7 @@ const mobileTemplate = () => `
         <div class="escalator-track">${MOBILE_CASES}</div>
       </div>
       <section class="signoff" aria-label="Leave a stamp">
-        <iframe class="stamp-teaser" data-src="stub.html?embed=stamps&amp;surface=signoff" title="Sign Here — печати из тизера" loading="lazy"></iframe>
+        <iframe class="stamp-teaser" data-src="stub.html?embed=stamps&amp;surface=signoff&amp;layout=mobile" title="Sign Here — печати из тизера" loading="lazy"></iframe>
       </section>
     </div>
   </div>
@@ -2013,7 +2089,7 @@ const MOBILE_DESIGN_W = 375;
 const DESIGN_H = 800;
 let introScrollProgress = 0;
 const STRIP_SPEED = 60;
-const scrollSnap = { scope: 'all', strength: 40, distance: 50, offset: 0 };
+const scrollSnap = { scope: 'all', strength: 61, distance: 50, offset: 0 };
 function escalatorTouchBlocked(target) {
   return target instanceof Element && !!target.closest(
     'a, button, input, textarea, select, summary, label, .sig-modal, .stamp-panel'
@@ -2194,7 +2270,7 @@ function mountEscalator(root, settings, mobile = false) {
   }
 
   function onWheel(event) {
-    if (routeDialog.open) return;
+    if (!portfolioLoader.hidden || routeDialog.open) return;
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     if (!wheelScrollsPage(event)) return;
     event.preventDefault();
@@ -2228,12 +2304,13 @@ function mountEscalator(root, settings, mobile = false) {
   }
 
   function onTouchStart(event) {
-    if (event.touches.length !== 1) return;
+    if (!portfolioLoader.hidden || event.touches.length !== 1) return;
     const onThumbnail = mobile && event.target instanceof Element && event.target.closest('.mobile-thumb-scroll');
-    if (!onThumbnail && escalatorTouchBlocked(event.target)) return;
-    if (!(event.target instanceof Element) || !viewport.contains(event.target)) return;
+    const fromApple = mobile && event.target instanceof Element && event.target.closest('.mobile-intro-apple');
+    if (!onThumbnail && !fromApple && escalatorTouchBlocked(event.target)) return;
+    if (!(event.target instanceof Element) || (!fromApple && !viewport.contains(event.target))) return;
     const t = event.touches[0];
-    held = { id: t.identifier, x: t.clientX, y: t.clientY, axis: null, onThumbnail };
+    held = { id: t.identifier, x: t.clientX, y: t.clientY, axis: null, lockAxis: onThumbnail || fromApple };
     dragSamples.length = 0;
     coasting = false;
     wheelLive = false;
@@ -2247,7 +2324,7 @@ function mountEscalator(root, settings, mobile = false) {
     if (!t) return;
     const dx = t.clientX - held.x;
     const dy = t.clientY - held.y;
-    if (held.onThumbnail && !held.axis) {
+    if (held.lockAxis && !held.axis) {
       if (Math.max(Math.abs(dx), Math.abs(dy)) < 6) return;
       held.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
     }
@@ -2443,6 +2520,54 @@ function mountEscalator(root, settings, mobile = false) {
 }
 
 let unmountStrip = null;
+const APPLE_ORBIT_MS = 8800;
+
+function restartAppleOrbit(current, now) {
+  const phase = appleOrbitPhase(current, now);
+  return { start: now, phase, laps: phase > 0 ? 2 - phase : 1 };
+}
+
+function appleOrbitPhase(orbit, now) {
+  if (!orbit) return 0;
+  const t = (now - orbit.start) / (APPLE_ORBIT_MS * orbit.laps);
+  if (t >= 1) return 0;
+  // Keep the same position on a repeated click and ease out on returning home.
+  const eased = orbit.phase ? 1 - (1 - t) ** 1.5 : t * t * (3 - 2 * t);
+  return (orbit.phase + orbit.laps * eased) % 1;
+}
+
+function appleOrbitOffset(phase, radius, angle, direction) {
+  const theta = angle + direction * 2 * Math.PI * phase;
+  return {
+    dx: radius * (Math.cos(theta) - Math.cos(angle)),
+    dy: radius * (Math.sin(theta) - Math.sin(angle)),
+  };
+}
+
+const mobileApple = document.querySelector('.mobile-intro-apple');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let mobileAppleOrbit = null;
+let mobileAppleFrame = 0;
+function drawMobileApple(now) {
+  const phase = appleOrbitPhase(mobileAppleOrbit, now);
+  if (!mobileLayout.matches || now >= mobileAppleOrbit.start + APPLE_ORBIT_MS * mobileAppleOrbit.laps) {
+    mobileAppleOrbit = null;
+    mobileAppleFrame = 0;
+    mobileApple.style.removeProperty('--apple-x');
+    mobileApple.style.removeProperty('--apple-y');
+    return;
+  }
+  const offset = appleOrbitOffset(phase, Math.min(innerWidth * .15, innerHeight * .12), Math.PI / 5, 1);
+  mobileApple.style.setProperty('--apple-x', `${offset.dx}px`);
+  mobileApple.style.setProperty('--apple-y', `${offset.dy}px`);
+  mobileAppleFrame = requestAnimationFrame(drawMobileApple);
+}
+mobileApple.addEventListener('click', () => {
+  if (reduceMotion.matches) return;
+  mobileAppleOrbit = restartAppleOrbit(mobileAppleOrbit, performance.now());
+  if (!mobileAppleFrame) mobileAppleFrame = requestAnimationFrame(drawMobileApple);
+});
+
 let mountDesktop = null;
 let showDesktopApple = null;
 let onDesktopRoute = null;
@@ -2464,6 +2589,39 @@ function mountMobile(root) {
   };
 }
 
+let resolveHeaderApple;
+const headerAppleLoaded = new Promise(resolve => { resolveHeaderApple = resolve; });
+let portfolioLoadId = 0;
+
+async function preloadMountedPortfolio(mobile) {
+  const loadId = ++portfolioLoadId;
+  const intro = document.querySelectorAll(mobile
+    ? 'img.mobile-intro-art, .mobile-intro-apple img'
+    : '.intro-script');
+  const images = ['design/assets/loader-lion.svg', 'design/stub/stamp-loading.svg?v=blue'];
+  if (!mobile) images.push('design/steps/boot-prints.webp', 'design/steps/tread-1-0.png');
+  const tasks = mobile ? [] : [async () => {
+    const result = await headerAppleLoaded;
+    if (result) throw result;
+  }];
+  try {
+    await loadPortfolioMedia(app, intro, {images, tasks}, (done, total) => {
+      if (loadId !== portfolioLoadId || portfolioLoader.hidden) return;
+      dispatchEvent(new CustomEvent('portfolio-progress', { detail: Math.floor(done * 100 / total) }));
+    });
+    if (loadId !== portfolioLoadId) return;
+    for (const img of app.querySelectorAll('.case img[data-src]')) {
+      img.src = portfolioMediaSource(img.dataset.src);
+      img.removeAttribute('data-src');
+    }
+    if (!portfolioLoader.hidden) dispatchEvent(new Event('portfolio-ready'));
+  } catch (error) {
+    if (loadId !== portfolioLoadId) return;
+    console.error('Portfolio media could not load.', error);
+    if (!portfolioLoader.hidden) dispatchEvent(new Event('portfolio-load-error'));
+  }
+}
+
 function paint(name) {
   const layout = mobileLayout.matches ? 'mobile' : 'board';
   if ((!unmountStrip || document.body.dataset.layout !== layout) && (layout === 'mobile' || mountDesktop)) {
@@ -2476,12 +2634,14 @@ function paint(name) {
       app.innerHTML = desktopTemplate();
       unmountStrip = mountDesktop(app);
     }
+    preloadMountedPortfolio(layout === 'mobile');
   }
   const content = ROUTE_DIALOGS[name];
   if (!content) {
     if (routeDialog.open) routeDialog.close();
     return;
   }
+  if (!portfolioLoader.hidden) return;
   routeDialog.querySelector('h2').textContent = content[0];
   routeDialog.querySelector('p').textContent = content[1];
   showRouteStamps(name);
@@ -2492,11 +2652,15 @@ let desktopTemplate = null;
 function updateLayout() {
   paint(parseRoute());
   if (!mobileLayout.matches) {
-    desktopStartup ||= startDesktop().catch(error => console.error('The desktop scene could not start.', error));
+    desktopStartup ||= startDesktop().catch(error => {
+      console.error('The desktop scene could not start.', error);
+      if (!mobileLayout.matches && !portfolioLoader.hidden && !unmountStrip) dispatchEvent(new Event('portfolio-load-error'));
+    });
     showDesktopApple?.();
   }
 }
 mobileLayout.addEventListener('change', updateLayout);
+addEventListener('portfolio-revealed', () => paint(parseRoute()), { once: true });
 addEventListener('hashchange', () => {
   paint(parseRoute());
   onDesktopRoute?.();
@@ -2556,7 +2720,7 @@ desktopTemplate = () => `
           </div>
         </div>
         <section class="signoff" aria-label="Leave a stamp">
-          <iframe class="stamp-teaser" data-src="stub.html?embed=stamps&amp;surface=signoff" title="Sign Here — печати из тизера" loading="lazy"></iframe>
+          <iframe class="stamp-teaser" data-src="stub.html?embed=stamps&amp;surface=signoff&amp;layout=desktop" title="Sign Here — печати из тизера" loading="lazy"></iframe>
         </section>
       </div>
     </div>
@@ -2579,7 +2743,7 @@ let grab = null;
 
 const SCREEN_COLORS = CASE_COVERS.map(() => '#C4C4C4');
 const escalator = { introStairsY: 120.375, separateTreadColor: false, treadColor: '#D0D0D0', stepColor: '#F0F0F0', autoPlay: true, pageTheme: 1, ribs: 2, ribStrength: .1, stepH: 100, speed: .2, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
-const bootPrints = { x: 50, depth: 50, scale: 100 };
+const bootPrints = { x: 79, depth: 91, scale: 245 };
 
 const RIB_PRESETS = [
   {name:'01 · Гладкий', desc:'Без канавок — для сравнения', pitch:8, dark:0, light:0},
@@ -4094,22 +4258,15 @@ function mountHeaderApple() {
   const gazeEuler = new THREE.Euler(0, 0, 0, 'XYZ');
   const gazePitch = new THREE.Quaternion();
   const gazeYaw = new THREE.Quaternion();
-  const rollQuat = new THREE.Quaternion();
-  const rollAxis = new THREE.Vector3();
   const axisX = new THREE.Vector3(1, 0, 0);
   const axisUp = new THREE.Vector3(0, 0, -1);
   const GAZE = 8 * Math.PI / 180;
-  const DRAG_LIMIT = 18 * Math.PI / 180;
-  const DRAG_PX = 120;
   const raycaster = new THREE.Raycaster();
   const pointerNdc = new THREE.Vector2();
-  const drag = { active: false, pointerId: -1, x0: 0, y0: 0, yaw0: 0, pitch0: 0, yaw: 0, pitch: 0 };
-  let dragClock = performance.now();
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const APPLE_ENTER_MS = 2200;
+  let gazeClock = performance.now();
+  const reduced = reduceMotion.matches;
+  const APPLE_ENTER_MS = 2900;
   const easeAppleEntry = cubicBezierEase(.22, .18, .32, 1);
-  const APPLE_ROLL_MS = 6200;
-  const APPLE_ROLL_STEPS = 480;
   let appleEnter = null;
   let appleRoll = null;
 
@@ -4130,177 +4287,33 @@ function mountHeaderApple() {
       return calc(t, y1, y2);
     };
   }
-  const easeSlow = cubicBezierEase(0.16, 1, 0.3, 1);
   function appleEnterEase() {
     if (reduced || !appleEnter) return appleEnter ? 1 : 0;
     return easeAppleEntry(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
   }
-  function appleOffscreen() {
-    const restingY = innerHeight * .5 - 43 * innerWidth / 1440;
-    return -restingY - appleScreenRadius() * 1.4;
-  }
   function appleEntryPosition(progress = appleEnterEase()) {
     const remaining = reduced ? 0 : 1 - progress;
-    const arcWidth = Math.min(innerWidth * .32, innerHeight * .5);
+    const arcWidth = Math.min(innerWidth * .08, innerHeight * .13);
     return {
       x: -arcWidth * remaining * (.38 + .62 * (1 - remaining)),
-      y: appleOffscreen() * remaining,
+      y: -innerHeight * .18 * remaining,
     };
-  }
-  function appleEnterRot() {
-    return { x: pose.rotX, y: pose.rotY, z: pose.rotZ };
-  }
-  function appleScreenRadius() {
-    const w = Math.max(innerWidth, 2);
-    const h = Math.max(innerHeight, 2);
-    const headerH = 306 * (w / 1440);
-    const viewH = 2.4 * (h / Math.max(headerH, 1));
-    const poseSize = matchMedia('(max-width: 440px)').matches
-      ? pose.size / mobileFrameScale()
-      : pose.size;
-    return Math.max(12, 0.39 * poseSize * (h / viewH));
-  }
-  function appleRollMargin() {
-    const h = Math.max(innerHeight, 2);
-    const headerH = 306 * (Math.max(innerWidth, 2) / 1440);
-    const viewH = 2.4 * (h / Math.max(headerH, 1));
-    const px = h / Math.max(viewH, 1e-6);
-    if (!shadowBox.isEmpty() && Number.isFinite(shadowBox.max.x) && Number.isFinite(shadowBox.max.z)) {
-      const half = 0.5 * Math.max(
-        shadowBox.max.x - shadowBox.min.x,
-        shadowBox.max.z - shadowBox.min.z,
-      ) * px;
-      if (half > 8) return half;
-    }
-    return appleScreenRadius() * TURN_SCALE;
-  }
-  function appleRollSpec() {
-    const mobile = matchMedia('(max-width: 440px)').matches;
-    const h = Math.max(innerHeight, 1);
-    if (mobile) return { radius: h * 0.18, theta0: 32 * Math.PI / 180, dir: 1 };
-    return { radius: h * 0.21, theta0: -160 * Math.PI / 180, dir: -1 };
-  }
-  function appleRollEaseInverse(u) {
-    if (u <= 0) return 0;
-    if (u >= 1) return 1;
-    let lo = 0;
-    let hi = 1;
-    for (let i = 0; i < 22; i++) {
-      const mid = (lo + hi) * 0.5;
-      if (easeSlow(mid) < u) lo = mid;
-      else hi = mid;
-    }
-    return (lo + hi) * 0.5;
-  }
-  function appleRollClock(spec) {
-    const steps = APPLE_ROLL_STEPS;
-    const times = new Float64Array(steps + 1);
-    const easeAt = new Float64Array(steps + 1);
-    const layout = {
-      ox: pose.xPx,
-      oy: pose.topPx + appleEntryPosition().y,
-      w: Math.max(innerWidth, 1),
-      h: Math.max(innerHeight, 1),
-      margin: appleRollMargin(),
-      c0: Math.cos(spec.theta0),
-      s0: Math.sin(spec.theta0),
-    };
-    for (let i = 0; i < steps; i++) {
-      const u1 = (i + 1) / steps;
-      const ease = i + 1 === steps ? 1 : appleRollEaseInverse(u1);
-      const theta = spec.theta0 + spec.dir * Math.PI * 2 * ((i + 0.5) / steps);
-      const x = layout.ox + spec.radius * (Math.cos(theta) - layout.c0);
-      const y = layout.oy + spec.radius * (Math.sin(theta) - layout.s0);
-      const off = x < -layout.margin || y < -layout.margin || x > layout.w + layout.margin || y > layout.h + layout.margin;
-      const dtOld = Math.max(0, (ease - easeAt[i]) * APPLE_ROLL_MS);
-      times[i + 1] = times[i] + dtOld / (off ? 2 : 1);
-      easeAt[i + 1] = ease;
-    }
-    return { times, easeAt, steps, duration: times[steps] };
   }
   function appleRolling() {
-    return !!(appleRoll && (performance.now() - appleRoll.start) < appleRoll.clock.duration);
+    return appleRoll && performance.now() - appleRoll.start < APPLE_ORBIT_MS * appleRoll.laps;
   }
-  function appleRollParam(clock, elapsed) {
-    if (elapsed <= 0) return 0;
-    if (elapsed >= clock.duration) return 1;
-    let lo = 1;
-    let hi = clock.steps;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (clock.times[mid] < elapsed) lo = mid + 1;
-      else hi = mid;
-    }
-    const t0 = clock.times[lo - 1];
-    const t1 = clock.times[lo];
-    const f = t1 > t0 ? (elapsed - t0) / (t1 - t0) : 0;
-    const ease = clock.easeAt[lo - 1] + (clock.easeAt[lo] - clock.easeAt[lo - 1]) * f;
-    return easeSlow(Math.min(1, Math.max(0, ease)));
-  }
-  function appleRollSample() {
-    if (!appleRoll) return null;
-    const u = appleRollParam(appleRoll.clock, performance.now() - appleRoll.start);
-    if (!(u > 0) || u >= 1) return null;
-    const spec = appleRoll.spec;
-    const theta = spec.theta0 + spec.dir * Math.PI * 2 * u;
-    const turns = Math.max(1, Math.round(spec.radius / appleScreenRadius()));
-    return {
-      dx: spec.radius * (Math.cos(theta) - Math.cos(spec.theta0)),
-      dy: spec.radius * (Math.sin(theta) - Math.sin(spec.theta0)),
-      tx: spec.dir * -Math.sin(theta),
-      ty: spec.dir * Math.cos(theta),
-      angle: Math.PI * 2 * turns * u,
-    };
-  }
-  function startAppleRoll() {
-    if (reduced || appleRolling()) return;
-    const spec = appleRollSpec();
-    appleRoll = { start: performance.now(), spec, clock: appleRollClock(spec) };
-  }
-  function clampDrag(angle) {
-    return Math.max(-DRAG_LIMIT, Math.min(DRAG_LIMIT, angle));
-  }
-  function followPointer(entryProgress, roll) {
+  function followPointer(phase) {
     const now = performance.now();
-    const dt = Math.min(0.05, Math.max(0, (now - dragClock) / 1000));
-    dragClock = now;
-    if (!drag.active) {
-      const k = 1 - Math.exp(-dt * 8);
-      drag.yaw += -drag.yaw * k;
-      drag.pitch += -drag.pitch * k;
-    }
+    const dt = Math.min(0.05, Math.max(0, (now - gazeClock) / 1000));
+    gazeClock = now;
     const gazeBlend = 1 - Math.exp(-dt * 2.5);
     gaze.sx += (gaze.x - gaze.sx) * gazeBlend;
     gaze.sy += (gaze.y - gaze.sy) * gazeBlend;
-    const enterRot = appleEnterRot();
-    gazeEuler.set(enterRot.x * Math.PI / 180, enterRot.y * Math.PI / 180, enterRot.z * Math.PI / 180);
+    gazeEuler.set(pose.rotX * Math.PI / 180, pose.rotY * Math.PI / 180, pose.rotZ * Math.PI / 180);
     gazeBase.setFromEuler(gazeEuler);
-    const radius = appleScreenRadius();
-    // Work backwards from the resting pose, rolling along each segment of the arc.
-    let point = appleEntryPosition(1);
-    for (let segment = 1; segment <= 16 && entryProgress < 1 && !reduced; segment++) {
-      const previous = appleEntryPosition(1 - (1 - entryProgress) * segment / 16);
-      const dx = previous.x - point.x;
-      const dy = previous.y - point.y;
-      const distance = Math.hypot(dx, dy);
-      if (distance) {
-        rollAxis.set(dy / distance, 0, -dx / distance);
-        rollQuat.setFromAxisAngle(rollAxis, distance / radius);
-        gazeBase.premultiply(rollQuat);
-      }
-      point = previous;
-    }
-    const scrollDistance = introScrollProgress * (innerHeight * .5 + 7 * innerWidth / 1440);
-    rollQuat.setFromAxisAngle(axisX, -scrollDistance / radius);
-    gazeBase.premultiply(rollQuat);
-    if (roll) {
-      const len = Math.hypot(roll.tx, roll.ty) || 1;
-      rollAxis.set(roll.ty / len, 0, -roll.tx / len);
-      rollQuat.setFromAxisAngle(rollAxis, roll.angle);
-      gazeBase.premultiply(rollQuat);
-    }
-    gazePitch.setFromAxisAngle(axisX, gaze.sy * GAZE + drag.pitch);
-    gazeYaw.setFromAxisAngle(axisUp, gaze.sx * GAZE + drag.yaw);
+    const rocking = Math.sin(phase * Math.PI * 2) * .06;
+    gazePitch.setFromAxisAngle(axisX, gaze.sy * GAZE + rocking);
+    gazeYaw.setFromAxisAngle(axisUp, gaze.sx * GAZE);
     gazeYaw.multiply(gazePitch);
     tilt.quaternion.copy(gazeYaw).multiply(gazeBase);
     tilt.updateMatrixWorld(true);
@@ -4332,17 +4345,17 @@ function mountHeaderApple() {
       ? pose.size / mobileFrameScale()
       : pose.size;
     if (appleModel) appleModel.scale.setScalar(0.78 * poseSize);
-    const roll = appleRollSample();
-    const entryProgress = appleEnterEase();
-    const entry = appleEntryPosition(entryProgress);
-    const enterY = entry.y + (roll ? roll.dy : 0);
-    const enterX = entry.x + (roll ? roll.dx : 0);
+    const phase = appleOrbitPhase(appleRoll, performance.now());
+    const orbit = appleOrbitOffset(phase, Math.min(h * .21, w * .15), -160 * Math.PI / 180, -1);
+    const entry = appleEntryPosition();
+    const enterY = entry.y + orbit.dy;
+    const enterX = entry.x + orbit.dx;
     tilt.position.set(
       ((pose.xPx + enterX) / w) * viewW - viewW / 2,
       0,
       ((pose.topPx + enterY) / h) * viewH - viewH / 2,
     );
-    followPointer(entryProgress, roll);
+    followPointer(phase);
     tilt.updateMatrixWorld(true);
     shadowBox.setFromObject(tilt);
     const az = pose.azimuth * Math.PI / 180;
@@ -4408,36 +4421,14 @@ function mountHeaderApple() {
     gaze.y = 0;
   }
   function onApplePointerDown(event) {
-    if (!alive || drag.active || event.button !== 0) return;
+    if (!alive || event.button !== 0 || reduced || mobileLayout.matches) return;
     if (uiOwnsPointer(event) || !hitsApple(event)) return;
-    startAppleRoll();
-    drag.active = true;
-    drag.pointerId = event.pointerId;
-    drag.x0 = event.clientX;
-    drag.y0 = event.clientY;
-    drag.yaw0 = drag.yaw;
-    drag.pitch0 = drag.pitch;
+    appleRoll = restartAppleOrbit(appleRoll, performance.now());
     if (event.cancelable) event.preventDefault();
-  }
-  function onApplePointerMove(event) {
-    if (!drag.active || event.pointerId !== drag.pointerId) return;
-    if (event.pointerType === 'mouse' && (event.buttons & 1) === 0) {
-      drag.active = false;
-      return;
-    }
-    drag.yaw = clampDrag(drag.yaw0 + ((event.clientX - drag.x0) / DRAG_PX) * DRAG_LIMIT);
-    drag.pitch = clampDrag(drag.pitch0 + ((event.clientY - drag.y0) / DRAG_PX) * DRAG_LIMIT);
-  }
-  function onApplePointerUp(event) {
-    if (!drag.active || event.pointerId !== drag.pointerId) return;
-    drag.active = false;
   }
   addEventListener('pointermove', onPointerMove);
   addEventListener('pointerleave', onPointerLeave);
   addEventListener('pointerdown', onApplePointerDown, { capture: true });
-  addEventListener('pointermove', onApplePointerMove);
-  addEventListener('pointerup', onApplePointerUp);
-  addEventListener('pointercancel', onApplePointerUp);
   addEventListener('resize', placeApple);
 
   new GLTFLoader().load(HEADER_APPLE_FILE, (gltf) => {
@@ -4456,7 +4447,8 @@ function mountHeaderApple() {
     appleEnter = reduced ? { start: performance.now() - APPLE_ENTER_MS } : { start: performance.now() };
     host.classList.add('apple-shown');
     placeApple();
-  });
+    resolveHeaderApple();
+  }, undefined, resolveHeaderApple);
 
   applyAppleLayout();
   placeApple();
@@ -4469,7 +4461,7 @@ function mountHeaderApple() {
     lastIntroProgress = introScrollProgress;
     const landed = wasFlying && !flying;
     wasFlying = flying;
-    if (introChanged || !appleModel || flying || landed || appleRolling() || drag.active || Math.abs(drag.yaw) > 0.0004 || Math.abs(drag.pitch) > 0.0004 || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {
+    if (introChanged || !appleModel || flying || landed || appleRolling() || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {
       placeApple();
     } else if (appleRoll && !appleRolling()) {
       appleRoll = null;
@@ -5506,6 +5498,7 @@ try {
   ensureHeaderApple();
 } catch (error) {
   console.warn('The header apple could not start.', error);
+  resolveHeaderApple(error);
 }
 
 // --- сцена: камера всегда строго над яблоком --------------------------------

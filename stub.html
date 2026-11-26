@@ -1381,7 +1381,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     inset: 0;
     overflow: hidden;
     pointer-events: none;
-    background: url("design/stub/stamp-loading.svg") 0 0 / calc(var(--loader-width, 500px) / 2) 100% repeat-x;
+    background: url("design/stub/stamp-loading.svg?v=blue") 0 0 / calc(var(--loader-width, 500px) / 2) 100% repeat-x;
     animation: stamp-loading-drift 6s steps(44, end) infinite;
   }
   @keyframes stamp-loading-drift {
@@ -1735,7 +1735,10 @@ const embedParams = new URLSearchParams(location.search);
 if (embedParams.get('embed') === 'stamps') {
   document.documentElement.classList.add('stamps-embed');
   if (embedParams.get('surface') === 'dialog') document.documentElement.classList.add('dialog-stamps');
-  if (embedParams.get('surface') === 'signoff') document.documentElement.classList.add('signoff-stamps');
+  if (embedParams.get('surface') === 'signoff') {
+    document.documentElement.classList.add('signoff-stamps');
+    document.documentElement.dataset.signLayout = embedParams.get('layout') === 'mobile' ? 'mobile' : 'desktop';
+  }
   addEventListener('wheel', e => {
     e.preventDefault();
     parent.postMessage({type:'vanok-scroll', delta:e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1)}, location.origin);
@@ -1753,8 +1756,30 @@ html.stamps-embed:not(.signoff-stamps) .frame > .site-credits,
 html.stamps-embed .apple-view,
 html.stamps-embed .apple-light,
 html.stamps-embed .stamp-panel { display: none !important; }
-html.stamps-embed .frame .sign { left: 50%; top: 50%; width: min(304px, 65vw); transform: translate(-50%, -50%); }
-html.stamps-embed .frame .sign p { top: 10px; font-size: 16px; }
+html.signoff-stamps .frame { height: 100dvh; }
+html.signoff-stamps .frame .sign {
+  --sign-unit: calc(100vw / 1440);
+  --sign-width: 304;
+  --sign-gap: 8;
+  --sign-font: 14;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--sign-width) * var(--sign-unit));
+  height: calc((var(--sign-gap) + var(--sign-font)) * var(--sign-unit));
+  transform: translate(-50%, -50%);
+}
+html.signoff-stamps[data-sign-layout="mobile"] .frame .sign {
+  --sign-unit: calc(100vw / 375);
+  --sign-width: 226.492;
+  --sign-gap: 6.625;
+  --sign-font: 12;
+}
+html.signoff-stamps .sign .sign-line { width: 100%; height: var(--sign-unit); }
+html.signoff-stamps .sign p {
+  top: calc(var(--sign-gap) * var(--sign-unit));
+  font-size: calc(var(--sign-font) * var(--sign-unit));
+  line-height: 1;
+}
 html.dialog-stamps .frame .sign { display: none; }
 html.signoff-stamps,
 html.signoff-stamps :is(body, .frame) { background: transparent; }
