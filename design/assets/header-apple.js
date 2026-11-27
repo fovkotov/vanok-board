@@ -144,7 +144,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     const rest = restingPosition();
     pose.xPx = rest.x;
     pose.topPx = rest.y - (rest.y + 50 * rest.unit) * getIntroScrollProgress();
-    pose.size = isMobile() ? 2.05 : 2.35;
+    pose.size = isMobile() ? 2.05 * .7 : 2.35;
   }
 
   const host = document.createElement('div');
@@ -244,6 +244,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     };
   }
   const easeSlow = cubicBezierEase(0.16, 1, 0.3, 1);
+  const easeMobileRoll = cubicBezierEase(.22, .4, .42, 1);
   function appleEnterEase() {
     if (reduced || !appleEnter) return appleEnter ? 1 : 0;
     return easeAppleEntry(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
@@ -285,9 +286,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     return appleScreenRadius() * TURN_SCALE;
   }
   function appleRollSpec() {
-    const mobile = isMobile();
     const h = Math.max(innerHeight, 1);
-    if (mobile) return { radius: Math.min(h * .18, innerWidth * .18), theta0: 32 * Math.PI / 180, dir: 1 };
     return { radius: h * 0.21, theta0: -160 * Math.PI / 180, dir: -1 };
   }
   function appleRollEaseInverse(u) {
@@ -349,7 +348,12 @@ export function mountHeaderApple(getIntroScrollProgress) {
   }
   function appleRollSample() {
     if (!appleRoll) return null;
-    const u = appleRollParam(appleRoll.clock, performance.now() - appleRoll.start);
+    const elapsed = performance.now() - appleRoll.start;
+    if (appleRoll.sample) {
+      const progress = elapsed / appleRoll.clock.duration;
+      return progress < 1 ? appleRoll.sample(easeMobileRoll(Math.max(0, progress))) : null;
+    }
+    const u = appleRollParam(appleRoll.clock, elapsed);
     if (!(u > 0) || u >= 1) return null;
     const spec = appleRoll.spec;
     const theta = spec.theta0 + spec.dir * Math.PI * 2 * u;
@@ -366,6 +370,51 @@ export function mountHeaderApple(getIntroScrollProgress) {
     if (reduced || appleRolling()) return;
     const spec = appleRollSpec();
     appleRoll = { start: performance.now(), spec, clock: appleRollClock(spec) };
+  }
+  function startMobileRoll() {
+    if (reduced || appleRolling()) return;
+    const unit = mobileUnit();
+    const point = (x, y) => new THREE.Vector2(x * unit, y * unit);
+    const path = new THREE.CurvePath();
+    // The first tangent points left. The final tangent points down into the resting spot.
+    path.add(new THREE.CubicBezierCurve(point(0, 0), point(-48, 0), point(-125, -4), point(-125, -58)));
+    path.add(new THREE.CubicBezierCurve(point(-125, -58), point(-125, -112), point(-82, -154), point(-42, -139)));
+    path.add(new THREE.CubicBezierCurve(point(-42, -139), point(-2, -124), point(0, -48), point(0, 0)));
+
+    const steps = 72;
+    const radius = appleScreenRadius();
+    const orientations = [new THREE.Quaternion()];
+    const orientation = new THREE.Quaternion();
+    let previous = path.getPoint(0);
+    for (let i = 1; i <= steps; i++) {
+      const next = path.getPoint(i / steps);
+      const dx = next.x - previous.x;
+      const dy = next.y - previous.y;
+      const distance = Math.hypot(dx, dy);
+      if (distance) {
+        rollAxis.set(dy / distance, 0, -dx / distance);
+        rollQuat.setFromAxisAngle(rollAxis, distance / radius);
+        orientation.premultiply(rollQuat).normalize();
+      }
+      orientations.push(orientation.clone());
+      previous = next;
+    }
+    const at = new THREE.Vector2();
+    const tilt = new THREE.Quaternion();
+    const restingTilt = new THREE.Quaternion();
+    appleRoll = {
+      start: performance.now(),
+      clock: {duration: 2350},
+      sample(progress) {
+        path.getPoint(progress, at);
+        const frame = progress * steps;
+        const index = Math.min(steps - 1, Math.floor(frame));
+        tilt.slerpQuaternions(orientations[index], orientations[index + 1], frame - index);
+        const landing = Math.max(0, (progress - .78) / .22);
+        tilt.slerp(restingTilt, landing * landing * (3 - 2 * landing));
+        return {dx: at.x, dy: at.y, orientation: tilt};
+      },
+    };
   }
   function clampDrag(angle) {
     return Math.max(-DRAG_LIMIT, Math.min(DRAG_LIMIT, angle));
@@ -403,7 +452,9 @@ export function mountHeaderApple(getIntroScrollProgress) {
     const scrollDistance = getIntroScrollProgress() * (innerHeight * .5 + 7 * restingPosition().unit);
     rollQuat.setFromAxisAngle(axisX, -scrollDistance / radius);
     gazeBase.premultiply(rollQuat);
-    if (roll) {
+    if (roll?.orientation) {
+      gazeBase.premultiply(roll.orientation);
+    } else if (roll) {
       const len = Math.hypot(roll.tx, roll.ty) || 1;
       rollAxis.set(roll.ty / len, 0, -roll.tx / len);
       rollQuat.setFromAxisAngle(rollAxis, roll.angle);
@@ -504,6 +555,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     return !!(el && el.closest && el.closest('.crosshair, .stamp-panel, .sig-modal, .catalog-entry, .ig-link, .site-credits, .soon, .case-cover-caption, [data-preview], [data-preview-group], a, button, input, select, textarea, label'));
   }
   function onPointerMove(event) {
+    if (isMobile()) return;
     const w = Math.max(innerWidth, 1);
     const h = Math.max(innerHeight, 1);
     gaze.x = (event.clientX / w) * 2 - 1;
@@ -541,7 +593,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     drag.active = false;
   }
   addEventListener('click', event => {
-    if (isMobile() && !uiOwnsPointer(event) && hitsApple(event)) startAppleRoll();
+    if (isMobile() && !uiOwnsPointer(event) && hitsApple(event)) startMobileRoll();
   });
   addEventListener('pointermove', onPointerMove);
   addEventListener('pointerleave', onPointerLeave);
@@ -549,7 +601,16 @@ export function mountHeaderApple(getIntroScrollProgress) {
   addEventListener('pointermove', onApplePointerMove);
   addEventListener('pointerup', onApplePointerUp);
   addEventListener('pointercancel', onApplePointerUp);
-  addEventListener('resize', placeApple);
+  addEventListener('resize', () => {
+    if (isMobile()) {
+      appleRoll = null;
+      drag.active = false;
+      drag.yaw = drag.pitch = 0;
+      onPointerLeave();
+      gaze.sx = gaze.sy = 0;
+    }
+    placeApple();
+  });
 
   new GLTFLoader().load(HEADER_APPLE_FILE, (gltf) => {
     if (!alive) return;
