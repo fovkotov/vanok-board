@@ -1,6 +1,6 @@
 // Mobile-only crops and selections from Figma 913:2214.
 export const MOBILE_CASES = `
-<section class="case mobile-case" data-case="euphoria" aria-label="euphoria"><div class="step-rig"><div class="step-tread" aria-hidden="true"></div><div class="step-riser"><div class="case-cover"><div class="case-cover-plane" data-node-id="904:1682">
+<section class="case mobile-case" data-case="euphoria" aria-label="euphoria"><div class="step-rig"><div class="step-tread" aria-hidden="true"><img class="step-boot-prints" src="design/steps/boot-prints.webp" alt="" draggable="false"></div><div class="step-riser"><div class="case-cover"><div class="case-cover-plane" data-node-id="904:1682">
   <div class="mobile-case-background"><img alt="" decoding="async" draggable="false" data-src="design/case-covers/mobile/euphoria/27ebf.webp" style="position:absolute;inset:0;object-fit:cover;width:100%;height:100%"></div>
   <p class="case-cover-caption mobile-case-caption" data-node-id="904:1685" style="top:319px">Vinyl, Merch, Tour Posters, Custom Typeface &amp; Lettering for Saluki’s EUPHORIA Album</p>
   <div class="mobile-thumb-scroll"><div class="mobile-thumb-row">

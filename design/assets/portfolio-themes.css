@@ -1,0 +1,23 @@
+html[data-palette="portfolio"][data-theme="1"] {
+  --bg: #434343;
+  --board-bg: var(--bg);
+  --blue: rgb(255 255 255 / .8);
+  --stamp-ink: #ffffff;
+  --stamp-opacity: .8;
+}
+
+html[data-palette="portfolio"][data-theme="2"] {
+  --bg: #15262e;
+  --board-bg: var(--bg);
+  --blue: #e3f4e8;
+  --stamp-ink: #e3f4e8;
+  --stamp-opacity: 1;
+}
+
+html[data-palette="portfolio"][data-theme="3"] {
+  --bg: #c8c38c;
+  --board-bg: var(--bg);
+  --blue: #87999a;
+  --stamp-ink: #87999a;
+  --stamp-opacity: 1;
+}

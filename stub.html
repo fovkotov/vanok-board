@@ -46,6 +46,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="icon" href="favicon.ico?v=20261121" sizes="any">
 <meta name="apple-mobile-web-app-title" content="Vanök Regular">
 <link rel="preload" href="design/stub/wordmark.svg" as="image">
+<link rel="stylesheet" href="design/assets/portfolio-themes.css">
 <style>
   /* Desktop frame 110:1711 is 1440×800. Mobile frame 141:1647 is 375×812.
      --k scales a frame from its own width. Mobile shows through 440px.
@@ -71,7 +72,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     --blue: #ffffff;
     --bg: #80a6bc;
   }
-  html[data-theme="3"] .site-credits {
+  html[data-theme="3"]:not([data-palette="portfolio"]) .site-credits {
     color: #ffffff;
   }
 
@@ -501,6 +502,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     user-select: none;
     -webkit-user-select: none;
   }
+  html[data-palette="portfolio"]:not([data-theme="0"]) .sign-imprint .ink { visibility: hidden; }
+  html[data-palette="portfolio"]:not([data-theme="0"]) .site-credits { color: var(--blue); opacity: 1; }
   .sign-imprint .dye {
     position: absolute;
     inset: 0;
@@ -1733,7 +1736,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <script>
 const embedParams = new URLSearchParams(location.search);
 if (embedParams.get('embed') === 'stamps') {
-  document.documentElement.classList.add('stamps-embed');
+  const root = document.documentElement;
+  root.classList.add('stamps-embed');
+  // Portfolio embeds and the standalone teaser share this document.
+  if (parent !== window) {
+    try {
+      const portfolio = parent.document.documentElement;
+      if (portfolio.dataset.palette === 'portfolio') {
+        root.dataset.palette = 'portfolio';
+        const syncTheme = () => {
+          root.dataset.theme = portfolio.dataset.theme;
+          root.dispatchEvent(new Event('vanok-theme'));
+        };
+        syncTheme();
+        portfolio.addEventListener('vanok-theme', syncTheme);
+        addEventListener('pagehide', () => portfolio.removeEventListener('vanok-theme', syncTheme), { once: true });
+      }
+    } catch {
+      // A cross-origin embed keeps the standalone palette.
+    }
+  }
   if (embedParams.get('surface') === 'dialog') document.documentElement.classList.add('dialog-stamps');
   if (embedParams.get('surface') === 'signoff') {
     document.documentElement.classList.add('signoff-stamps');
@@ -1876,7 +1898,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var el = event.target;
       var typing = el && (el.isContentEditable || (el.closest && el.closest('input, textarea, [contenteditable="true"]')));
       if (event.code === 'Digit2' || event.code === 'Numpad2') {
-        if (typing) return;
+        if (typing || root.dataset.palette === 'portfolio') return;
         event.preventDefault();
         root.dataset.theme = root.dataset.theme === '3' ? '0' : '3';
         root.dispatchEvent(new CustomEvent('vanok-theme'));
@@ -2804,7 +2826,7 @@ function planeSources(kind) {
     const pooled = store.pool(kind) || [];
     for (let i = 0; i < pooled.length; i++) add(pooled[i] && pooled[i].src);
   }
-  const theme3 = (document.documentElement.dataset.theme || '0') === '3';
+  const theme3 = document.documentElement.matches('html[data-theme="3"]:not([data-palette="portfolio"])');
   const lists = kind === 'apple'
     ? (theme3 ? [KEY2_APPLE_IMPRINTS, APPLE_IMPRINTS] : [APPLE_IMPRINTS, KEY2_APPLE_IMPRINTS])
     : (theme3 ? [KEY2_STAMP_IMPRINTS, STAMP_IMPRINTS] : [STAMP_IMPRINTS, KEY2_STAMP_IMPRINTS]);
@@ -3686,7 +3708,7 @@ function mountSignStamp(host) {
     return lastColor;
   }
   function castFromCustom(item) {
-    const themed = themeHex(item.castHex);
+    const themed = themeHex();
     return {
       file: item.id,
       src: item.src,
@@ -3701,7 +3723,7 @@ function mountSignStamp(host) {
     const imprint = list.find((item) => item.file === cast.file)
       || key2.find((item) => item.file === cast.file)
       || list[0];
-    const themed = themeHex(cast.hex);
+    const themed = themeHex();
     return { ...imprint, castHex: cast.hex, bodyHex: themed == null ? cast.hex : themed };
   }
   function fileOf(item) {
@@ -3714,7 +3736,7 @@ function mountSignStamp(host) {
       const stock = casts.find((cast) => cast.file === file);
       if (stock) return castFromStock(item.kind, stock);
       const hex = Number.isFinite(item.castHex) ? item.castHex : 0x0a1ae9;
-      const themed = themeHex(hex);
+      const themed = themeHex();
       return {
         file: file || item.id,
         src: item.src,
@@ -3745,7 +3767,7 @@ function mountSignStamp(host) {
     return castFromStock(kind, bag.pop());
   }
   function usesFolderStamps() {
-    return (document.documentElement.dataset.theme || '0') === '3';
+    return document.documentElement.matches('html[data-theme="3"]:not([data-palette="portfolio"])');
   }
   function pickCast(kind) {
     const store = window.VanokSignatures;
@@ -3769,10 +3791,13 @@ function mountSignStamp(host) {
     return castFromStock(kind, cast);
   }
 
-  // Themes 1 and 3 dye every ink white, the same color as their text.
-  // Theme 2 dyes every ink to its pale text color. Default keeps the source ink.
-  function themeHex(ink) {
-    const theme = document.documentElement.dataset.theme || '0';
+  function themeHex() {
+    const root = document.documentElement;
+    if (root.dataset.palette === 'portfolio') {
+      const ink = getComputedStyle(root).getPropertyValue('--stamp-ink').trim();
+      return ink ? Number.parseInt(ink.slice(1), 16) : null;
+    }
+    const theme = root.dataset.theme || '0';
     if (theme === '2') return 0xe3f4e8;
     if (theme === '1' || theme === '3') return 0xffffff;
     return null;
@@ -3800,6 +3825,7 @@ function mountSignStamp(host) {
     const h = host.clientHeight;
     if (host.clientWidth < 2 || h < 2) return;
     const mobileInk = matchMedia('(max-width: 440px)').matches ? 1.2 : 1;
+    const themed = themeHex();
     for (const mark of marks) {
       const rig = mark.kind === 'apple' ? appleRig : stampRig;
       const fitted = (SIZE * rig.scale / viewH) * h;
@@ -3813,13 +3839,12 @@ function mountSignStamp(host) {
       mark.el.style.left = `calc(${mark.px * 100}% + ${rig.offsetX}px)`;
       mark.el.style.top = `calc(${mark.py * 100}% + ${rig.offsetY}px)`;
       mark.el.style.width = imgW + 'px';
-      mark.el.style.opacity = String(rig.opacity);
+      mark.el.style.opacity = `calc(${rig.opacity} * var(--stamp-opacity, 1))`;
       mark.el.style.filter = rig.blur > 0.01 ? `blur(${rig.blur}px)` : 'none';
       const rot = mark.kind === 'apple'
         ? rig.pressY - mark.rot + appleImprintSpin
         : mark.rot;
       mark.el.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
-      const themed = themeHex(mark.castHex);
       if (themed == null) {
         mark.dye.style.opacity = String(rig.tintAmount);
         mark.dye.style.background = rig.tint;
@@ -4774,7 +4799,7 @@ function mountSignStamp(host) {
   function applyThemeInk() {
     for (const flight of flights) {
       if (flight.shot.castHex != null) {
-        const themed = themeHex(flight.shot.castHex);
+        const themed = themeHex();
         flight.shot.bodyHex = themed == null ? flight.shot.castHex : themed;
       }
     }
@@ -4957,7 +4982,7 @@ const ICE_MATTE = 0xb7c6cb;
 const iceRoots = new Set();
 
 function isIceTheme() {
-  return (document.documentElement.dataset.theme || '0') === '3';
+  return document.documentElement.matches('html[data-theme="3"]:not([data-palette="portfolio"])');
 }
 
 function rememberTeaserMaterial(material) {

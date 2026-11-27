@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="0" class="page-ready">
+<html lang="en" data-palette="portfolio" data-theme="0" class="page-ready">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,6 +8,7 @@
 <link rel="icon" href="design/stub/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="design/stub/apple-touch-icon.png">
 <link rel="preload" href="design/stub/models/apple-corner.glb" as="fetch" crossorigin media="(min-width: 701px)">
+<link rel="stylesheet" href="design/assets/portfolio-themes.css">
 <style>
   /* Кадр 1440×800. --k переводит его пиксели во вьюпорт.
      Хедер и палитра — классический тизер (vanok-teaser/index.html): один синий вордмарк в 12px от верха. */
@@ -26,22 +27,6 @@
     --shaft-perspective: 1100;
     --step-shade: 0;
   }
-  html[data-theme="1"] {
-    --blue: #8A7E59;
-    --bg: hsl(303.8182deg 100% 78.4314%);
-  }
-  html[data-theme="2"] {
-    --blue: #E3F4E8;
-    --bg: linear-gradient(180deg, #A59D90 0%, #02DD67 100%);
-  }
-  html[data-theme="3"] {
-    --blue: #ffffff;
-    --bg: #80a6bc;
-  }
-  html[data-theme="3"] .chrome .site-credits {
-    color: #ffffff;
-  }
-
   * { box-sizing: border-box; }
 
   html, body { margin: 0; background: var(--bg) fixed; }
@@ -1486,6 +1471,9 @@
   body[data-route="board"] .chrome .site-credits { display: none; }
   body[data-route="board"] .lettering-ride { top: var(--intro-rest-top); }
   .intro-script { position:absolute; transform: scale(calc(100vw / 1440px)); transform-origin: top left; pointer-events:none; }
+  :is(.intro-script, .mobile-intro-art, .route-dialog-close img, .route-dialog-copy img) {
+    filter: url(#portfolio-ink);
+  }
   .intro-script-vanok { left: 41.94%; top: 0; }
   .intro-script-regular { left: 62.54%; top: calc(41 * var(--k)); }
   @media(max-width:700px) {
@@ -1583,14 +1571,6 @@
     overflow: hidden;
     transform: none;
   }
-  body[data-route="board"][data-layout="mobile"] .chrome::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: #e9e9e9;
-    transform: translateY(var(--mobile-intro-y, 0px));
-  }
   .chrome :is(.mobile-intro-regular, .mobile-intro-vanok) {
     translate: 0 var(--mobile-intro-y, 0px);
   }
@@ -1646,7 +1626,7 @@
   }
   .mobile-escalator .escalator-stage { pointer-events: none; }
   .mobile-case .step-riser { aspect-ratio: 375 / 666; pointer-events: auto; }
-  .mobile-case .step-tread {
+  body[data-layout="mobile"] .mobile-case .step-tread {
     background: #c8c8c8 url('design/steps/rib-escalator-10.png') repeat;
     background-size: calc(8 * var(--scene-unit)) calc(32 * var(--scene-unit));
   }
@@ -1796,6 +1776,14 @@
 <script>
   if (matchMedia('(max-width: 700px)').matches) document.body.dataset.layout = 'mobile';
 </script>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <filter id="portfolio-ink">
+      <feFlood style="flood-color:var(--blue)"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+    </filter>
+  </defs>
+</svg>
 <div id="stage" aria-hidden="true"></div>
 <header class="chrome">
   <img class="mobile-intro-art mobile-intro-regular" src="design/assets/mobile-regular.svg" alt="Regular">
@@ -1829,7 +1817,7 @@
 
 <script type="module">
 import { CASE_COVERS } from './design/case-covers/cases.js?v=background-parallax';
-import { MOBILE_CASES } from './design/case-covers/mobile-cases.js?v=20261127-stair-risers';
+import { MOBILE_CASES } from './design/case-covers/mobile-cases.js?v=entry-tread';
 import { revealPoster } from './design/case-covers/poster-reveal.js?v=recycled';
 import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=cold-start';
 import { loadPortfolioMedia } from './design/case-covers/preload.js?v=cold-start';
@@ -2581,7 +2569,16 @@ let mountDesktop = null;
 let onDesktopRoute = null;
 let desktopStartup = null;
 
+const bootPrints = { x: 79, depth: 91, scale: 245 };
+function applyBootPrints(prints) {
+  if (!prints) return;
+  prints.style.setProperty('--boot-prints-x', `${bootPrints.x}%`);
+  prints.style.setProperty('--boot-prints-depth', `${bootPrints.depth}%`);
+  prints.style.setProperty('--boot-prints-scale', bootPrints.scale / 100);
+}
+
 function mountMobile(root) {
+  applyBootPrints(root.querySelector('.step-boot-prints'));
   const stopCovers = mountCaseCovers(root, true);
   const viewport = root.querySelector('.mobile-escalator');
   const settings = {
@@ -2746,7 +2743,6 @@ let grab = null;
 
 const SCREEN_COLORS = CASE_COVERS.map(() => '#C4C4C4');
 const escalator = { introStairsY: 120.375, separateTreadColor: false, treadColor: '#D0D0D0', stepColor: '#F0F0F0', autoPlay: true, pageTheme: 1, ribs: 2, ribStrength: .1, stepH: 100, speed: .2, tread: 288, recess: 288, perspective: 1100, scale: 1.2, near: 0 };
-const bootPrints = { x: 79, depth: 91, scale: 245 };
 
 const RIB_PRESETS = [
   {name:'01 · Гладкий', desc:'Без канавок — для сравнения', pitch:8, dark:0, light:0},
@@ -4592,12 +4588,7 @@ function mountEscalatorControls() {
   const bootOptions = document.createElement('fieldset');
   bootOptions.innerHTML = '<legend>Следы ботинок</legend>';
   const prints = document.querySelector('.step-boot-prints');
-  const updateBootPrints = () => {
-    if (!prints) return;
-    prints.style.setProperty('--boot-prints-x', `${bootPrints.x}%`);
-    prints.style.setProperty('--boot-prints-depth', `${bootPrints.depth}%`);
-    prints.style.setProperty('--boot-prints-scale', bootPrints.scale / 100);
-  };
+  const updateBootPrints = () => applyBootPrints(prints);
   for (const [name, key, min, max] of [
     ['По горизонтали', 'x', 0, 100],
     ['По глубине ступеньки', 'depth', 0, 100],
