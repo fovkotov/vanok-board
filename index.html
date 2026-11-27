@@ -2410,8 +2410,11 @@ function mountEscalator(root, settings, mobile = false) {
     const ended = [...event.changedTouches].some((touch) => touch.identifier === held.id);
     if (!ended) return;
     if (event.type === 'touchend') {
-      noteManualScroll(dragSamples.at(-1)?.dy ?? 0);
-      if (y >= firstCaseY) armCoast(velocityFrom(dragSamples));
+      const lastMove = dragSamples.at(-1);
+      noteManualScroll(lastMove?.dy ?? 0);
+      if (lastMove && performance.now() - lastMove.t <= SAMPLE_MS && (mobile || y >= firstCaseY)) {
+        armCoast(velocityFrom(dragSamples));
+      }
     }
     held = null;
     dragSamples.length = 0;
@@ -2656,7 +2659,7 @@ function updateLayout() {
 mobileLayout.addEventListener('change', updateLayout);
 addEventListener('portfolio-revealed', () => {
   paint(parseRoute());
-  import('./design/assets/header-apple.js?v=mobile-tumble').then(({ mountHeaderApple }) => {
+  import('./design/assets/header-apple.js?v=mobile-loop').then(({ mountHeaderApple }) => {
     mountHeaderApple(() => introScrollProgress);
   }).catch(error => console.warn('The header apple could not start.', error));
 }, { once: true });
@@ -2672,7 +2675,7 @@ const [THREE, {GLTFLoader}, {RoomEnvironment}, BufferGeometryUtils, {cloneMateri
   import('three/addons/loaders/GLTFLoader.js'),
   import('three/addons/environments/RoomEnvironment.js'),
   import('three/addons/utils/BufferGeometryUtils.js'),
-  import('./design/assets/header-apple.js?v=mobile-tumble'),
+  import('./design/assets/header-apple.js?v=mobile-loop'),
 ]);
 const DESIGN_MID = 400;
 const APPLE_CX = 609;

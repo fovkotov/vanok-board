@@ -135,7 +135,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
   function restingPosition() {
     if (isMobile()) {
       const unit = mobileUnit();
-      return { x: innerWidth * .5 + 53.505 * unit, y: innerHeight * .5 - 112 * unit, unit };
+      return { x: innerWidth * .5 + 40 * unit, y: innerHeight * .5 - 84 * unit, unit };
     }
     const unit = innerWidth / 1440;
     return { x: innerWidth * (794 / 1440), y: innerHeight * .5 - 43 * unit, unit };
@@ -244,7 +244,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     };
   }
   const easeSlow = cubicBezierEase(0.16, 1, 0.3, 1);
-  const easeMobileRoll = cubicBezierEase(.22, .4, .42, 1);
+  const easeMobileRoll = cubicBezierEase(.18, .24, .42, 1);
   function appleEnterEase() {
     if (reduced || !appleEnter) return appleEnter ? 1 : 0;
     return easeAppleEntry(Math.min(1, Math.max(0, (performance.now() - appleEnter.start) / APPLE_ENTER_MS)));
@@ -376,13 +376,16 @@ export function mountHeaderApple(getIntroScrollProgress) {
     const unit = mobileUnit();
     const point = (x, y) => new THREE.Vector2(x * unit, y * unit);
     const path = new THREE.CurvePath();
-    // The first tangent points left. The final tangent points down into the resting spot.
-    path.add(new THREE.CubicBezierCurve(point(0, 0), point(-48, 0), point(-125, -4), point(-125, -58)));
-    path.add(new THREE.CubicBezierCurve(point(-125, -58), point(-125, -112), point(-82, -154), point(-42, -139)));
-    path.add(new THREE.CubicBezierCurve(point(-42, -139), point(-2, -124), point(0, -48), point(0, 0)));
+    // Roll out of view to the right, loop above the resting spot, then descend.
+    path.add(new THREE.CubicBezierCurve(point(0, 0), point(76, 58), point(179, 98), point(254, 31)));
+    path.add(new THREE.CubicBezierCurve(point(254, 31), point(298, -8), point(294, -70), point(294, -106)));
+    path.add(new THREE.CubicBezierCurve(point(294, -106), point(294, -175), point(185, -216), point(91, -215)));
+    path.add(new THREE.CubicBezierCurve(point(91, -215), point(-12, -214), point(0, -83), point(0, 0)));
 
-    const steps = 72;
+    const steps = 96;
     const radius = appleScreenRadius();
+    const offscreenX = innerWidth + appleRollMargin() - pose.xPx;
+    const times = [0];
     const orientations = [new THREE.Quaternion()];
     const orientation = new THREE.Quaternion();
     let previous = path.getPoint(0);
@@ -396,6 +399,9 @@ export function mountHeaderApple(getIntroScrollProgress) {
         rollQuat.setFromAxisAngle(rollAxis, distance / radius);
         orientation.premultiply(rollQuat).normalize();
       }
+      // Spend less of the loop completely out of view.
+      const visible = (next.x + previous.x) / 2 <= offscreenX;
+      times.push(times[i - 1] + (visible ? 1 : .38));
       orientations.push(orientation.clone());
       previous = next;
     }
@@ -406,11 +412,13 @@ export function mountHeaderApple(getIntroScrollProgress) {
       start: performance.now(),
       clock: {duration: 2350},
       sample(progress) {
-        path.getPoint(progress, at);
-        const frame = progress * steps;
-        const index = Math.min(steps - 1, Math.floor(frame));
-        tilt.slerpQuaternions(orientations[index], orientations[index + 1], frame - index);
-        const landing = Math.max(0, (progress - .78) / .22);
+        const time = progress * times[steps];
+        const index = Math.max(0, times.findIndex(t => t >= time) - 1);
+        const fraction = (time - times[index]) / (times[index + 1] - times[index]);
+        const position = (index + fraction) / steps;
+        path.getPoint(position, at);
+        tilt.slerpQuaternions(orientations[index], orientations[index + 1], fraction);
+        const landing = Math.max(0, (position - .86) / .14);
         tilt.slerp(restingTilt, landing * landing * (3 - 2 * landing));
         return {dx: at.x, dy: at.y, orientation: tilt};
       },
