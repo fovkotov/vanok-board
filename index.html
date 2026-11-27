@@ -1630,6 +1630,14 @@
     background: #c8c8c8 url('design/steps/rib-escalator-10.png') repeat;
     background-size: calc(8 * var(--scene-unit)) calc(32 * var(--scene-unit));
   }
+  html[data-palette="portfolio"][data-theme="1"] .escalator .step-tread {
+    --tread-metal: color-mix(in srgb, var(--board-bg) 96%, white);
+    --tread-ridge: color-mix(in srgb, var(--board-bg) 93%, white);
+    background: var(--tread-metal)
+      linear-gradient(90deg, var(--tread-metal), var(--board-bg) 23%, var(--tread-ridge) 55%, var(--tread-metal))
+      0 0 / calc(8 * var(--scene-unit)) 100% repeat-x;
+  }
+  html[data-palette="portfolio"][data-theme="1"] .escalator .step-tread::before { display: none; }
   .mobile-case .case-cover { background: #111; container-type: inline-size; }
   .mobile-case .case-cover-plane {
     width: 375px !important;
@@ -1658,12 +1666,48 @@
     overflow-y: hidden;
     scrollbar-width: none;
     overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
   }
   .mobile-thumb-scroll::-webkit-scrollbar { display: none; }
-  .mobile-thumb-row { position: relative; width: 940px; height: 100%; }
-  .mobile-thumb { position: absolute; margin: 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
+  .mobile-thumb-row {
+    position: relative;
+    left: 50%;
+    width: calc(var(--mobile-thumb-span, 940px) + 50%);
+    height: 100%;
+  }
+  .mobile-thumb-row::before {
+    content: "";
+    position: absolute;
+    left: -.5px;
+    width: 1px;
+    height: 100%;
+    scroll-snap-align: center;
+    pointer-events: none;
+  }
+  .mobile-thumb {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    scroll-snap-align: center;
+  }
   .mobile-thumb:focus-visible { outline: 1px solid white; outline-offset: 3px; }
-  .mobile-case .case-hover-art { inset: 16% 10% auto; width: 80%; height: 60%; }
+  .mobile-case .case-cover-plane::after {
+    content: "";
+    position: absolute;
+    z-index: 21;
+    top: 581px;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: white;
+    box-shadow: 0 0 1px #0008;
+    pointer-events: none;
+  }
+  .mobile-case .case-hover-preview { clip-path: inset(0 0 17%); }
+  .mobile-case .case-hover-art { inset: 20% 10% auto; width: 80%; height: 60%; }
   @media (max-width: 700px) {
     .route-dialog { --route-column: min(327px, calc(100% - 48px)); }
     .route-dialog-head { padding: 12px 0; }
@@ -1855,6 +1899,7 @@ function loadCoverImages(cover) {
 function mountCaseCovers(root, tapOnly = false) {
   const covers = [...root.querySelectorAll('.case-cover')];
   const hoverTargets = [];
+  const stopRails = [];
   let hoveredCover = null;
   for (const cover of covers) {
     const plane = cover.querySelector('.case-cover-plane');
@@ -1880,8 +1925,11 @@ function mountCaseCovers(root, tapOnly = false) {
     const show = thumb => {
       stopReveal();
       stopReveal = () => {};
+      if (tapOnly) {
+        active?.setAttribute('aria-pressed', 'false');
+        thumb.setAttribute('aria-pressed', 'true');
+      }
       active = thumb;
-      if (tapOnly) thumb.setAttribute('aria-pressed', 'true');
       root.dataset.previewHover = '';
       cover.dataset.previewOpen = '';
       if (thumb.hasAttribute('data-preview-group')) {
@@ -1927,20 +1975,49 @@ function mountCaseCovers(root, tapOnly = false) {
       }
       overlay.hidden = false;
     };
-    hoverTargets.push({cover, thumbs, hide, show: thumb => {
+    const entry = { cover, thumbs, hide, show: thumb => {
       if (active !== thumb) show(thumb);
-    }});
+    }};
+    hoverTargets.push(entry);
+    const rail = tapOnly ? plane.querySelector('.mobile-thumb-scroll') : null;
+    const select = thumb => {
+      if (hoveredCover !== entry) clearHover();
+      hoveredCover = entry;
+      entry.show(thumb);
+    };
+    if (rail) {
+      const row = rail.querySelector('.mobile-thumb-row');
+      const areas = thumbs.map(thumb => ({
+        thumb, left: thumb.offsetLeft, right: thumb.offsetLeft + thumb.offsetWidth,
+      }));
+      row.style.setProperty('--mobile-thumb-span', `${Math.max(0, ...areas.map(area => area.right))}px`);
+      let frame = 0;
+      const onScroll = () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const cursor = rail.scrollLeft + rail.clientWidth / 2 - row.offsetLeft;
+          const hit = areas.find(({left, right}) => cursor >= left && cursor < right);
+          if (hit) select(hit.thumb);
+          else if (hoveredCover === entry) clearHover();
+        });
+      };
+      rail.addEventListener('scroll', onScroll, { passive: true });
+      stopRails.push(() => {
+        rail.removeEventListener('scroll', onScroll);
+        cancelAnimationFrame(frame);
+      });
+    }
     for (const thumb of thumbs) {
       if (tapOnly) thumb.setAttribute('aria-pressed', 'false');
       thumb.addEventListener('click', () => {
-        if (tapOnly && active === thumb) {
+        if (!rail) {
+          if (active !== thumb) show(thumb);
+        } else if (active === thumb) {
           clearHover();
-        } else if (active !== thumb) {
-          if (tapOnly) {
-            clearHover();
-            hoveredCover = hoverTargets.find(entry => entry.cover === cover);
-          }
-          show(thumb);
+        } else {
+          rail.scrollLeft = thumb.offsetLeft + thumb.offsetWidth / 2;
+          select(thumb);
         }
       });
     }
@@ -2031,6 +2108,7 @@ function mountCaseCovers(root, tapOnly = false) {
   if (portfolioLoader.hidden) watchImages();
   else addEventListener('portfolio-revealed', watchImages, { once: true });
   return () => {
+    stopRails.forEach(stop => stop());
     for (const entry of hoverTargets) entry.hide();
     observer.disconnect();
     removeEventListener('portfolio-revealed', watchImages);
