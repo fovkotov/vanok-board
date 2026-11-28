@@ -225,6 +225,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
   const APPLE_ROLL_STEPS = 480;
   let appleEnter = null;
   let appleRoll = null;
+  let repeatRoll = false;
 
   function cubicBezierEase(x1, y1, x2, y2) {
     const calc = (t, a1, a2) => t * (3 * (1 - t) * ((1 - t) * a1 + t * a2) + t * t);
@@ -367,12 +368,10 @@ export function mountHeaderApple(getIntroScrollProgress) {
     };
   }
   function startAppleRoll() {
-    if (reduced || appleRolling()) return;
     const spec = appleRollSpec();
     appleRoll = { start: performance.now(), spec, clock: appleRollClock(spec) };
   }
   function startMobileRoll() {
-    if (reduced || appleRolling()) return;
     const unit = mobileUnit();
     const point = (x, y) => new THREE.Vector2(x * unit, y * unit);
     const path = new THREE.CurvePath();
@@ -423,6 +422,16 @@ export function mountHeaderApple(getIntroScrollProgress) {
         return {dx: at.x, dy: at.y, orientation: tilt};
       },
     };
+  }
+  function requestAppleRoll() {
+    if (reduced) return;
+    if (appleRolling()) {
+      repeatRoll = true;
+      return;
+    }
+    repeatRoll = false;
+    if (isMobile()) startMobileRoll();
+    else startAppleRoll();
   }
   function clampDrag(angle) {
     return Math.max(-DRAG_LIMIT, Math.min(DRAG_LIMIT, angle));
@@ -578,7 +587,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
   function onApplePointerDown(event) {
     if (!alive || drag.active || event.button !== 0 || isMobile()) return;
     if (uiOwnsPointer(event) || !hitsApple(event)) return;
-    startAppleRoll();
+    requestAppleRoll();
     drag.active = true;
     drag.pointerId = event.pointerId;
     drag.x0 = event.clientX;
@@ -601,7 +610,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     drag.active = false;
   }
   addEventListener('click', event => {
-    if (isMobile() && !uiOwnsPointer(event) && hitsApple(event)) startMobileRoll();
+    if (isMobile() && !uiOwnsPointer(event) && hitsApple(event)) requestAppleRoll();
   });
   addEventListener('pointermove', onPointerMove);
   addEventListener('pointerleave', onPointerLeave);
@@ -612,6 +621,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
   addEventListener('resize', () => {
     if (isMobile()) {
       appleRoll = null;
+      repeatRoll = false;
       drag.active = false;
       drag.yaw = drag.pitch = 0;
       onPointerLeave();
@@ -649,6 +659,7 @@ export function mountHeaderApple(getIntroScrollProgress) {
     const introChanged = progress !== lastIntroProgress;
     lastIntroProgress = progress;
     if (progress > 1.5 && !introChanged) return;
+    if (repeatRoll && !appleRolling()) requestAppleRoll();
     const landed = wasFlying && !flying;
     wasFlying = flying;
     if (introChanged || !appleModel || flying || landed || appleRolling() || drag.active || Math.abs(drag.yaw) > 0.0004 || Math.abs(drag.pitch) > 0.0004 || Math.abs(gaze.x - gaze.sx) > 0.002 || Math.abs(gaze.y - gaze.sy) > 0.002) {

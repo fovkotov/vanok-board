@@ -1494,6 +1494,55 @@
   .case-cover-plane img { max-width: none; user-select: none; }
   .case-cover-caption { max-width: none !important; font-weight: 400; text-shadow: none !important; }
 
+  .case-cover [data-work-kind] {
+    --thumb-delay: 0ms;
+    isolation: isolate;
+  }
+  .case-cover[data-thumb-entrance="waiting"] [data-work-kind] { opacity: 0; }
+  .case-cover[data-thumb-entrance="arrived"] [data-work-kind] {
+    animation: case-thumb-arrival 620ms cubic-bezier(.2,.72,.28,1) var(--thumb-delay) both;
+  }
+  @keyframes case-thumb-arrival {
+    0% { opacity: 0; translate: 0 230px; }
+    64% { opacity: 1; translate: 0 -12px; }
+    100% { opacity: 1; translate: 0 0; }
+  }
+  .case-cover [data-work-kind] > * { transition: translate 160ms ease-out; }
+  .case-cover [data-thumb-active] > * { translate: 0 -8px; }
+  .case-cover [data-work-kind]::after {
+    content: attr(data-work-kind);
+    position: absolute;
+    z-index: -1;
+    top: 100%;
+    left: 50%;
+    translate: -50% -100%;
+    opacity: 0;
+    transition: translate 160ms ease-out, opacity 160ms ease-out;
+    color: white;
+    font: 12px Arial, sans-serif;
+    pointer-events: none;
+  }
+  .case-cover [data-thumb-active]::after {
+    translate: -50% 0;
+    opacity: 1;
+  }
+  @keyframes case-vinyl-spin { to { rotate: 1turn; } }
+  .case-cover .case-hover-art.case-hover-vinyl {
+    inset: 44.5% auto auto 50%;
+    width: min(56%, 472px);
+    height: auto;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    animation: case-vinyl-spin 7s linear infinite;
+  }
+  .mobile-case .case-cover .case-hover-art.case-hover-vinyl { inset: 50% auto auto 50%; width: 80%; }
+  @media (prefers-reduced-motion: reduce) {
+    .case-cover[data-thumb-entrance] [data-work-kind], .case-cover .case-hover-art.case-hover-vinyl {
+      opacity: 1;
+      animation: none;
+    }
+    .case-cover [data-work-kind] > *, .case-cover [data-work-kind]::after { transition: none; }
+  }
   .case-cover [data-preview] { pointer-events: auto !important; cursor: zoom-in; }
   .case-hover-preview[hidden], .case-hover-art[hidden] { display: none !important; }
   .case-hover-preview { position: absolute; z-index: 20; inset: 0; display: grid; place-items: center; pointer-events: none; clip-path: inset(0 0 24%); }
@@ -1708,6 +1757,32 @@
   }
   .mobile-case .case-hover-preview { clip-path: inset(0 0 17%); }
   .mobile-case .case-hover-art { inset: 20% 10% auto; width: 80%; height: 60%; }
+
+  [data-case="euphoria"]:not(.mobile-case) [data-cover-thumbnail] { margin-top: 40px; }
+  .mobile-case[data-case="euphoria"] .mobile-thumb-scroll { top: 567px; }
+  .mobile-case[data-case="euphoria"] .case-cover-plane::after { top: 593px; }
+  .mobile-case[data-case="euphoria"] .mobile-thumb[data-work-kind]::after { top: calc(100% - 8px); }
+  [data-case="euphoria"] .case-hover-preview { clip-path: inset(0 0 19%); }
+  [data-case="euphoria"] .case-cover .case-hover-art {
+    inset: 6% 15% auto;
+    width: 70%;
+    height: 74%;
+  }
+  [data-case="euphoria"] .case-cover .case-hover-art.case-hover-vinyl {
+    inset: 43% auto auto 50%;
+    width: min(60%, 520px);
+    height: auto;
+  }
+  .mobile-case[data-case="euphoria"] .case-cover .case-hover-art {
+    inset: 7% 5% auto;
+    width: 90%;
+    height: 69%;
+  }
+  .mobile-case[data-case="euphoria"] .case-cover .case-hover-art.case-hover-vinyl {
+    inset: 42% auto auto 50%;
+    width: 87%;
+    height: auto;
+  }
   @media (max-width: 700px) {
     .route-dialog { --route-column: min(327px, calc(100% - 48px)); }
     .route-dialog-head { padding: 12px 0; }
@@ -1860,8 +1935,8 @@
 </script>
 
 <script type="module">
-import { CASE_COVERS } from './design/case-covers/cases.js?v=background-parallax';
-import { MOBILE_CASES } from './design/case-covers/mobile-cases.js?v=entry-tread';
+import { CASE_COVERS } from './design/case-covers/cases.js?v=euphoria-football';
+import { MOBILE_CASES } from './design/case-covers/mobile-cases.js?v=euphoria-football';
 import { revealPoster } from './design/case-covers/poster-reveal.js?v=recycled';
 import { preparePreviewVideos } from './design/case-covers/video-preview.js?v=cold-start';
 import { loadPortfolioMedia } from './design/case-covers/preload.js?v=cold-start';
@@ -1899,8 +1974,17 @@ function loadCoverImages(cover) {
 function mountCaseCovers(root, tapOnly = false) {
   const covers = [...root.querySelectorAll('.case-cover')];
   const hoverTargets = [];
+  const entranceTargets = [];
   const stopRails = [];
   let hoveredCover = null;
+  const entranceThreshold = .55;
+  const entrances = new IntersectionObserver(entries => {
+    for (const {target, intersectionRatio} of entries) {
+      if (intersectionRatio < entranceThreshold || !portfolioLoader.hidden) continue;
+      target.closest('.case-cover').dataset.thumbEntrance = 'arrived';
+      entrances.unobserve(target);
+    }
+  }, { threshold: entranceThreshold });
   for (const cover of covers) {
     const plane = cover.querySelector('.case-cover-plane');
     const overlay = document.createElement('div');
@@ -1909,6 +1993,13 @@ function mountCaseCovers(root, tapOnly = false) {
     overlay.setAttribute('aria-hidden', 'true');
     plane.append(overlay);
     const thumbs = [...plane.querySelectorAll('[data-preview], [data-preview-group]')];
+    const tileFor = thumb => thumb?.closest('[data-work-kind]');
+    const entranceTarget = tileFor(thumbs[tapOnly ? 0 : Math.floor(thumbs.length / 2)]);
+    if (entranceTarget) entranceTargets.push(entranceTarget);
+    cover.dataset.thumbEntrance = 'waiting';
+    thumbs.forEach((thumb, index) => {
+      tileFor(thumb)?.style.setProperty('--thumb-delay', `${index * 42}ms`);
+    });
     const showVideo = preparePreviewVideos(plane, false);
     let active = null;
     let stopReveal = () => {};
@@ -1916,6 +2007,7 @@ function mountCaseCovers(root, tapOnly = false) {
       stopReveal();
       stopReveal = () => {};
       if (tapOnly) active?.setAttribute('aria-pressed', 'false');
+      tileFor(active)?.removeAttribute('data-thumb-active');
       active = null;
       delete root.dataset.previewHover;
       delete cover.dataset.previewOpen;
@@ -1929,7 +2021,9 @@ function mountCaseCovers(root, tapOnly = false) {
         active?.setAttribute('aria-pressed', 'false');
         thumb.setAttribute('aria-pressed', 'true');
       }
+      tileFor(active)?.removeAttribute('data-thumb-active');
       active = thumb;
+      tileFor(active)?.setAttribute('data-thumb-active', '');
       root.dataset.previewHover = '';
       cover.dataset.previewOpen = '';
       if (thumb.hasAttribute('data-preview-group')) {
@@ -1937,6 +2031,9 @@ function mountCaseCovers(root, tapOnly = false) {
         if (thumb.dataset.previewGroup === 'self') {
           composite.className = 'case-hover-art';
           const clone = thumb.cloneNode(true);
+          clone.removeAttribute('data-thumb-active');
+          clone.removeAttribute('data-work-kind');
+          if (clone instanceof HTMLButtonElement) clone.tabIndex = -1;
           const width = thumb.offsetWidth;
           const height = thumb.offsetHeight;
           const scale = Math.min((tapOnly ? 300 : 1440 * .56) / width, (tapOnly ? 399 : 800 * .59) / height);
@@ -1961,6 +2058,7 @@ function mountCaseCovers(root, tapOnly = false) {
         const fullSize = new URL(thumb.dataset.preview, document.baseURI).href;
         const isPoster = thumb.hasAttribute('data-poster-reveal');
         const thumbnail = thumb instanceof HTMLImageElement ? thumb : thumb.querySelector('img');
+        if (thumbnail?.classList.contains('case-vinyl')) art.classList.add('case-hover-vinyl');
         art.src = thumbnail?.currentSrc || thumbnail?.src || fullSize;
         overlay.replaceChildren(art);
         if (isPoster) {
@@ -2028,6 +2126,9 @@ function mountCaseCovers(root, tapOnly = false) {
       }
     });
   }
+
+  const watchEntrances = () => entranceTargets.forEach(target => entrances.observe(target));
+  root.addEventListener('escalator-moved', watchEntrances, { once: true });
 
   // The perspective track can win native hit testing in front of its recessed faces.
   // Use screen coordinates so scaled hit padding stays consistent across step depths.
@@ -2109,6 +2210,8 @@ function mountCaseCovers(root, tapOnly = false) {
   else addEventListener('portfolio-revealed', watchImages, { once: true });
   return () => {
     stopRails.forEach(stop => stop());
+    entrances.disconnect();
+    root.removeEventListener('escalator-moved', watchEntrances);
     for (const entry of hoverTargets) entry.hide();
     observer.disconnect();
     removeEventListener('portfolio-revealed', watchImages);
@@ -2243,6 +2346,7 @@ function mountEscalator(root, settings, mobile = false) {
   let firstCaseY = Infinity;
   let snapPoints = [];
   let escalatorStarted = false;
+  let hasMoved = false;
   let mobileSignoffTop = 0;
   let mobileTrackEnd = null;
 
@@ -2370,6 +2474,10 @@ function mountEscalator(root, settings, mobile = false) {
     const next = Math.min(max, Math.max(min, y + dy));
     const applied = next - y;
     y = next;
+    if (dy && applied && !hasMoved) {
+      hasMoved = true;
+      root.dispatchEvent(new Event('escalator-moved'));
+    }
     return applied;
   }
 
@@ -2734,7 +2842,7 @@ function updateLayout() {
 mobileLayout.addEventListener('change', updateLayout);
 addEventListener('portfolio-revealed', () => {
   paint(parseRoute());
-  import('./design/assets/header-apple.js?v=mobile-loop').then(({ mountHeaderApple }) => {
+  import('./design/assets/header-apple.js?v=repeat-roll').then(({ mountHeaderApple }) => {
     mountHeaderApple(() => introScrollProgress);
   }).catch(error => console.warn('The header apple could not start.', error));
 }, { once: true });
@@ -2750,7 +2858,7 @@ const [THREE, {GLTFLoader}, {RoomEnvironment}, BufferGeometryUtils, {cloneMateri
   import('three/addons/loaders/GLTFLoader.js'),
   import('three/addons/environments/RoomEnvironment.js'),
   import('three/addons/utils/BufferGeometryUtils.js'),
-  import('./design/assets/header-apple.js?v=mobile-loop'),
+  import('./design/assets/header-apple.js?v=repeat-roll'),
 ]);
 const DESIGN_MID = 400;
 const APPLE_CX = 609;
